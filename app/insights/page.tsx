@@ -1,61 +1,5 @@
-const overviewStats = [
-  { label: "Combined Reach", value: "248k", change: "+18% this month" },
-  { label: "Follower Growth", value: "+3.4k", change: "+9% vs last month" },
-  { label: "Best Posting Window", value: "7-9 PM", change: "Weeknights win" },
-  { label: "Top Format", value: "Short video", change: "Reels + TikToks" }
-];
-
-const platformCards = [
-  {
-    name: "TikTok",
-    handle: "@maddie",
-    accent: "platform-card--pink",
-    stats: [
-      { label: "Views", value: "182k" },
-      { label: "Avg Watch Time", value: "11.8s" },
-      { label: "Shares", value: "3.2k" },
-      { label: "Saves", value: "1.1k" }
-    ],
-    wins: [
-      "Fast hook in the first 2 seconds",
-      "Playful captions are outperforming polished ones",
-      "Behind-the-scenes clips are driving shares"
-    ],
-    misses: [
-      "Long intros are losing retention",
-      "Posting before noon underperforms",
-      "Over-edited clips feel weaker"
-    ]
-  },
-  {
-    name: "Instagram",
-    handle: "@maddie",
-    accent: "platform-card--lime",
-    stats: [
-      { label: "Reach", value: "66k" },
-      { label: "Profile Visits", value: "8.7k" },
-      { label: "Saves", value: "2.6k" },
-      { label: "Story Replies", value: "480" }
-    ],
-    wins: [
-      "Reels with direct text overlays hold attention",
-      "Carousel posts create strong saves",
-      "Stories with polls increase replies"
-    ],
-    misses: [
-      "Single-image posts are lagging",
-      "Muted thumbnails are easy to skip",
-      "Weekend mornings are inconsistent"
-    ]
-  }
-];
-
-const suggestions = [
-  "Make 3 short videos this week that open with the payoff first, then the setup.",
-  "Turn one strong TikTok idea into an Instagram Reel and a carousel recap.",
-  "Use brighter cover text so the thumbnail sells the idea before people tap.",
-  "Test one story poll after every new post to pull people deeper into the funnel."
-];
+import Link from "next/link";
+import { overviewStats, platformCards, suggestions } from "@/lib/insights";
 
 export default function InsightsPage() {
   return (
@@ -150,13 +94,16 @@ export default function InsightsPage() {
         <article className="panel suggestions-card">
           <div className="suggestions-card__header">
             <p className="eyebrow">Suggestions</p>
-            <span className="suggestions-card__tag">Based on insights</span>
+            <span className="suggestions-card__tag">Generated from insights</span>
           </div>
           <ul>
             {suggestions.map((suggestion) => (
-              <li key={suggestion}>{suggestion}</li>
+              <li key={suggestion.title}>{suggestion.title}</li>
             ))}
           </ul>
+          <Link className="suggestions-card__link" href="/insights/suggestions">
+            Open full suggestions view
+          </Link>
         </article>
       </section>
     </main>
