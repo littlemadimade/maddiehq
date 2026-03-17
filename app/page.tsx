@@ -12,8 +12,8 @@ const homeCards = [
     title: "Content Planner",
     description:
       "Plan future posts, hooks, ideas, and themes so your content strategy does not live in scattered notes.",
-    href: "#",
-    status: "Coming soon"
+    href: "/tracker",
+    status: "Live now"
   },
   {
     title: "Suggestions Engine",
@@ -40,8 +40,8 @@ export default function HomePage() {
         <div className="hero__note">
           <span className="hero__badge">Next Up</span>
           <p>
-            Right now your Social Insights dashboard is ready. More tools can plug
-            into this same structure as you decide what you need.
+            Right now your Social Insights dashboard and Tracker room are ready.
+            More tools can plug into this same structure as you decide what you need.
           </p>
           <Link className="hero__cta" href="/insights">
             Open Social Insights

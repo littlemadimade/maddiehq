@@ -24,6 +24,7 @@ export default function RootLayout({
             <nav className="topbar__nav" aria-label="Main navigation">
               <Link href="/">Home</Link>
               <Link href="/insights">Insights</Link>
+              <Link href="/tracker">Tracker</Link>
               <button className="topbar__menu" type="button">
                 More Tools Soon
               </button>

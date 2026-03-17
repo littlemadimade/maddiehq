@@ -69,6 +69,7 @@ This log exists so the agent does not keep asking Maddie the same crash-course q
 
 - MVP: taught on 2026-03-16.
 - Dashboard component: taught on 2026-03-16.
+- Route: taught on 2026-03-16.
 
 ## Execution Rules
 

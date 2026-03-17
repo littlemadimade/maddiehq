@@ -238,7 +238,8 @@ h1 {
 
 .overview-grid,
 .platform-grid,
-.bottom-grid {
+.bottom-grid,
+.tracker-grid {
   display: grid;
   gap: 24px;
 }
@@ -249,6 +250,10 @@ h1 {
 
 .platform-grid,
 .bottom-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.tracker-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
@@ -298,7 +303,8 @@ h1 {
 }
 
 .platform-card h2,
-.breakdown-card h2 {
+.breakdown-card h2,
+.tracker-column h2 {
   margin: 6px 0 0;
   font-size: clamp(1.4rem, 2.8vw, 2.3rem);
   line-height: 1;
@@ -327,6 +333,59 @@ h1 {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 18px;
+}
+
+.tracker-column {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.tracker-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.task-card {
+  padding: 16px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.task-card__top {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.task-card h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.task-card__platform {
+  display: inline-flex;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(255, 79, 163, 0.14);
+  color: var(--pink-soft);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.task-card__due,
+.task-card__note {
+  margin-bottom: 0;
+  color: rgba(248, 255, 213, 0.82);
+}
+
+.task-card__due {
+  margin-top: 10px;
+  color: var(--lime-soft);
+  font-weight: 700;
 }
 
 .platform-card__analysis h3,
@@ -378,6 +437,7 @@ li + li {
   .overview-grid,
   .platform-grid,
   .bottom-grid,
+  .tracker-grid,
   .platform-card__analysis {
     grid-template-columns: 1fr;
   }
