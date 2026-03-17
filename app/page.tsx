@@ -16,11 +16,11 @@ const homeCards = [
     status: "Live now"
   },
   {
-    title: "Suggestions Engine",
+    title: "Conversion Room",
     description:
-      "Turn insights into recommendations for what to post more of, what to cut, and what to test next.",
-    href: "#",
-    status: "Coming soon"
+      "See whether your Instagram content is actually translating into profile actions, OF traffic, and paid outcomes.",
+    href: "/conversion",
+    status: "Live now"
   }
 ];
 
@@ -40,8 +40,8 @@ export default function HomePage() {
         <div className="hero__note">
           <span className="hero__badge">Instagram-first</span>
           <p>
-            Right now your Instagram Insights dashboard and Tracker room are ready.
-            More creator tools can plug into this same structure as you decide what you need.
+            Right now your Instagram Insights dashboard, Tracker room, and Conversion
+            room are ready. More creator tools can plug into this same structure as you decide what you need.
           </p>
           <Link className="hero__cta" href="/insights">
             Open Instagram Insights
@@ -57,13 +57,9 @@ export default function HomePage() {
               <h2>{card.title}</h2>
             </div>
             <p>{card.description}</p>
-            {card.href === "#" ? (
-              <span className="home-card__link home-card__link--muted">Available later</span>
-            ) : (
-              <Link className="home-card__link" href={card.href}>
-                Open tool
-              </Link>
-            )}
+            <Link className="home-card__link" href={card.href}>
+              Open tool
+            </Link>
           </article>
         ))}
       </section>
