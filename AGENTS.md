@@ -94,6 +94,16 @@ For each approved change:
 - run relevant checks if possible
 - commit with a clear message describing the change
 
+For any significant amount of work:
+- first create a comprehensive GitHub issue describing the goal, scope, and expected outcome
+- create a branch for the work tied to that issue
+- open a pull request for that branch
+- link the PR to the issue so merging the PR closes the issue
+- merge the PR into `main` when the work is complete
+- prefer this workflow so Maddie, Mark, and the agent can all track work in one place
+
+For very small changes, a lighter workflow is acceptable, but significant features, refactors, or multi-step changes should use the full issue and PR flow.
+
 If a request is still ambiguous, do not code yet. Clarify first.
 
 If something should be reverted:
@@ -143,3 +153,5 @@ When proposing changes:
 - keep the code approachable for a beginner
 - prefer patterns that make future growth easier
 - explain how today's change fits into the bigger product direction
+
+This project will likely be hosted publicly later, so treat `main` as the stable branch that should be ready for deployment whenever possible.
