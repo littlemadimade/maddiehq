@@ -67,7 +67,8 @@ This log exists so the agent does not keep asking Maddie the same crash-course q
 
 ### Maddie Learning Log
 
-- None yet.
+- MVP: taught on 2026-03-16.
+- Dashboard component: taught on 2026-03-16.
 
 ## Execution Rules
 
