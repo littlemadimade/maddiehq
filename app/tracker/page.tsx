@@ -1,7 +1,7 @@
 const todayStats = [
   { label: "Tasks Due Today", value: "7", detail: "2 high priority" },
-  { label: "Posts In Progress", value: "12", detail: "Across both platforms" },
-  { label: "Ready To Post", value: "3", detail: "1 TikTok, 2 Instagram" },
+  { label: "Posts In Progress", value: "12", detail: "Instagram workflow" },
+  { label: "Ready To Post", value: "3", detail: "2 Reels, 1 carousel" },
   { label: "Blocked Items", value: "2", detail: "Need assets or edits" }
 ];
 
@@ -12,7 +12,7 @@ const trackerColumns = [
     tasks: [
       {
         title: "Morning routine hook test",
-        platform: "TikTok",
+        platform: "Instagram Reel",
         due: "Today",
         note: "Try a faster first line and tighter caption."
       },
@@ -29,8 +29,8 @@ const trackerColumns = [
     description: "Content actively being made.",
     tasks: [
       {
-        title: "Behind-the-scenes clip batch",
-        platform: "TikTok",
+        title: "Behind-the-scenes Reel batch",
+        platform: "Instagram Reel",
         due: "Today",
         note: "Need final trims and cover text."
       },
@@ -48,15 +48,15 @@ const trackerColumns = [
     tasks: [
       {
         title: "Reel with direct text overlay",
-        platform: "Instagram",
+        platform: "Instagram Reel",
         due: "Tonight",
         note: "Caption approved. Needs final posting window."
       },
       {
-        title: "Quick payoff-first clip",
-        platform: "TikTok",
+        title: "Save-focused carousel recap",
+        platform: "Instagram Carousel",
         due: "Tomorrow",
-        note: "Strong watch-time candidate based on recent winners."
+        note: "Built from a Reel topic that already performed well."
       }
     ]
   },
@@ -66,15 +66,15 @@ const trackerColumns = [
     tasks: [
       {
         title: "Casual talking-head Reel",
-        platform: "Instagram",
+        platform: "Instagram Reel",
         due: "Posted",
         note: "Check saves and profile visits tomorrow."
       },
       {
-        title: "Playful caption trend post",
-        platform: "TikTok",
+        title: "Playful caption carousel",
+        platform: "Instagram Carousel",
         due: "Posted",
-        note: "Watch share rate during the first 24 hours."
+        note: "Watch saves and shares during the first 24 hours."
       }
     ]
   }
@@ -93,7 +93,7 @@ export default function TrackerPage() {
       <section className="hero panel">
         <div>
           <p className="eyebrow">Post Progress Tracker</p>
-          <h1>A day-to-day operations room for planning, making, and posting content.</h1>
+          <h1>A day-to-day operations room for planning, making, and posting Instagram content.</h1>
           <p className="lede">
             Use this space to track where each piece of content stands so you can
             see what is just an idea, what is being made, and what is ready to post.
@@ -102,8 +102,8 @@ export default function TrackerPage() {
         <div className="hero__note">
           <span className="hero__badge">Workflow</span>
           <p>
-            This room helps you manage the work itself, while Insights helps you
-            understand what happened after a post goes live.
+            This room helps you manage the Instagram work itself, while Insights
+            helps you understand what happened after a post goes live.
           </p>
         </div>
       </section>

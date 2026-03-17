@@ -10,7 +10,7 @@ export type PlatformStat = {
 };
 
 export type PlatformInsight = {
-  name: "TikTok" | "Instagram";
+  name: "Instagram";
   handle: string;
   accent: string;
   stats: PlatformStat[];
@@ -27,34 +27,13 @@ export type InsightSuggestion = {
 };
 
 export const overviewStats: OverviewStat[] = [
-  { label: "Combined Reach", value: "248k", change: "+18% this month" },
-  { label: "Follower Growth", value: "+3.4k", change: "+9% vs last month" },
+  { label: "Instagram Reach", value: "66k", change: "+18% this month" },
+  { label: "Profile Growth", value: "+1.1k", change: "+9% vs last month" },
   { label: "Best Posting Window", value: "7-9 PM", change: "Weeknights win" },
-  { label: "Top Format", value: "Short video", change: "Reels + TikToks" }
+  { label: "Top Format", value: "Reels", change: "Video-first content wins" }
 ];
 
 export const platformCards: PlatformInsight[] = [
-  {
-    name: "TikTok",
-    handle: "@maddie",
-    accent: "platform-card--pink",
-    stats: [
-      { label: "Views", value: "182k" },
-      { label: "Avg Watch Time", value: "11.8s" },
-      { label: "Shares", value: "3.2k" },
-      { label: "Saves", value: "1.1k" }
-    ],
-    wins: [
-      "Fast hook in the first 2 seconds",
-      "Playful captions are outperforming polished ones",
-      "Behind-the-scenes clips are driving shares"
-    ],
-    misses: [
-      "Long intros are losing retention",
-      "Posting before noon underperforms",
-      "Over-edited clips feel weaker"
-    ]
-  },
   {
     name: "Instagram",
     handle: "@maddie",
@@ -63,7 +42,8 @@ export const platformCards: PlatformInsight[] = [
       { label: "Reach", value: "66k" },
       { label: "Profile Visits", value: "8.7k" },
       { label: "Saves", value: "2.6k" },
-      { label: "Story Replies", value: "480" }
+      { label: "Story Replies", value: "480" },
+      { label: "Reel Plays", value: "124k" }
     ],
     wins: [
       "Reels with direct text overlays hold attention",
@@ -118,7 +98,7 @@ export function buildSuggestions(platforms: PlatformInsight[]): InsightSuggestio
       action:
         "Make at least one casual, behind-the-scenes, or playful piece this week instead of over-editing every post.",
       why:
-        "TikTok signals suggest playful captions and less polished energy are outperforming more produced content.",
+        "Instagram signals suggest playful captions and less polished energy are outperforming more produced content.",
       focus: "Content style",
       confidence: "Medium confidence"
     });

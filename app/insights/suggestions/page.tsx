@@ -34,7 +34,7 @@ export default function SuggestionsPage() {
       <section className="hero panel">
         <div>
           <p className="eyebrow">Suggestions Engine</p>
-          <h1>Recommended next moves based on the signals already showing up in your content.</h1>
+          <h1>Recommended next moves based on the signals already showing up in your Instagram content.</h1>
           <p className="lede">
             This page turns patterns from your insights into action ideas, so you
             do not have to stare at numbers and guess what they mean.
@@ -57,8 +57,8 @@ export default function SuggestionsPage() {
         </article>
         <article className="stat-card panel">
           <p className="stat-card__label">Based On</p>
-          <p className="stat-card__value">{platformCards.length} Platforms</p>
-          <p className="stat-card__change">TikTok + Instagram signals</p>
+          <p className="stat-card__value">Instagram</p>
+          <p className="stat-card__change">{platformCards.length} insight profile in this MVP</p>
         </article>
         <article className="stat-card panel">
           <p className="stat-card__label">Strongest Focus</p>
@@ -67,8 +67,8 @@ export default function SuggestionsPage() {
         </article>
         <article className="stat-card panel">
           <p className="stat-card__label">Format Bias</p>
-          <p className="stat-card__value">Short-form</p>
-          <p className="stat-card__change">Video-first strategy remains strongest</p>
+          <p className="stat-card__value">Reels-first</p>
+          <p className="stat-card__change">Short-form Instagram strategy remains strongest</p>
         </article>
       </section>
 

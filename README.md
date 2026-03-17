@@ -4,7 +4,7 @@ Maddie HQ is a growing web app for organizing the moving parts of Maddie's creat
 
 Right now, the app includes:
 - a home page that acts like the front door to the product
-- a Social Insights room for comparing TikTok and Instagram performance
+- an Instagram Insights room for reviewing Instagram performance
 - a Post Progress Tracker room for keeping up with day-to-day content tasks
 
 Over time, this project is meant to grow into a more complete operations app for Maddie's business, including better planning, insight review, and decision support.
@@ -163,9 +163,9 @@ The home page is the front door. It should help Maddie quickly understand what t
 This room is for understanding performance.
 
 It should eventually help answer questions like:
-- What is working on TikTok?
 - What is working on Instagram?
-- Which content patterns are worth repeating?
+- Which reels, carousels, or stories are worth repeating?
+- What patterns are helping saves, replies, and profile visits?
 - What should Maddie do more of next?
 
 ### Tracker
