@@ -269,7 +269,9 @@ h1 {
 .platform-grid,
 .bottom-grid,
 .tracker-grid,
-.suggestion-grid {
+.suggestion-grid,
+.conversion-grid,
+.funnel-grid {
   display: grid;
   gap: 24px;
 }
@@ -289,6 +291,14 @@ h1 {
 
 .suggestion-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.conversion-grid {
+  grid-template-columns: 1.15fr 0.85fr;
+}
+
+.funnel-grid {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
 }
 
 .stat-card__label,
@@ -510,6 +520,97 @@ li + li {
   font-weight: 700;
 }
 
+.funnel-card {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.funnel-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 16px;
+}
+
+.funnel-card__header h2 {
+  margin: 6px 0 0;
+  font-size: clamp(1.4rem, 2.8vw, 2.2rem);
+}
+
+.funnel-stage,
+.reel-card,
+.explanation-card {
+  padding: 18px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.funnel-stage__step,
+.funnel-stage__label {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.funnel-stage__step {
+  color: var(--pink-soft);
+  font-size: 0.74rem;
+}
+
+.funnel-stage__label {
+  margin-top: 10px;
+  color: rgba(248, 255, 213, 0.72);
+  font-size: 0.82rem;
+}
+
+.funnel-stage__value {
+  margin: 12px 0 8px;
+  color: var(--lime-soft);
+  font-size: clamp(1.7rem, 3vw, 2.3rem);
+  font-weight: 700;
+}
+
+.funnel-stage__detail,
+.reel-card__hook,
+.reel-card__takeaway,
+.explanation-card p {
+  margin: 0;
+  color: rgba(248, 255, 213, 0.78);
+  line-height: 1.6;
+}
+
+.reel-list,
+.explanation-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.reel-card h3,
+.explanation-card h3 {
+  margin: 0 0 10px;
+  font-size: 1.05rem;
+}
+
+.reel-card__metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 14px 0;
+}
+
+.reel-card__metrics span {
+  display: inline-flex;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(182, 255, 39, 0.1);
+  color: var(--lime-soft);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
 @media (min-width: 900px) {
   .panel {
     padding: 28px;
@@ -529,6 +630,8 @@ li + li {
   .bottom-grid,
   .tracker-grid,
   .suggestion-grid,
+  .conversion-grid,
+  .funnel-grid,
   .platform-card__analysis {
     grid-template-columns: 1fr;
   }
