@@ -21,6 +21,13 @@ const homeCards = [
       "See whether your Instagram content is actually translating into profile actions, OF traffic, and paid outcomes.",
     href: "/conversion",
     status: "Live now"
+  },
+  {
+    title: "Good Morning Page",
+    description:
+      "A separate pink, sparkly, Care Bear-inspired greeting page with a soft wink vibe.",
+    href: "/good-morning",
+    status: "Just for fun"
   }
 ];
 
