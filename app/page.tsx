@@ -2,16 +2,16 @@ import Link from "next/link";
 
 const homeCards = [
   {
-    title: "Social Insights",
+    title: "Instagram Insights",
     description:
-      "Compare TikTok and Instagram performance in one place, then spot what content is actually pulling its weight.",
+      "Review your Instagram performance in one place, then spot what content is actually pulling its weight.",
     href: "/insights",
     status: "Live now"
   },
   {
-    title: "Content Planner",
+    title: "Post Progress Tracker",
     description:
-      "Plan future posts, hooks, ideas, and themes so your content strategy does not live in scattered notes.",
+      "Track what is still an idea, what is being made, and what is ready to post so your Instagram workflow stays organized.",
     href: "/tracker",
     status: "Live now"
   },
@@ -30,21 +30,21 @@ export default function HomePage() {
       <section className="hero panel">
         <div>
           <p className="eyebrow">Maddie HQ</p>
-          <h1>A home base for the parts of your online business you want under control.</h1>
+          <h1>An Instagram creator home base for the parts of your workflow you want under control.</h1>
           <p className="lede">
             This site is now organized like a real app. Start from the homepage,
-            jump into the tools you want, and grow it over time instead of cramming
-            everything into one screen.
+            jump into the Instagram tools you want, and grow it over time instead
+            of cramming everything into one screen.
           </p>
         </div>
         <div className="hero__note">
-          <span className="hero__badge">Next Up</span>
+          <span className="hero__badge">Instagram-first</span>
           <p>
-            Right now your Social Insights dashboard and Tracker room are ready.
-            More tools can plug into this same structure as you decide what you need.
+            Right now your Instagram Insights dashboard and Tracker room are ready.
+            More creator tools can plug into this same structure as you decide what you need.
           </p>
           <Link className="hero__cta" href="/insights">
-            Open Social Insights
+            Open Instagram Insights
           </Link>
         </div>
       </section>

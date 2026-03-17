@@ -6,11 +6,11 @@ export default function InsightsPage() {
     <main className="page">
       <section className="hero panel">
         <div>
-          <p className="eyebrow">Social Insights</p>
-          <h1>One dashboard to track what your content is doing across TikTok and Instagram.</h1>
+          <p className="eyebrow">Instagram Insights</p>
+          <h1>One dashboard to track what your Instagram content is actually doing.</h1>
           <p className="lede">
-            This first version compares platform insights, spots what is working,
-            and gives you suggestions for what to try next.
+            This first version focuses on Instagram performance, spots what is
+            working, and gives you suggestions for what to try next.
           </p>
         </div>
         <div className="hero__note">
@@ -76,18 +76,18 @@ export default function InsightsPage() {
 
       <section className="bottom-grid">
         <article className="panel breakdown-card">
-          <p className="eyebrow">Cross-Platform Read</p>
-          <h2>Your strongest content is quick, direct, and feels a little more casual than polished.</h2>
+          <p className="eyebrow">Instagram Read</p>
+          <h2>Your strongest Instagram content is quick, direct, and visually easy to understand.</h2>
           <p>
-            Right now the pattern says your audience responds best when they know
-            the payoff early. Short-form video is carrying the most momentum, and
-            posts that feel human and immediate are beating content that feels too
-            staged.
+            Right now the pattern says your audience responds best when the value
+            of the content is obvious early. Reels are carrying the most momentum,
+            and posts that feel human and immediate are beating content that feels
+            too staged or too vague.
           </p>
           <p>
-            That means your system should focus on repeatable video ideas, stronger
-            hooks, and repurposing winners between platforms instead of reinventing
-            every post from scratch.
+            That means your system should focus on repeatable Instagram video ideas,
+            stronger hooks, clearer covers, and simpler follow-through instead of
+            reinventing every post from scratch.
           </p>
         </article>
 
