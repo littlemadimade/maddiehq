@@ -6,6 +6,17 @@ const fireworks = [
   { className: "firework firework--pink firework--five", label: "good morning" }
 ];
 
+const heartBursts = [
+  "firework__heart--top",
+  "firework__heart--bottom",
+  "firework__heart--left",
+  "firework__heart--right",
+  "firework__heart--top-left",
+  "firework__heart--top-right",
+  "firework__heart--bottom-left",
+  "firework__heart--bottom-right"
+];
+
 export default function GoodMorningPage() {
   return (
     <main className="fireworks-page">
@@ -19,7 +30,11 @@ export default function GoodMorningPage() {
         <div className="fireworks-sky" aria-hidden="true">
           {fireworks.map((firework) => (
             <div className={firework.className} key={`${firework.className}-${firework.label}`}>
-              <span className="firework__burst" />
+              <span className="firework__burst">
+                {heartBursts.map((heartClass) => (
+                  <span className={`firework__heart ${heartClass}`} key={heartClass} />
+                ))}
+              </span>
               <span className="firework__text">{firework.label}</span>
             </div>
           ))}

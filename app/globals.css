@@ -1005,46 +1005,74 @@ li + li {
   justify-content: center;
 }
 
-.firework__burst,
-.firework__burst::before,
-.firework__burst::after {
+.firework__burst {
+  position: absolute;
+  inset: 0;
+}
+
+.firework__heart {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 18px;
+  height: 18px;
+  margin: -9px 0 0 -9px;
+  background: currentColor;
+  transform: rotate(-45deg);
+  border-radius: 3px;
+  box-shadow: 0 0 14px rgba(255, 255, 255, 0.08);
+}
+
+.firework__heart::before,
+.firework__heart::after {
   content: "";
   position: absolute;
-  inset: 50%;
-  width: 6px;
-  height: 6px;
-  margin: -3px 0 0 -3px;
+  width: 18px;
+  height: 18px;
+  background: currentColor;
   border-radius: 999px;
 }
 
-.firework__burst {
-  box-shadow:
-    0 -68px 0 2px currentColor,
-    0 68px 0 2px currentColor,
-    68px 0 0 2px currentColor,
-    -68px 0 0 2px currentColor,
-    48px 48px 0 1px currentColor,
-    -48px -48px 0 1px currentColor,
-    48px -48px 0 1px currentColor,
-    -48px 48px 0 1px currentColor;
+.firework__heart::before {
+  top: -9px;
+  left: 0;
 }
 
-.firework__burst::before {
-  box-shadow:
-    0 -92px 0 1px currentColor,
-    0 92px 0 1px currentColor,
-    92px 0 0 1px currentColor,
-    -92px 0 0 1px currentColor;
-  transform: rotate(22deg);
+.firework__heart::after {
+  top: 0;
+  left: 9px;
 }
 
-.firework__burst::after {
-  box-shadow:
-    0 -38px 0 2px currentColor,
-    0 38px 0 2px currentColor,
-    38px 0 0 2px currentColor,
-    -38px 0 0 2px currentColor;
-  transform: rotate(-22deg);
+.firework__heart--top {
+  transform: translate(-50%, -96px) rotate(-45deg);
+}
+
+.firework__heart--bottom {
+  transform: translate(-50%, 78px) rotate(-45deg);
+}
+
+.firework__heart--left {
+  transform: translate(-96px, -50%) rotate(-45deg);
+}
+
+.firework__heart--right {
+  transform: translate(78px, -50%) rotate(-45deg);
+}
+
+.firework__heart--top-left {
+  transform: translate(-72px, -72px) rotate(-45deg);
+}
+
+.firework__heart--top-right {
+  transform: translate(54px, -72px) rotate(-45deg);
+}
+
+.firework__heart--bottom-left {
+  transform: translate(-72px, 54px) rotate(-45deg);
+}
+
+.firework__heart--bottom-right {
+  transform: translate(54px, 54px) rotate(-45deg);
 }
 
 .firework__text {
