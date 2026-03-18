@@ -26,7 +26,6 @@ export default function RootLayout({
               <Link href="/insights">Insights</Link>
               <Link href="/tracker">Tracker</Link>
               <Link href="/conversion">Conversion</Link>
-              <Link href="/good-morning">Good Morning</Link>
               <button className="topbar__menu" type="button">
                 More Tools Soon
               </button>
