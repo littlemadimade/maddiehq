@@ -1,12 +1,33 @@
+"use client";
+
+import { useMemo, useState } from "react";
 import {
-  convertingReels,
-  explanationPoints,
-  funnelStages,
+  buildConversionSummary,
+  defaultConversionInputs,
+  formatWholeNumber,
   managerNotes,
-  revenueSignals
+  type ConversionInputs
 } from "@/lib/conversion";
 
 export default function ConversionPage() {
+  const [inputs, setInputs] = useState<ConversionInputs>(defaultConversionInputs);
+  const summary = useMemo(() => buildConversionSummary(inputs), [inputs]);
+
+  const inputFields: Array<{
+    key: keyof ConversionInputs;
+    label: string;
+    help: string;
+  }> = [
+    { key: "reelViews", label: "Reel Views", help: "A good reel traffic marker for you right now." },
+    { key: "profileVisits", label: "Profile Visits", help: "People who checked your Instagram profile." },
+    { key: "ofPageViews", label: "OF Page Views", help: "People who reached your OF page." },
+    { key: "newSubscribers", label: "New Subscribers", help: "How many new subs came in." },
+    { key: "totalSubscribers", label: "Current Subscribers", help: "Your current subscriber count." },
+    { key: "wallLikes", label: "Wall Likes", help: "A basic engagement/quality signal." },
+    { key: "tipsCount", label: "Tips Count", help: "How often people tipped during the period." },
+    { key: "topSpenderAmount", label: "Top Spender Amount", help: "Highest spender amount for the period." }
+  ];
+
   return (
     <main className="page">
       <section className="hero panel">
@@ -14,9 +35,9 @@ export default function ConversionPage() {
           <p className="eyebrow">Conversion Room</p>
           <h1>See whether your Instagram content is actually translating into OnlyFans results.</h1>
           <p className="lede">
-            This room is about the funnel from attention to money. It helps you
-            see where people are dropping off, where they are converting, and what
-            kinds of reels appear to bring in stronger business outcomes.
+            This room is about the funnel from attention to money. Plug in the OF-side
+            numbers you already know, and this page will turn them into a clearer
+            picture of how your Instagram traffic is translating into subscribers and spending signals.
           </p>
         </div>
         <div className="hero__note">
@@ -29,7 +50,7 @@ export default function ConversionPage() {
       </section>
 
       <section className="overview-grid">
-        {revenueSignals.map((signal) => (
+        {summary.stats.map((signal) => (
           <article className="stat-card panel" key={signal.label}>
             <p className="stat-card__label">{signal.label}</p>
             <p className="stat-card__value">{signal.value}</p>
@@ -42,12 +63,12 @@ export default function ConversionPage() {
         <div className="funnel-card__header">
           <div>
             <p className="eyebrow">Funnel Snapshot</p>
-            <h2>From Reel attention to paid conversion.</h2>
+            <h2>From reel attention to subscriber conversion.</h2>
           </div>
           <span className="suggestions-card__tag">Instagram to OF</span>
         </div>
         <div className="funnel-grid">
-          {funnelStages.map((stage, index) => (
+          {summary.funnel.map((stage, index) => (
             <article className="funnel-stage" key={stage.label}>
               <p className="funnel-stage__step">Step {index + 1}</p>
               <p className="funnel-stage__label">{stage.label}</p>
@@ -61,23 +82,43 @@ export default function ConversionPage() {
       <section className="conversion-grid">
         <article className="panel">
           <div className="suggestions-card__header">
-            <p className="eyebrow">Top Converting Reels</p>
-            <span className="suggestions-card__tag">Revenue signals</span>
+            <p className="eyebrow">Manual Input</p>
+            <span className="suggestions-card__tag">Use your real numbers</span>
           </div>
-          <div className="reel-list">
-            {convertingReels.map((reel) => (
-              <article className="reel-card" key={reel.title}>
-                <h3>{reel.title}</h3>
-                <p className="reel-card__hook">{reel.hook}</p>
-                <div className="reel-card__metrics">
-                  <span>{reel.reach}</span>
-                  <span>{reel.profileActions}</span>
-                  <span>{reel.ofSignal}</span>
-                </div>
-                <p className="reel-card__takeaway">{reel.takeaway}</p>
-              </article>
+          <div className="input-grid">
+            {inputFields.map((field) => (
+              <label className="input-card" key={field.key}>
+                <span className="input-card__label">{field.label}</span>
+                <input
+                  className="input-card__field"
+                  type="number"
+                  min="0"
+                  value={inputs[field.key]}
+                  onChange={(event) =>
+                    setInputs((current) => ({
+                      ...current,
+                      [field.key]: Number(event.target.value)
+                    }))
+                  }
+                />
+                <span className="input-card__help">{field.help}</span>
+              </label>
             ))}
           </div>
+          <article className="reel-card">
+            <h3>Why this matters</h3>
+            <p className="reel-card__hook">
+              You told me you can reliably access these numbers even if the deeper message-result data is still fuzzy.
+            </p>
+            <div className="reel-card__metrics">
+              <span>{formatWholeNumber(inputs.ofPageViews)} OF page views</span>
+              <span>{formatWholeNumber(inputs.newSubscribers)} new subs</span>
+              <span>{formatWholeNumber(inputs.tipsCount)} tips</span>
+            </div>
+            <p className="reel-card__takeaway">
+              That is enough for the app to start telling you whether traffic is becoming subscribers, and whether those subscribers show signs of value.
+            </p>
+          </article>
         </article>
 
         <article className="panel">
@@ -86,7 +127,7 @@ export default function ConversionPage() {
             <span className="suggestions-card__tag">Explained simply</span>
           </div>
           <div className="explanation-list">
-            {explanationPoints.map((point) => (
+            {summary.explanation.map((point) => (
               <article className="explanation-card" key={point.title}>
                 <h3>{point.title}</h3>
                 <p>{point.body}</p>
@@ -99,16 +140,16 @@ export default function ConversionPage() {
       <section className="bottom-grid">
         <article className="panel breakdown-card">
           <p className="eyebrow">Current Read</p>
-          <h2>Your biggest opportunity is not more reach. It is improving the handoff from Instagram interest into stronger OF intent.</h2>
+          <h2>Your biggest job now is figuring out whether traffic is becoming subscribers at the rate you want.</h2>
           <p>
-            In this MVP sample, the top of the funnel is healthy enough to work
-            with. The more valuable question is what makes someone move from
-            &quot;that reel was interesting&quot; to &quot;I want more of this creator right now.&quot;
+            You said your managers talk about wanting the page-view-to-subscriber
+            ratio closer to 3-4%. This room gives you a place to plug in the pieces
+            you already have and let the app do the rough conversion math for you.
           </p>
           <p>
-            The posts that convert best appear to create clarity fast, feel personal,
-            and make the next step feel natural rather than forced. That is the pattern
-            to keep pressure-testing.
+            It is not the final version yet, but it is now a practical first step
+            toward answering the question that matters: is your traffic actually turning
+            into subscriber growth and better business outcomes?
           </p>
         </article>
 

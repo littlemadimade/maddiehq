@@ -588,6 +588,52 @@ li + li {
   gap: 16px;
 }
 
+.input-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.input-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.input-card__label {
+  color: var(--lime-soft);
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.input-card__field {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  background: rgba(8, 14, 4, 0.7);
+  color: var(--text);
+  font: inherit;
+}
+
+.input-card__field:focus {
+  outline: 2px solid rgba(182, 255, 39, 0.35);
+  outline-offset: 2px;
+}
+
+.input-card__help {
+  color: rgba(248, 255, 213, 0.68);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
 .reel-card h3,
 .explanation-card h3 {
   margin: 0 0 10px;
@@ -868,6 +914,10 @@ li + li {
 
   .metric-grid {
     grid-template-columns: 1fr 1fr;
+  }
+
+  .input-grid {
+    grid-template-columns: 1fr;
   }
 
   .panel {
