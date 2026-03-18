@@ -75,6 +75,8 @@ This log exists so the agent does not keep asking Maddie the same crash-course q
 - Derived metric: taught on 2026-03-17.
 - Database: taught on 2026-03-17.
 - Authentication: taught on 2026-03-17.
+- Authorization: taught on 2026-03-17.
+- Encryption: taught on 2026-03-17.
 
 ## Execution Rules
 
