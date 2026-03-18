@@ -378,6 +378,39 @@ h1 {
   grid-template-columns: 1.15fr 0.85fr;
 }
 
+.assistant-card {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 24px;
+  align-items: stretch;
+}
+
+.assistant-card h2 {
+  margin: 0;
+  font-size: clamp(1.5rem, 2.7vw, 2.4rem);
+  line-height: 1;
+}
+
+.assistant-card__copy p:last-child {
+  margin: 16px 0 0;
+  color: rgba(248, 255, 213, 0.82);
+  line-height: 1.65;
+}
+
+.assistant-card__note {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 18px;
+  border-radius: 24px;
+  background: linear-gradient(180deg, rgba(255, 79, 163, 0.12), rgba(182, 255, 39, 0.08));
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.assistant-card__note ul {
+  color: rgba(248, 255, 213, 0.82);
+}
+
 .brainstorm-grid {
   display: grid;
   grid-template-columns: 1.05fr 0.95fr;
@@ -1144,6 +1177,7 @@ li + li {
   }
 
   .hero,
+  .assistant-card,
   .brainstorm-grid,
   .home-grid,
   .overview-grid,

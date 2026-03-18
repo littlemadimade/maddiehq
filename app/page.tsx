@@ -79,6 +79,26 @@ export default function HomePage() {
         </div>
       </section>
 
+      <section className="panel assistant-card">
+        <div className="assistant-card__copy">
+          <p className="eyebrow">Future Assistant</p>
+          <h2>Your personal AI manager will live here.</h2>
+          <p>
+            For now, think of this as the greeting desk. Later it can become the place
+            that notices what is happening across Insights, Tracker, and Conversion, then
+            suggests what to focus on next.
+          </p>
+        </div>
+        <div className="assistant-card__note">
+          <span className="suggestions-card__tag">Coming next</span>
+          <ul>
+            <li>Daily priorities and reminders</li>
+            <li>Quick answers about what is working</li>
+            <li>Suggested next moves for content and revenue</li>
+          </ul>
+        </div>
+      </section>
+
       <section className="brainstorm-grid">
         <article className="panel brainstorm-panel">
           <div className="suggestions-card__header">
