@@ -203,6 +203,13 @@ h1 {
   background: linear-gradient(180deg, rgba(255, 79, 163, 0.15), rgba(182, 255, 39, 0.12));
 }
 
+.hero__save-state {
+  margin: 0;
+  color: #234600;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
 .hero__badge,
 .platform-card__pill,
 .suggestions-card__tag {
@@ -595,6 +602,30 @@ li + li {
   margin-bottom: 18px;
 }
 
+.input-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 0 0 18px;
+}
+
+.input-toolbar__text {
+  margin: 0;
+  color: rgba(248, 255, 213, 0.76);
+  line-height: 1.5;
+}
+
+.input-toolbar__button {
+  padding: 10px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  background: rgba(255, 79, 163, 0.12);
+  color: var(--pink-soft);
+  font: inherit;
+  font-weight: 700;
+}
+
 .input-card {
   display: flex;
   flex-direction: column;
@@ -914,6 +945,11 @@ li + li {
 
   .metric-grid {
     grid-template-columns: 1fr 1fr;
+  }
+
+  .input-toolbar {
+    flex-direction: column;
+    align-items: start;
   }
 
   .input-grid {
