@@ -1,20 +1,22 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useCreator } from "@/components/creator-provider";
 import {
   buildConversionSummary,
+  buildConversionStorageKey,
   defaultConversionInputs,
   formatWholeNumber,
   managerNotes,
   type ConversionInputs
 } from "@/lib/conversion";
 
-const STORAGE_KEY = "maddiehq:conversion-inputs";
-
 export default function ConversionPage() {
+  const { activeProfile } = useCreator();
   const [inputs, setInputs] = useState<ConversionInputs>(defaultConversionInputs);
   const [saveState, setSaveState] = useState("Using starter values");
   const summary = useMemo(() => buildConversionSummary(inputs), [inputs]);
+  const storageKey = useMemo(() => buildConversionStorageKey(activeProfile.id), [activeProfile.id]);
 
   const inputFields: Array<{
     key: keyof ConversionInputs;
@@ -32,9 +34,11 @@ export default function ConversionPage() {
   ];
 
   useEffect(() => {
-    const saved = window.localStorage.getItem(STORAGE_KEY);
+    const saved = window.localStorage.getItem(storageKey);
 
     if (!saved) {
+      setInputs(defaultConversionInputs);
+      setSaveState(`Using starter values for ${activeProfile.name}`);
       return;
     }
 
@@ -48,16 +52,16 @@ export default function ConversionPage() {
           )
         )
       }));
-      setSaveState("Loaded your saved values");
+      setSaveState(`Loaded saved values for ${activeProfile.name}`);
     } catch {
       setSaveState("Could not read saved values");
     }
-  }, []);
+  }, [activeProfile.name, storageKey]);
 
   useEffect(() => {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(inputs));
-    setSaveState("Saved on this device");
-  }, [inputs]);
+    window.localStorage.setItem(storageKey, JSON.stringify(inputs));
+    setSaveState(`Saved for ${activeProfile.name} on this device`);
+  }, [activeProfile.name, inputs, storageKey]);
 
   return (
     <main className="page">
@@ -126,8 +130,8 @@ export default function ConversionPage() {
               type="button"
               onClick={() => {
                 setInputs(defaultConversionInputs);
-                window.localStorage.removeItem(STORAGE_KEY);
-                setSaveState("Reset to starter values");
+                window.localStorage.removeItem(storageKey);
+                setSaveState(`Reset ${activeProfile.name} to starter values`);
               }}
             >
               Reset values

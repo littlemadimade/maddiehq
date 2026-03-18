@@ -21,6 +21,13 @@ const homeCards = [
       "See whether your Instagram content is actually translating into profile actions, OF traffic, and paid outcomes.",
     href: "/conversion",
     status: "Live now"
+  },
+  {
+    title: "Creator Setup",
+    description:
+      "Choose the active creator profile and prepare the Instagram connection foundation for future live insights sync.",
+    href: "/creator",
+    status: "Foundation"
   }
 ];
 
