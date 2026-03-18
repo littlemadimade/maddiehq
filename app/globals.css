@@ -72,15 +72,26 @@ body {
   flex-wrap: wrap;
 }
 
+.topbar__profile-menu {
+  position: relative;
+}
+
 .topbar__profile {
   display: flex;
-  flex-direction: column;
-  align-items: end;
-  gap: 2px;
+  align-items: center;
+  gap: 14px;
   padding: 10px 14px;
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+}
+
+.topbar__profile-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: end;
+  gap: 2px;
 }
 
 .topbar__profile-name {
@@ -92,6 +103,47 @@ body {
 .topbar__profile-handle {
   color: rgba(248, 255, 213, 0.72);
   font-size: 0.82rem;
+}
+
+.topbar__profile-caret {
+  color: var(--pink-soft);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.topbar__dropdown {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 10px);
+  min-width: 230px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: rgba(5, 8, 1, 0.96);
+  box-shadow: var(--shadow);
+}
+
+.topbar__dropdown-label {
+  margin: 0 0 2px;
+  color: rgba(248, 255, 213, 0.56);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.topbar__dropdown a {
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  color: var(--text);
+  text-decoration: none;
 }
 
 .topbar__nav a,
@@ -357,6 +409,12 @@ h1 {
 .stat-card__change {
   margin: 0;
   color: var(--pink-soft);
+}
+
+.security-card__detail {
+  margin: 12px 0 0;
+  color: rgba(248, 255, 213, 0.82);
+  line-height: 1.6;
 }
 
 .platform-card {
@@ -982,7 +1040,19 @@ li + li {
   }
 
   .topbar__profile {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .topbar__profile-copy,
+  .topbar__profile {
     align-items: start;
+  }
+
+  .topbar__dropdown {
+    left: 0;
+    right: auto;
+    width: min(320px, 100%);
   }
 
   .hero,

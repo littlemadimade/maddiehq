@@ -19,11 +19,11 @@ export default function CreatorPage() {
       <section className="hero panel">
         <div>
           <p className="eyebrow">Creator Foundation</p>
-          <h1>Start telling the app which creator it is working for and how her Instagram account should connect.</h1>
+          <h1>Set up the active creator profile and the Instagram account details this workspace will eventually connect to.</h1>
           <p className="lede">
-            This is the first real account layer. It lets the app know which creator
-            is active, keeps saved data scoped to that creator, and gives us a place
-            to prepare the Instagram connection setup.
+            This page is now the account setup room behind the profile menu. It tells
+            the app which creator is active, keeps saved data scoped to that creator,
+            and gives us a place to prepare the Instagram connection setup.
           </p>
         </div>
         <div className="hero__note">
@@ -185,10 +185,11 @@ export default function CreatorPage() {
 
         <article className="panel suggestions-card">
           <div className="suggestions-card__header">
-            <p className="eyebrow">Known Limitation</p>
+            <p className="eyebrow">Safety Reminder</p>
             <span className="suggestions-card__tag">Before live Instagram sync</span>
           </div>
           <ul>
+            <li>Use the profile menu to review the Safety and Security room before connecting real accounts.</li>
             <li>Real Instagram connection still needs a Meta app and OAuth flow.</li>
             <li>The creator account should be a professional account for insights access.</li>
             <li>Meta permissions and app review work still have to be done for live data.</li>

@@ -23,11 +23,11 @@ const homeCards = [
     status: "Live now"
   },
   {
-    title: "Creator Setup",
+    title: "Profile and Security",
     description:
-      "Choose the active creator profile and prepare the Instagram connection foundation for future live insights sync.",
-    href: "/creator",
-    status: "Foundation"
+      "Manage the active creator workspace and review how the app currently protects creator data before live account connections are added.",
+    href: "/security",
+    status: "Safety first"
   }
 ];
 
