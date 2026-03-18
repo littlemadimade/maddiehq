@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
 import {
   brainstormCategories,
   buildBrainstormSuggestions,
@@ -10,37 +9,6 @@ import {
 } from "@/lib/brainstorm";
 
 const STORAGE_KEY = "maddiehq:brainstorms";
-
-const homeCards = [
-  {
-    title: "Instagram Insights",
-    description:
-      "Review your Instagram performance in one place, then spot what content is actually pulling its weight.",
-    href: "/insights",
-    status: "Live now"
-  },
-  {
-    title: "Post Progress Tracker",
-    description:
-      "Track what is still an idea, what is being made, and what is ready to post so your Instagram workflow stays organized.",
-    href: "/tracker",
-    status: "Live now"
-  },
-  {
-    title: "Conversion Room",
-    description:
-      "See whether your Instagram content is actually translating into profile actions, OF traffic, and paid outcomes.",
-    href: "/conversion",
-    status: "Live now"
-  },
-  {
-    title: "Profile and Security",
-    description:
-      "Manage the active creator workspace and review how the app currently protects creator data before live account connections are added.",
-    href: "/security",
-    status: "Safety first"
-  }
-];
 
 export default function HomePage() {
   const [draft, setDraft] = useState("");
@@ -106,12 +74,8 @@ export default function HomePage() {
         <div className="hero__note">
           <span className="hero__badge">Brainstorm mode</span>
           <p>
-            This homepage now acts like a quick capture notebook with lightweight
-            guidance, while still keeping your main rooms one tap away.
+            This homepage now acts like a quick capture notebook with lightweight guidance.
           </p>
-          <Link className="hero__cta" href="/tracker">
-            Open Tracker
-          </Link>
         </div>
       </section>
 
@@ -230,30 +194,6 @@ export default function HomePage() {
               </div>
             )}
           </div>
-        </article>
-
-        <article className="panel breakdown-card">
-          <p className="eyebrow">Launchpad</p>
-          <h2>When an idea gets sharper, move it into the right room.</h2>
-          <p>
-            Use the brainstorm desk to capture thoughts fast. Then use Insights when the
-            question is performance, Tracker when the question is execution, and Conversion
-            when the question is whether attention is turning into subscribers and money.
-          </p>
-          <section className="home-grid home-grid--compact">
-            {homeCards.map((card) => (
-              <article className="panel home-card" key={card.title}>
-                <div className="home-card__header">
-                  <p className="eyebrow">{card.status}</p>
-                  <h2>{card.title}</h2>
-                </div>
-                <p>{card.description}</p>
-                <Link className="home-card__link" href={card.href}>
-                  Open tool
-                </Link>
-              </article>
-            ))}
-          </section>
         </article>
       </section>
     </main>
