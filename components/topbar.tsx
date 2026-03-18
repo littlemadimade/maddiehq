@@ -26,6 +26,7 @@ export function Topbar() {
         Maddie HQ
       </Link>
       <nav className="topbar__nav" aria-label="Main navigation">
+        <Link href="/good-morning">Good Morning</Link>
         <Link href="/">Home</Link>
         <Link href="/insights">Insights</Link>
         <Link href="/tracker">Tracker</Link>
