@@ -20,6 +20,10 @@ export const defaultConversionInputs: ConversionInputs = {
   topSpenderAmount: 185
 };
 
+export function buildConversionStorageKey(creatorId: string) {
+  return `maddiehq:${creatorId}:conversion-inputs`;
+}
+
 export function formatWholeNumber(value: number) {
   return new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(value);
 }

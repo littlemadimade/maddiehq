@@ -72,6 +72,28 @@ body {
   flex-wrap: wrap;
 }
 
+.topbar__profile {
+  display: flex;
+  flex-direction: column;
+  align-items: end;
+  gap: 2px;
+  padding: 10px 14px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.topbar__profile-name {
+  color: var(--lime-soft);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.topbar__profile-handle {
+  color: rgba(248, 255, 213, 0.72);
+  font-size: 0.82rem;
+}
+
 .topbar__nav a,
 .topbar__menu {
   padding: 10px 14px;
@@ -302,6 +324,12 @@ h1 {
 
 .conversion-grid {
   grid-template-columns: 1.15fr 0.85fr;
+}
+
+.creator-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
 }
 
 .funnel-grid {
@@ -665,6 +693,29 @@ li + li {
   line-height: 1.45;
 }
 
+.creator-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.creator-add {
+  display: flex;
+  gap: 12px;
+}
+
+.checkbox-row {
+  display: flex;
+  align-items: start;
+  gap: 10px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  color: rgba(248, 255, 213, 0.82);
+  line-height: 1.5;
+}
+
 .reel-card h3,
 .explanation-card h3 {
   margin: 0 0 10px;
@@ -930,6 +981,10 @@ li + li {
     align-items: start;
   }
 
+  .topbar__profile {
+    align-items: start;
+  }
+
   .hero,
   .home-grid,
   .overview-grid,
@@ -938,6 +993,7 @@ li + li {
   .tracker-grid,
   .suggestion-grid,
   .conversion-grid,
+  .creator-grid,
   .funnel-grid,
   .platform-card__analysis {
     grid-template-columns: 1fr;
@@ -950,6 +1006,10 @@ li + li {
   .input-toolbar {
     flex-direction: column;
     align-items: start;
+  }
+
+  .creator-add {
+    flex-direction: column;
   }
 
   .input-grid {

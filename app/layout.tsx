@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import Link from "next/link";
+import { Providers } from "@/app/providers";
+import { Topbar } from "@/components/topbar";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -16,23 +17,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <div className="app-shell">
-          <header className="topbar">
-            <Link className="topbar__brand" href="/">
-              Maddie HQ
-            </Link>
-            <nav className="topbar__nav" aria-label="Main navigation">
-              <Link href="/">Home</Link>
-              <Link href="/insights">Insights</Link>
-              <Link href="/tracker">Tracker</Link>
-              <Link href="/conversion">Conversion</Link>
-              <button className="topbar__menu" type="button">
-                More Tools Soon
-              </button>
-            </nav>
-          </header>
-          {children}
-        </div>
+        <Providers>
+          <div className="app-shell">
+            <Topbar />
+            {children}
+          </div>
+        </Providers>
       </body>
     </html>
   );
