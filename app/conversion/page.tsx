@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   buildConversionSummary,
   defaultConversionInputs,
@@ -9,8 +9,11 @@ import {
   type ConversionInputs
 } from "@/lib/conversion";
 
+const STORAGE_KEY = "maddiehq:conversion-inputs";
+
 export default function ConversionPage() {
   const [inputs, setInputs] = useState<ConversionInputs>(defaultConversionInputs);
+  const [saveState, setSaveState] = useState("Using starter values");
   const summary = useMemo(() => buildConversionSummary(inputs), [inputs]);
 
   const inputFields: Array<{
@@ -27,6 +30,34 @@ export default function ConversionPage() {
     { key: "tipsCount", label: "Tips Count", help: "How often people tipped during the period." },
     { key: "topSpenderAmount", label: "Top Spender Amount", help: "Highest spender amount for the period." }
   ];
+
+  useEffect(() => {
+    const saved = window.localStorage.getItem(STORAGE_KEY);
+
+    if (!saved) {
+      return;
+    }
+
+    try {
+      const parsed = JSON.parse(saved) as Partial<ConversionInputs>;
+      setInputs((current) => ({
+        ...current,
+        ...Object.fromEntries(
+          Object.entries(parsed).filter((entry): entry is [keyof ConversionInputs, number] =>
+            typeof entry[1] === "number"
+          )
+        )
+      }));
+      setSaveState("Loaded your saved values");
+    } catch {
+      setSaveState("Could not read saved values");
+    }
+  }, []);
+
+  useEffect(() => {
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(inputs));
+    setSaveState("Saved on this device");
+  }, [inputs]);
 
   return (
     <main className="page">
@@ -46,6 +77,7 @@ export default function ConversionPage() {
             Insights tells you how content performs. Conversion tells you whether
             that attention is actually moving toward OF traffic and paid action.
           </p>
+          <p className="hero__save-state">{saveState}</p>
         </div>
       </section>
 
@@ -84,6 +116,22 @@ export default function ConversionPage() {
           <div className="suggestions-card__header">
             <p className="eyebrow">Manual Input</p>
             <span className="suggestions-card__tag">Use your real numbers</span>
+          </div>
+          <div className="input-toolbar">
+            <p className="input-toolbar__text">
+              These values now save in this browser, so you can refresh without losing them.
+            </p>
+            <button
+              className="input-toolbar__button"
+              type="button"
+              onClick={() => {
+                setInputs(defaultConversionInputs);
+                window.localStorage.removeItem(STORAGE_KEY);
+                setSaveState("Reset to starter values");
+              }}
+            >
+              Reset values
+            </button>
           </div>
           <div className="input-grid">
             {inputFields.map((field) => (
