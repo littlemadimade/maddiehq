@@ -322,6 +322,11 @@ h1 {
   gap: 24px;
 }
 
+.home-grid--compact {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 22px;
+}
+
 .home-card {
   display: flex;
   flex-direction: column;
@@ -376,6 +381,12 @@ h1 {
 
 .conversion-grid {
   grid-template-columns: 1.15fr 0.85fr;
+}
+
+.brainstorm-grid {
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: 24px;
 }
 
 .creator-grid {
@@ -740,6 +751,11 @@ li + li {
   font: inherit;
 }
 
+.input-card__field--textarea {
+  min-height: 180px;
+  resize: vertical;
+}
+
 .input-card__field:focus {
   outline: 2px solid rgba(182, 255, 39, 0.35);
   outline-offset: 2px;
@@ -755,6 +771,83 @@ li + li {
   display: flex;
   flex-direction: column;
   gap: 16px;
+}
+
+.brainstorm-panel,
+.brainstorm-form,
+.brainstorm-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.brainstorm-panel,
+.brainstorm-form {
+  gap: 18px;
+}
+
+.brainstorm-list {
+  gap: 14px;
+}
+
+.brainstorm-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.brainstorm-actions__hint {
+  margin: 0;
+  color: rgba(248, 255, 213, 0.72);
+  line-height: 1.5;
+}
+
+.brainstorm-entry,
+.brainstorm-empty {
+  padding: 18px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.brainstorm-entry__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.brainstorm-entry__tag {
+  display: inline-flex;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(255, 79, 163, 0.14);
+  color: var(--pink-soft);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.brainstorm-entry__remove {
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.02);
+  color: rgba(248, 255, 213, 0.72);
+  font: inherit;
+}
+
+.brainstorm-entry p,
+.brainstorm-empty p {
+  margin: 0;
+  color: rgba(248, 255, 213, 0.82);
+  line-height: 1.6;
+}
+
+.brainstorm-empty {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .creator-add {
@@ -1056,6 +1149,7 @@ li + li {
   }
 
   .hero,
+  .brainstorm-grid,
   .home-grid,
   .overview-grid,
   .platform-grid,
@@ -1074,6 +1168,11 @@ li + li {
   }
 
   .input-toolbar {
+    flex-direction: column;
+    align-items: start;
+  }
+
+  .brainstorm-actions {
     flex-direction: column;
     align-items: start;
   }
