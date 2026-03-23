@@ -78,6 +78,7 @@ This log exists so the agent does not keep asking Maddie the same crash-course q
 - Authorization: taught on 2026-03-17.
 - Encryption: taught on 2026-03-17.
 - State: taught on 2026-03-17.
+- Session: taught on 2026-03-22.
 
 ## Execution Rules
 
