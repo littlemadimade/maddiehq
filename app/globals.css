@@ -407,8 +407,34 @@ h1 {
   border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
+.assistant-card__focus {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.assistant-card__focus-value,
+.assistant-card__focus-detail {
+  margin: 0;
+}
+
+.assistant-card__focus-value {
+  color: var(--lime-soft);
+  font-size: clamp(1.3rem, 2vw, 1.8rem);
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.assistant-card__focus-detail {
+  color: rgba(248, 255, 213, 0.8);
+  line-height: 1.6;
+}
+
 .assistant-card__note ul {
+  margin: 0;
+  padding-left: 18px;
   color: rgba(248, 255, 213, 0.82);
+  line-height: 1.6;
 }
 
 .brainstorm-grid {

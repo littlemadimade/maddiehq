@@ -1,19 +1,28 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useCreator } from "@/components/creator-provider";
+import { buildAssistantBrief } from "@/lib/assistant";
 import {
   brainstormCategories,
   buildBrainstormSuggestions,
   type BrainstormCategory,
   type BrainstormEntry
 } from "@/lib/brainstorm";
+import {
+  buildConversionStorageKey,
+  defaultConversionInputs,
+  type ConversionInputs
+} from "@/lib/conversion";
 
 const STORAGE_KEY = "maddiehq:brainstorms";
 
 export default function HomePage() {
+  const { activeProfile } = useCreator();
   const [draft, setDraft] = useState("");
   const [category, setCategory] = useState<BrainstormCategory>("Content idea");
   const [entries, setEntries] = useState<BrainstormEntry[]>([]);
+  const [conversionInputs, setConversionInputs] = useState<ConversionInputs | null>(null);
 
   useEffect(() => {
     const saved = window.localStorage.getItem(STORAGE_KEY);
@@ -36,7 +45,34 @@ export default function HomePage() {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
   }, [entries]);
 
+  useEffect(() => {
+    const saved = window.localStorage.getItem(buildConversionStorageKey(activeProfile.id));
+
+    if (!saved) {
+      setConversionInputs(null);
+      return;
+    }
+
+    try {
+      const parsed = JSON.parse(saved) as Partial<ConversionInputs>;
+      setConversionInputs({ ...defaultConversionInputs, ...parsed });
+    } catch {
+      setConversionInputs(null);
+    }
+  }, [activeProfile.id]);
+
   const suggestions = useMemo(() => buildBrainstormSuggestions(draft, category), [category, draft]);
+  const assistantBrief = useMemo(
+    () =>
+      buildAssistantBrief({
+        profileName: activeProfile.name,
+        draft,
+        category,
+        entries,
+        conversionInputs
+      }),
+    [activeProfile.name, category, conversionInputs, draft, entries]
+  );
 
   function saveEntry() {
     const trimmed = draft.trim();
@@ -81,20 +117,22 @@ export default function HomePage() {
 
       <section className="panel assistant-card">
         <div className="assistant-card__copy">
-          <p className="eyebrow">Future Assistant</p>
-          <h2>Your personal AI manager will live here.</h2>
+          <p className="eyebrow">{assistantBrief.eyebrow}</p>
+          <h2>{assistantBrief.title}</h2>
           <p>
-            For now, think of this as the greeting desk. Later it can become the place
-            that notices what is happening across Insights, Tracker, and Conversion, then
-            suggests what to focus on next.
+            {assistantBrief.summary}
           </p>
         </div>
         <div className="assistant-card__note">
-          <span className="suggestions-card__tag">Coming next</span>
+          <span className="suggestions-card__tag">{assistantBrief.focusLabel}</span>
+          <div className="assistant-card__focus">
+            <p className="assistant-card__focus-value">{assistantBrief.focusValue}</p>
+            <p className="assistant-card__focus-detail">{assistantBrief.focusDetail}</p>
+          </div>
           <ul>
-            <li>Daily priorities and reminders</li>
-            <li>Quick answers about what is working</li>
-            <li>Suggested next moves for content and revenue</li>
+            {assistantBrief.actions.map((action) => (
+              <li key={action}>{action}</li>
+            ))}
           </ul>
         </div>
       </section>
