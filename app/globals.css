@@ -90,7 +90,7 @@ body {
 .topbar__profile-copy {
   display: flex;
   flex-direction: column;
-  align-items: end;
+  align-items: flex-end;
   gap: 2px;
 }
 
@@ -144,6 +144,26 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.06);
   color: var(--text);
   text-decoration: none;
+}
+
+.topbar__dropdown-action,
+.topbar__auth-links a {
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  font: inherit;
+  text-decoration: none;
+}
+
+.topbar__dropdown-action {
+  text-align: left;
+}
+
+.topbar__auth-links {
+  display: flex;
+  gap: 12px;
 }
 
 .topbar__nav a,
@@ -263,7 +283,7 @@ h1 {
   display: grid;
   grid-template-columns: 1.4fr 0.8fr;
   gap: 20px;
-  align-items: end;
+  align-items: flex-end;
 }
 
 .hero__note {
@@ -456,6 +476,51 @@ h1 {
   line-height: 1.6;
 }
 
+.auth-page {
+  justify-content: center;
+}
+
+.auth-card {
+  width: min(100%, 680px);
+  margin: 0 auto;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.auth-form__submit {
+  border: 0;
+  cursor: pointer;
+}
+
+.auth-form__submit:disabled {
+  opacity: 0.68;
+  cursor: wait;
+}
+
+.auth-form__error,
+.auth-form__switch {
+  margin: 0;
+  line-height: 1.6;
+}
+
+.auth-form__error {
+  color: #ffb3d7;
+}
+
+.auth-form__switch {
+  margin-top: 20px;
+  color: rgba(248, 255, 213, 0.82);
+}
+
+.auth-form__switch a {
+  color: var(--lime-soft);
+}
+
 .platform-card {
   display: flex;
   flex-direction: column;
@@ -474,7 +539,7 @@ h1 {
 .suggestions-card__header {
   display: flex;
   justify-content: space-between;
-  align-items: start;
+  align-items: flex-start;
   gap: 16px;
 }
 
@@ -532,7 +597,7 @@ h1 {
 
 .task-card__top {
   display: flex;
-  align-items: start;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
 }
@@ -609,7 +674,7 @@ li + li {
 .suggestion-card__header {
   display: flex;
   justify-content: space-between;
-  align-items: start;
+  align-items: flex-start;
   gap: 16px;
 }
 
@@ -661,7 +726,7 @@ li + li {
 .funnel-card__header {
   display: flex;
   justify-content: space-between;
-  align-items: start;
+  align-items: flex-start;
   gap: 16px;
 }
 
@@ -885,7 +950,7 @@ li + li {
 
 .checkbox-row {
   display: flex;
-  align-items: start;
+  align-items: flex-start;
   gap: 10px;
   padding: 14px 16px;
   border-radius: 18px;
@@ -1911,7 +1976,7 @@ li + li {
 @media (max-width: 899px) {
   .topbar {
     flex-direction: column;
-    align-items: start;
+    align-items: flex-start;
   }
 
   .topbar__profile {
@@ -1921,7 +1986,7 @@ li + li {
 
   .topbar__profile-copy,
   .topbar__profile {
-    align-items: start;
+    align-items: flex-start;
   }
 
   .topbar__dropdown {
@@ -1952,12 +2017,12 @@ li + li {
 
   .input-toolbar {
     flex-direction: column;
-    align-items: start;
+    align-items: flex-start;
   }
 
   .brainstorm-actions {
     flex-direction: column;
-    align-items: start;
+    align-items: flex-start;
   }
 
   .creator-add {
