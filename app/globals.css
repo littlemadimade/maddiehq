@@ -497,23 +497,7 @@ h1 {
   cursor: pointer;
 }
 
-.auth-form__demo {
-  padding: 12px 16px;
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 79, 163, 0.12);
-  color: var(--pink-soft);
-  font: inherit;
-  font-weight: 700;
-  cursor: pointer;
-}
-
 .auth-form__submit:disabled {
-  opacity: 0.68;
-  cursor: wait;
-}
-
-.auth-form__demo:disabled {
   opacity: 0.68;
   cursor: wait;
 }

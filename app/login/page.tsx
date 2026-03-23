@@ -12,8 +12,6 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
-  const [demoPending, setDemoPending] = useState(false);
-  const isDevelopment = process.env.NODE_ENV !== "production";
 
   useEffect(() => {
     if (status === "authenticated") {
@@ -37,44 +35,6 @@ export default function LoginPage() {
 
     if (result?.error) {
       setError("That login did not work. Check your email and password.");
-      return;
-    }
-
-    router.replace("/");
-    router.refresh();
-  }
-
-  async function handleDemoLogin() {
-    setDemoPending(true);
-    setError("");
-
-    const seedResponse = await fetch("/api/dev/demo-user", {
-      method: "POST"
-    });
-
-    const payload = (await seedResponse.json()) as {
-      email?: string;
-      password?: string;
-      message?: string;
-    };
-
-    if (!seedResponse.ok || !payload.email || !payload.password) {
-      setDemoPending(false);
-      setError(payload.message ?? "Demo login setup failed.");
-      return;
-    }
-
-    const result = await signIn("credentials", {
-      email: payload.email,
-      password: payload.password,
-      redirect: false,
-      callbackUrl: "/"
-    });
-
-    setDemoPending(false);
-
-    if (result?.error) {
-      setError("Demo login failed.");
       return;
     }
 
@@ -120,17 +80,6 @@ export default function LoginPage() {
           <button className="hero__cta auth-form__submit" disabled={pending} type="submit">
             {pending ? "Logging in..." : "Log In"}
           </button>
-
-          {isDevelopment ? (
-            <button
-              className="auth-form__demo"
-              disabled={demoPending}
-              type="button"
-              onClick={handleDemoLogin}
-            >
-              {demoPending ? "Opening demo account..." : "Use Demo Account"}
-            </button>
-          ) : null}
         </form>
 
         <p className="auth-form__switch">
