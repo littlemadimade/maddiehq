@@ -40,7 +40,8 @@ export default function LoginPage() {
       return;
     }
 
-    window.location.href = result?.url ?? "/";
+    router.replace("/");
+    router.refresh();
   }
 
   async function handleDemoLogin() {
@@ -77,7 +78,8 @@ export default function LoginPage() {
       return;
     }
 
-    window.location.href = result?.url ?? "/";
+    router.replace("/");
+    router.refresh();
   }
 
   return (
