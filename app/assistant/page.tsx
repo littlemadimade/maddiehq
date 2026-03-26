@@ -47,6 +47,12 @@ export default function AssistantPage() {
     () => (conversionInputs ? buildConversionSnapshot(conversionInputs) : null),
     [conversionInputs]
   );
+  const quickPrompts = [
+    "How are conversions looking right now?",
+    "What should I focus on next?",
+    "What looks weak in my content system?",
+    "Which specialist should take this?"
+  ];
 
   useEffect(() => {
     setMessages([]);
@@ -151,6 +157,35 @@ export default function AssistantPage() {
     setEvents((current) => [newEvent, ...current].slice(0, 18));
   }
 
+  function runQuickPrompt(prompt: string) {
+    const userMessage: AssistantChatMessage = {
+      id: `${Date.now()}-quick-user`,
+      role: "user",
+      text: prompt,
+      speaker: activeProfile.name
+    };
+
+    const assistantMessage: AssistantChatMessage = {
+      id: `${Date.now()}-quick-assistant`,
+      role: "assistant",
+      text: buildAssistantReply({
+        prompt,
+        memory,
+        events,
+        conversionInputs
+      }),
+      speaker: memory.assistantName
+    };
+
+    setMessages((current) => [...current, userMessage, assistantMessage].slice(-18));
+    const newEvent = appendAssistantEvent(activeProfile.id, {
+      type: "assistant_chat",
+      title: "Assistant quick action used",
+      detail: prompt
+    });
+    setEvents((current) => [newEvent, ...current].slice(0, 18));
+  }
+
   return (
     <main className="page">
       <section className="hero panel">
@@ -204,6 +239,18 @@ export default function AssistantPage() {
           </div>
 
           <div className="chat-composer">
+            <div className="assistant-room__quick-actions">
+              {quickPrompts.map((prompt) => (
+                <button
+                  className="assistant-room__quick-button"
+                  key={prompt}
+                  type="button"
+                  onClick={() => runQuickPrompt(prompt)}
+                >
+                  {prompt}
+                </button>
+              ))}
+            </div>
             <textarea
               className="input-card__field input-card__field--short-textarea"
               placeholder="Ask what to focus on, what looks weak, what room to open next, or how the team should work."
