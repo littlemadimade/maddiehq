@@ -4,7 +4,9 @@ export type AssistantEventType =
   | "conversion_updated"
   | "conversion_reset"
   | "assistant_memory_updated"
-  | "assistant_chat";
+  | "assistant_chat"
+  | "tracker_updated"
+  | "tracker_removed";
 
 export type AssistantEvent = {
   id: string;
