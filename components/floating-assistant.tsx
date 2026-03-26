@@ -4,12 +4,18 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useCreator } from "@/components/creator-provider";
+import { buildAssistantReply } from "@/lib/assistant-chat";
+import { appendAssistantEvent, readAssistantEvents, type AssistantEvent } from "@/lib/assistant-events";
 import {
   buildAssistantMemoryStorageKey,
   hydrateAssistantMemory,
   type AssistantMemory
 } from "@/lib/assistant-memory";
-import { readAssistantEvents } from "@/lib/assistant-events";
+import {
+  buildConversionStorageKey,
+  defaultConversionInputs,
+  type ConversionInputs
+} from "@/lib/conversion";
 
 export function FloatingAssistant() {
   const pathname = usePathname();
@@ -19,6 +25,10 @@ export function FloatingAssistant() {
     hydrateAssistantMemory(activeProfile.name)
   );
   const [recentEventTitle, setRecentEventTitle] = useState("");
+  const [events, setEvents] = useState<AssistantEvent[]>([]);
+  const [conversionInputs, setConversionInputs] = useState<ConversionInputs | null>(null);
+  const [quickQuestion, setQuickQuestion] = useState("");
+  const [quickAnswer, setQuickAnswer] = useState("");
 
   useEffect(() => {
     const saved = window.localStorage.getItem(buildAssistantMemoryStorageKey(activeProfile.id));
@@ -33,9 +43,52 @@ export function FloatingAssistant() {
       setMemory(hydrateAssistantMemory(activeProfile.name));
     }
 
-    const latestEvent = readAssistantEvents(activeProfile.id)[0];
+    const savedEvents = readAssistantEvents(activeProfile.id);
+    const latestEvent = savedEvents[0];
+    setEvents(savedEvents);
     setRecentEventTitle(latestEvent?.title ?? "");
+
+    const savedConversion = window.localStorage.getItem(buildConversionStorageKey(activeProfile.id));
+    if (savedConversion) {
+      try {
+        setConversionInputs({
+          ...defaultConversionInputs,
+          ...(JSON.parse(savedConversion) as Partial<ConversionInputs>)
+        });
+      } catch {
+        setConversionInputs(null);
+      }
+    } else {
+      setConversionInputs(null);
+    }
+
+    setQuickQuestion("");
+    setQuickAnswer("");
   }, [activeProfile.id, activeProfile.name, pathname]);
+
+  function askQuickQuestion() {
+    const trimmed = quickQuestion.trim();
+
+    if (!trimmed) {
+      return;
+    }
+
+    const answer = buildAssistantReply({
+      prompt: trimmed,
+      memory,
+      events,
+      conversionInputs
+    });
+
+    setQuickAnswer(answer);
+    const newEvent = appendAssistantEvent(activeProfile.id, {
+      type: "assistant_chat",
+      title: "Quick manager question",
+      detail: trimmed
+    });
+    setEvents((current) => [newEvent, ...current].slice(0, 18));
+    setRecentEventTitle(newEvent.title);
+  }
 
   return (
     <div className="floating-assistant">
@@ -47,7 +100,7 @@ export function FloatingAssistant() {
               <h2>{memory.assistantName}</h2>
             </div>
             <button
-              aria-label="Close Kian launcher"
+              aria-label="Close manager bot launcher"
               className="floating-assistant__close"
               type="button"
               onClick={() => setOpen(false)}
@@ -63,26 +116,47 @@ export function FloatingAssistant() {
               : "I am ready when you want a quick manager read or want to jump into the full assistant room."}
           </p>
 
+          <div className="floating-assistant__quick">
+            <textarea
+              className="input-card__field floating-assistant__input"
+              placeholder="Ask one quick question..."
+              value={quickQuestion}
+              onChange={(event) => setQuickQuestion(event.target.value)}
+            />
+            <div className="floating-assistant__quick-actions">
+              <button className="hero__cta" type="button" onClick={askQuickQuestion}>
+                Ask
+              </button>
+              <span className="floating-assistant__status">
+                {memory.tone} · {memory.focus} focus
+              </span>
+            </div>
+          </div>
+
+          {quickAnswer ? (
+            <div className="floating-assistant__answer">
+              <p className="floating-assistant__answer-label">{memory.assistantName}</p>
+              <p className="floating-assistant__answer-text">{quickAnswer}</p>
+            </div>
+          ) : null}
+
           <div className="floating-assistant__actions">
             <Link className="hero__cta" href="/assistant" onClick={() => setOpen(false)}>
-              Open Kian
+              Open Assistant Room
             </Link>
-            <span className="floating-assistant__status">
-              {memory.tone} · {memory.focus} focus
-            </span>
           </div>
         </div>
       ) : null}
 
       <button
-        aria-label="Open Kian assistant"
+        aria-label="Open manager bot assistant"
         className="floating-assistant__bubble"
         type="button"
         onClick={() => setOpen((current) => !current)}
       >
         <span className="floating-assistant__glow" aria-hidden="true" />
-        <span className="floating-assistant__name">Kian</span>
-        <span className="floating-assistant__hint">Manager</span>
+        <span className="floating-assistant__name">Manager Bot</span>
+        <span className="floating-assistant__hint">Quick Help</span>
       </button>
     </div>
   );

@@ -27,7 +27,7 @@ export type AssistantMemory = {
 };
 
 function isLegacyAssistantName(name: string, profileName: string) {
-  return !name.trim() || name === `${profileName}'s assistant`;
+  return !name.trim() || name === `${profileName}'s assistant` || name === "Kian";
 }
 
 export function buildAssistantMemoryStorageKey(creatorId: string) {
@@ -36,7 +36,7 @@ export function buildAssistantMemoryStorageKey(creatorId: string) {
 
 export function buildDefaultAssistantMemory(profileName: string): AssistantMemory {
   return {
-    assistantName: "Kian",
+    assistantName: "Manager Bot",
     tone: "Warm manager",
     focus: "Balanced",
     mainGoal: "Turn Instagram traffic into stronger OF conversion and steadier revenue.",
