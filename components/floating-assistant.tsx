@@ -4,8 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useCreator } from "@/components/creator-provider";
-import { buildAssistantReply } from "@/lib/assistant-chat";
-import { appendAssistantEvent, readAssistantEvents, type AssistantEvent } from "@/lib/assistant-events";
+import { readAssistantEvents } from "@/lib/assistant-events";
 import {
   buildAssistantMemoryStorageKey,
   hydrateAssistantMemory,
@@ -26,10 +25,7 @@ export function FloatingAssistant() {
     hydrateAssistantMemory(activeProfile.name)
   );
   const [recentEventTitle, setRecentEventTitle] = useState("");
-  const [events, setEvents] = useState<AssistantEvent[]>([]);
   const [conversionInputs, setConversionInputs] = useState<ConversionInputs | null>(null);
-  const [quickQuestion, setQuickQuestion] = useState("");
-  const [quickAnswer, setQuickAnswer] = useState("");
   const conversionSnapshot = conversionInputs ? buildConversionSnapshot(conversionInputs) : null;
 
   useEffect(() => {
@@ -47,7 +43,6 @@ export function FloatingAssistant() {
 
     const savedEvents = readAssistantEvents(activeProfile.id);
     const latestEvent = savedEvents[0];
-    setEvents(savedEvents);
     setRecentEventTitle(latestEvent?.title ?? "");
 
     const savedConversion = window.localStorage.getItem(buildConversionStorageKey(activeProfile.id));
@@ -63,34 +58,7 @@ export function FloatingAssistant() {
     } else {
       setConversionInputs(null);
     }
-
-    setQuickQuestion("");
-    setQuickAnswer("");
   }, [activeProfile.id, activeProfile.name, pathname]);
-
-  function askQuickQuestion() {
-    const trimmed = quickQuestion.trim();
-
-    if (!trimmed) {
-      return;
-    }
-
-    const answer = buildAssistantReply({
-      prompt: trimmed,
-      memory,
-      events,
-      conversionInputs
-    });
-
-    setQuickAnswer(answer);
-    const newEvent = appendAssistantEvent(activeProfile.id, {
-      type: "assistant_chat",
-      title: "Quick manager question",
-      detail: trimmed
-    });
-    setEvents((current) => [newEvent, ...current].slice(0, 18));
-    setRecentEventTitle(newEvent.title);
-  }
 
   return (
     <div className="floating-assistant">
@@ -142,31 +110,10 @@ export function FloatingAssistant() {
             </div>
           ) : null}
 
-          <div className="floating-assistant__quick">
-            <textarea
-              className="input-card__field floating-assistant__input"
-              placeholder="Ask one quick question, like how conversions look..."
-              value={quickQuestion}
-              onChange={(event) => setQuickQuestion(event.target.value)}
-            />
-            <div className="floating-assistant__quick-actions">
-              <button className="hero__cta" type="button" onClick={askQuickQuestion}>
-                Ask
-              </button>
-              <span className="floating-assistant__status">
-                {memory.tone} · {memory.focus} focus
-              </span>
-            </div>
-          </div>
-
-          {quickAnswer ? (
-            <div className="floating-assistant__answer">
-              <p className="floating-assistant__answer-label">{memory.assistantName}</p>
-              <p className="floating-assistant__answer-text">{quickAnswer}</p>
-            </div>
-          ) : null}
-
           <div className="floating-assistant__actions">
+            <span className="floating-assistant__status">
+              {memory.tone} · {memory.focus} focus
+            </span>
             <Link className="hero__cta" href="/assistant" onClick={() => setOpen(false)}>
               Open Assistant Room
             </Link>
