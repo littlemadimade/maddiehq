@@ -397,6 +397,14 @@ h1 {
   line-height: 1.65;
 }
 
+.assistant-card__memory-note {
+  margin: 16px 0 0;
+  color: rgba(248, 255, 213, 0.7);
+  font-size: 0.92rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
 .assistant-card__note {
   display: flex;
   flex-direction: column;
@@ -807,6 +815,11 @@ li + li {
 
 .input-card__field--textarea {
   min-height: 180px;
+  resize: vertical;
+}
+
+.input-card__field--short-textarea {
+  min-height: 110px;
   resize: vertical;
 }
 

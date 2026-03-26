@@ -2,6 +2,11 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useCreator } from "@/components/creator-provider";
+import {
+  buildAssistantMemoryStorageKey,
+  buildDefaultAssistantMemory,
+  type AssistantMemory
+} from "@/lib/assistant-memory";
 import { buildAssistantBrief } from "@/lib/assistant";
 import {
   brainstormCategories,
@@ -23,6 +28,9 @@ export default function HomePage() {
   const [category, setCategory] = useState<BrainstormCategory>("Content idea");
   const [entries, setEntries] = useState<BrainstormEntry[]>([]);
   const [conversionInputs, setConversionInputs] = useState<ConversionInputs | null>(null);
+  const [assistantMemory, setAssistantMemory] = useState<AssistantMemory>(() =>
+    buildDefaultAssistantMemory(activeProfile.name)
+  );
 
   useEffect(() => {
     const saved = window.localStorage.getItem(STORAGE_KEY);
@@ -61,6 +69,25 @@ export default function HomePage() {
     }
   }, [activeProfile.id]);
 
+  useEffect(() => {
+    const saved = window.localStorage.getItem(buildAssistantMemoryStorageKey(activeProfile.id));
+
+    if (!saved) {
+      setAssistantMemory(buildDefaultAssistantMemory(activeProfile.name));
+      return;
+    }
+
+    try {
+      const parsed = JSON.parse(saved) as Partial<AssistantMemory>;
+      setAssistantMemory({
+        ...buildDefaultAssistantMemory(activeProfile.name),
+        ...parsed
+      });
+    } catch {
+      setAssistantMemory(buildDefaultAssistantMemory(activeProfile.name));
+    }
+  }, [activeProfile.id, activeProfile.name]);
+
   const suggestions = useMemo(() => buildBrainstormSuggestions(draft, category), [category, draft]);
   const assistantBrief = useMemo(
     () =>
@@ -69,9 +96,10 @@ export default function HomePage() {
         draft,
         category,
         entries,
-        conversionInputs
+        conversionInputs,
+        memory: assistantMemory
       }),
-    [activeProfile.name, category, conversionInputs, draft, entries]
+    [activeProfile.name, assistantMemory, category, conversionInputs, draft, entries]
   );
 
   function saveEntry() {
@@ -121,6 +149,9 @@ export default function HomePage() {
           <h2>{assistantBrief.title}</h2>
           <p>
             {assistantBrief.summary}
+          </p>
+          <p className="assistant-card__memory-note">
+            Saved mode: {assistantMemory.tone} · {assistantMemory.focus} focus
           </p>
         </div>
         <div className="assistant-card__note">
