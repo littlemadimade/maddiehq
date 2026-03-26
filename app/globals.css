@@ -104,7 +104,7 @@ body {
 .floating-assistant__actions {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 14px;
   margin-top: 16px;
 }
@@ -160,6 +160,52 @@ body {
   font-size: 0.78rem;
   text-transform: uppercase;
   letter-spacing: 0.12em;
+}
+
+.floating-assistant__quick {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.floating-assistant__input {
+  min-height: 86px;
+  resize: vertical;
+}
+
+.floating-assistant__quick-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.floating-assistant__answer {
+  margin-top: 14px;
+  padding: 14px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.floating-assistant__answer-label,
+.floating-assistant__answer-text {
+  margin: 0;
+}
+
+.floating-assistant__answer-label {
+  color: var(--lime-soft);
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.floating-assistant__answer-text {
+  margin-top: 10px;
+  color: rgba(248, 255, 213, 0.84);
+  line-height: 1.6;
 }
 
 .topbar {
