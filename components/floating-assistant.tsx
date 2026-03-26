@@ -12,6 +12,7 @@ import {
   type AssistantMemory
 } from "@/lib/assistant-memory";
 import {
+  buildConversionSnapshot,
   buildConversionStorageKey,
   defaultConversionInputs,
   type ConversionInputs
@@ -29,6 +30,7 @@ export function FloatingAssistant() {
   const [conversionInputs, setConversionInputs] = useState<ConversionInputs | null>(null);
   const [quickQuestion, setQuickQuestion] = useState("");
   const [quickAnswer, setQuickAnswer] = useState("");
+  const conversionSnapshot = conversionInputs ? buildConversionSnapshot(conversionInputs) : null;
 
   useEffect(() => {
     const saved = window.localStorage.getItem(buildAssistantMemoryStorageKey(activeProfile.id));
@@ -116,10 +118,34 @@ export function FloatingAssistant() {
               : "I am ready when you want a quick manager read or want to jump into the full assistant room."}
           </p>
 
+          {conversionSnapshot ? (
+            <div className="floating-assistant__conversion">
+              <p className="floating-assistant__conversion-label">Conversion read</p>
+              <div className="floating-assistant__conversion-grid">
+                <div>
+                  <span>OF conversion</span>
+                  <strong>{conversionSnapshot.ofConversionLabel}</strong>
+                </div>
+                <div>
+                  <span>New subs</span>
+                  <strong>{conversionSnapshot.subsLabel}</strong>
+                </div>
+                <div>
+                  <span>OF page views</span>
+                  <strong>{conversionSnapshot.pageViewsLabel}</strong>
+                </div>
+                <div>
+                  <span>Top spender</span>
+                  <strong>{conversionSnapshot.topSpenderLabel}</strong>
+                </div>
+              </div>
+            </div>
+          ) : null}
+
           <div className="floating-assistant__quick">
             <textarea
               className="input-card__field floating-assistant__input"
-              placeholder="Ask one quick question..."
+              placeholder="Ask one quick question, like how conversions look..."
               value={quickQuestion}
               onChange={(event) => setQuickQuestion(event.target.value)}
             />

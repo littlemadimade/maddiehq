@@ -1,6 +1,6 @@
 import type { AssistantMemory } from "@/lib/assistant-memory";
 import type { AssistantEvent } from "@/lib/assistant-events";
-import type { ConversionInputs } from "@/lib/conversion";
+import { buildConversionSnapshot, type ConversionInputs } from "@/lib/conversion";
 import {
   buildAssistantTeam,
   pickAssistantRoute,
@@ -64,11 +64,14 @@ function buildSpecialistReply(args: {
           : "If a post feels weak, I would inspect the opening, the trim, and whether the visual matches the hook."
       }`;
     case "chat-revenue":
-      return `Closer's read: I care about buyer intent more than surface attention. ${
-        conversionInputs
-          ? `With ${conversionInputs.ofPageViews} OF page views and ${conversionInputs.newSubscribers} new subs saved, I would inspect where curiosity is failing to become paid behavior.`
-          : "Without updated conversion numbers, I would treat any revenue conclusion as a loose guess."
-      }`;
+      if (!conversionInputs) {
+        return "Closer's read: without updated conversion numbers, I would treat any revenue conclusion as a loose guess.";
+      }
+
+      {
+        const snapshot = buildConversionSnapshot(conversionInputs);
+        return `Closer's read: I care about buyer intent more than surface attention. Right now you are sitting at ${snapshot.ofConversionLabel} OF conversion from ${snapshot.pageViewsLabel} OF page views, with a top spender at ${snapshot.topSpenderLabel}. I would inspect where curiosity is failing to become paid behavior.`;
+      }
     default:
       return `Manager read: stay aligned with ${memory.mainGoal.toLowerCase()} and keep ${memory.currentPriority.toLowerCase()} at the top of the stack.`;
   }
@@ -154,9 +157,9 @@ export function buildAssistantReply({
 
   if (normalized.includes("weak") || normalized.includes("wrong")) {
     if (conversionInputs && conversionInputs.ofPageViews > 0) {
-      const conversionRate = ((conversionInputs.newSubscribers / conversionInputs.ofPageViews) * 100).toFixed(1);
+      const snapshot = buildConversionSnapshot(conversionInputs);
       return combineWithSpecialist(
-        `The weakest pressure point I can see right now is the handoff into OF. Your rough conversion is about ${conversionRate}%, so I would inspect the reel-to-profile-to-OF bridge before assuming the problem is pure traffic volume.`
+        `The weakest pressure point I can see right now is the handoff into OF. Your rough conversion is about ${snapshot.ofConversionLabel}, so I would inspect the reel-to-profile-to-OF bridge before assuming the problem is pure traffic volume.`
       );
     }
 
@@ -180,6 +183,24 @@ export function buildAssistantReply({
 
     return combineWithSpecialist(
       "Open Home if you need to capture ideas, or Conversion if you have real OF numbers ready to log."
+    );
+  }
+
+  if (
+    normalized.includes("conversion") ||
+    normalized.includes("subscribers") ||
+    normalized.includes("subs") ||
+    normalized.includes("page views")
+  ) {
+    if (conversionInputs) {
+      const snapshot = buildConversionSnapshot(conversionInputs);
+      return combineWithSpecialist(
+        `Manager Bot read: the current conversion picture is ${snapshot.ofConversionLabel} OF conversion from ${snapshot.pageViewsLabel} OF page views, with ${snapshot.subsLabel} new subs and ${snapshot.topSpenderLabel} as the top spender signal.`
+      );
+    }
+
+    return combineWithSpecialist(
+      "Manager Bot read: I do not have a saved conversion snapshot yet, so the next move is to update the Conversion room and give me real numbers to work from."
     );
   }
 

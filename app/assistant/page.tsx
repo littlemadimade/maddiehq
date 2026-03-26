@@ -19,6 +19,7 @@ import {
 } from "@/lib/assistant-memory";
 import { buildAssistantTeam } from "@/lib/assistant-team";
 import {
+  buildConversionSnapshot,
   buildConversionStorageKey,
   defaultConversionInputs,
   type ConversionInputs
@@ -42,6 +43,10 @@ export default function AssistantPage() {
 
   const chatStorageKey = useMemo(() => buildChatStorageKey(activeProfile.id), [activeProfile.id]);
   const team = useMemo(() => buildAssistantTeam(memory), [memory]);
+  const conversionSnapshot = useMemo(
+    () => (conversionInputs ? buildConversionSnapshot(conversionInputs) : null),
+    [conversionInputs]
+  );
 
   useEffect(() => {
     setMessages([]);
@@ -163,6 +168,12 @@ export default function AssistantPage() {
           <p>
             Current mode: {memory.tone} · {memory.focus} focus
           </p>
+          {conversionSnapshot ? (
+            <p className="hero__save-state">
+              Leading with {conversionSnapshot.ofConversionLabel} OF conversion from{" "}
+              {conversionSnapshot.pageViewsLabel} OF page views.
+            </p>
+          ) : null}
           <p className="hero__save-state">{events.length} recent events remembered</p>
         </div>
       </section>
@@ -237,6 +248,41 @@ export default function AssistantPage() {
       </section>
 
       <section className="bottom-grid">
+        <article className="panel assistant-room">
+          <div className="suggestions-card__header">
+            <div>
+              <p className="eyebrow">Manager Conversion Read</p>
+              <h2>What the manager is holding in mind right now.</h2>
+            </div>
+            <span className="suggestions-card__tag">Business context</span>
+          </div>
+          {conversionSnapshot ? (
+            <div className="metric-grid">
+              <article className="metric">
+                <p className="metric__label">OF Conversion</p>
+                <p className="metric__value">{conversionSnapshot.ofConversionLabel}</p>
+              </article>
+              <article className="metric">
+                <p className="metric__label">Profile To OF</p>
+                <p className="metric__value">{conversionSnapshot.profileToOfLabel}</p>
+              </article>
+              <article className="metric">
+                <p className="metric__label">New Subs</p>
+                <p className="metric__value">{conversionSnapshot.subsLabel}</p>
+              </article>
+              <article className="metric">
+                <p className="metric__label">Top Spender</p>
+                <p className="metric__value">{conversionSnapshot.topSpenderLabel}</p>
+              </article>
+            </div>
+          ) : (
+            <div className="brainstorm-empty">
+              <p>No conversion snapshot loaded yet.</p>
+              <p>Update the Conversion room and the manager will start carrying those numbers here.</p>
+            </div>
+          )}
+        </article>
+
         <article className="panel assistant-room">
           <div className="suggestions-card__header">
             <div>
