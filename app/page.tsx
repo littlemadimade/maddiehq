@@ -7,6 +7,7 @@ import {
   buildDefaultAssistantMemory,
   type AssistantMemory
 } from "@/lib/assistant-memory";
+import { appendAssistantEvent } from "@/lib/assistant-events";
 import { buildAssistantBrief } from "@/lib/assistant";
 import {
   brainstormCategories,
@@ -118,10 +119,24 @@ export default function HomePage() {
 
     setEntries((current) => [nextEntry, ...current].slice(0, 8));
     setDraft("");
+    appendAssistantEvent(activeProfile.id, {
+      type: "brainstorm_saved",
+      title: `Saved ${category.toLowerCase()}`,
+      detail: trimmed
+    });
   }
 
   function removeEntry(id: string) {
+    const removed = entries.find((entry) => entry.id === id);
     setEntries((current) => current.filter((entry) => entry.id !== id));
+
+    if (removed) {
+      appendAssistantEvent(activeProfile.id, {
+        type: "brainstorm_removed",
+        title: `Removed ${removed.category.toLowerCase()}`,
+        detail: removed.text
+      });
+    }
   }
 
   return (

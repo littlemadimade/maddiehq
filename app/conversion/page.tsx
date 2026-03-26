@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useCreator } from "@/components/creator-provider";
+import { appendAssistantEvent } from "@/lib/assistant-events";
 import {
   buildConversionSummary,
   buildConversionStorageKey,
@@ -15,6 +16,7 @@ export default function ConversionPage() {
   const { activeProfile } = useCreator();
   const [inputs, setInputs] = useState<ConversionInputs>(defaultConversionInputs);
   const [saveState, setSaveState] = useState("Using starter values");
+  const hasHydratedInputs = useRef(false);
   const summary = useMemo(() => buildConversionSummary(inputs), [inputs]);
   const storageKey = useMemo(() => buildConversionStorageKey(activeProfile.id), [activeProfile.id]);
 
@@ -59,9 +61,20 @@ export default function ConversionPage() {
   }, [activeProfile.name, storageKey]);
 
   useEffect(() => {
+    if (!hasHydratedInputs.current) {
+      hasHydratedInputs.current = true;
+      return;
+    }
+
     window.localStorage.setItem(storageKey, JSON.stringify(inputs));
     setSaveState(`Saved for ${activeProfile.name} on this device`);
-  }, [activeProfile.name, inputs, storageKey]);
+
+    appendAssistantEvent(activeProfile.id, {
+      type: "conversion_updated",
+      title: "Updated conversion snapshot",
+      detail: `${inputs.newSubscribers} new subs from ${inputs.ofPageViews} OF page views`
+    });
+  }, [activeProfile.id, activeProfile.name, inputs, storageKey]);
 
   return (
     <main className="page">
@@ -132,6 +145,11 @@ export default function ConversionPage() {
                 setInputs(defaultConversionInputs);
                 window.localStorage.removeItem(storageKey);
                 setSaveState(`Reset ${activeProfile.name} to starter values`);
+                appendAssistantEvent(activeProfile.id, {
+                  type: "conversion_reset",
+                  title: "Reset conversion values",
+                  detail: "Cleared the current OF conversion snapshot back to starter values."
+                });
               }}
             >
               Reset values
