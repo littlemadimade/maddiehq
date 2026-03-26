@@ -1136,6 +1136,19 @@ li + li {
   text-transform: uppercase;
 }
 
+.sunrise-copy__kicker,
+.sunrise-copy__note {
+  margin: 0;
+}
+
+.sunrise-copy__kicker {
+  color: rgba(248, 255, 213, 0.9);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
 .sunrise-copy h1,
 .sunrise-copy__script {
   margin: 0;
@@ -1157,6 +1170,14 @@ li + li {
 .sunrise-copy__script {
   margin-top: 10px;
   font-size: clamp(2.4rem, 5vw, 4.6rem);
+}
+
+.sunrise-copy__note {
+  margin-top: 18px;
+  color: rgba(248, 255, 213, 0.84);
+  font-size: clamp(1rem, 1.8vw, 1.15rem);
+  line-height: 1.65;
+  letter-spacing: 0.02em;
 }
 
 .fireworks-page {

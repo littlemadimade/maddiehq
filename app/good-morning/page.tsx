@@ -20,9 +20,13 @@ export default function GoodMorningPage() {
         <div className="sunrise-shore" aria-hidden="true" />
 
         <article className="sunrise-copy">
-          <p className="sunrise-copy__eyebrow">For Fun</p>
+          <p className="sunrise-copy__eyebrow">Good Morning Tab</p>
+          <p className="sunrise-copy__kicker">sunrise check-in</p>
           <h1>good morning daddy</h1>
-          <p className="sunrise-copy__script">i miss you</p>
+          <p className="sunrise-copy__script">i&apos;m on my way</p>
+          <p className="sunrise-copy__note">
+            coffee in hand, pretty thoughts, and a soft pink sky overhead.
+          </p>
         </article>
       </section>
     </main>
