@@ -675,6 +675,23 @@ h1 {
   line-height: 1.6;
 }
 
+.command-hero .hero__note {
+  background: linear-gradient(180deg, rgba(182, 255, 39, 0.12), rgba(255, 79, 163, 0.08));
+}
+
+.command-brief {
+  border-color: rgba(182, 255, 39, 0.26);
+}
+
+.command-grid,
+.command-stats {
+  align-items: stretch;
+}
+
+.command-panel {
+  min-height: 100%;
+}
+
 .brainstorm-grid {
   display: grid;
   grid-template-columns: 1.05fr 0.95fr;
