@@ -6,7 +6,7 @@ import {
   assistantFocusOptions,
   assistantToneOptions,
   buildAssistantMemoryStorageKey,
-  buildDefaultAssistantMemory,
+  hydrateAssistantMemory,
   type AssistantMemory
 } from "@/lib/assistant-memory";
 
@@ -21,7 +21,7 @@ export default function CreatorPage() {
   } = useCreator();
   const [newProfileName, setNewProfileName] = useState("");
   const [assistantMemory, setAssistantMemory] = useState<AssistantMemory>(() =>
-    buildDefaultAssistantMemory(activeProfile.name)
+    hydrateAssistantMemory(activeProfile.name)
   );
   const [hasLoadedAssistantMemory, setHasLoadedAssistantMemory] = useState(false);
 
@@ -29,20 +29,17 @@ export default function CreatorPage() {
     const saved = window.localStorage.getItem(buildAssistantMemoryStorageKey(activeProfile.id));
 
     if (!saved) {
-      setAssistantMemory(buildDefaultAssistantMemory(activeProfile.name));
+      setAssistantMemory(hydrateAssistantMemory(activeProfile.name));
       setHasLoadedAssistantMemory(true);
       return;
     }
 
     try {
       const parsed = JSON.parse(saved) as Partial<AssistantMemory>;
-      setAssistantMemory({
-        ...buildDefaultAssistantMemory(activeProfile.name),
-        ...parsed
-      });
+      setAssistantMemory(hydrateAssistantMemory(activeProfile.name, parsed));
       setHasLoadedAssistantMemory(true);
     } catch {
-      setAssistantMemory(buildDefaultAssistantMemory(activeProfile.name));
+      setAssistantMemory(hydrateAssistantMemory(activeProfile.name));
       setHasLoadedAssistantMemory(true);
     }
   }, [activeProfile.id, activeProfile.name]);
