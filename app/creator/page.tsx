@@ -1,7 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useCreator } from "@/components/creator-provider";
+import {
+  assistantFocusOptions,
+  assistantToneOptions,
+  buildAssistantMemoryStorageKey,
+  buildDefaultAssistantMemory,
+  type AssistantMemory
+} from "@/lib/assistant-memory";
 
 export default function CreatorPage() {
   const {
@@ -13,6 +20,39 @@ export default function CreatorPage() {
     updateActiveProfile
   } = useCreator();
   const [newProfileName, setNewProfileName] = useState("");
+  const [assistantMemory, setAssistantMemory] = useState<AssistantMemory>(() =>
+    buildDefaultAssistantMemory(activeProfile.name)
+  );
+
+  useEffect(() => {
+    const saved = window.localStorage.getItem(buildAssistantMemoryStorageKey(activeProfile.id));
+
+    if (!saved) {
+      setAssistantMemory(buildDefaultAssistantMemory(activeProfile.name));
+      return;
+    }
+
+    try {
+      const parsed = JSON.parse(saved) as Partial<AssistantMemory>;
+      setAssistantMemory({
+        ...buildDefaultAssistantMemory(activeProfile.name),
+        ...parsed
+      });
+    } catch {
+      setAssistantMemory(buildDefaultAssistantMemory(activeProfile.name));
+    }
+  }, [activeProfile.id, activeProfile.name]);
+
+  useEffect(() => {
+    window.localStorage.setItem(
+      buildAssistantMemoryStorageKey(activeProfile.id),
+      JSON.stringify(assistantMemory)
+    );
+  }, [activeProfile.id, assistantMemory]);
+
+  function updateAssistantMemory(updates: Partial<AssistantMemory>) {
+    setAssistantMemory((current) => ({ ...current, ...updates }));
+  }
 
   return (
     <main className="page">
@@ -183,6 +223,129 @@ export default function CreatorPage() {
           </p>
         </article>
 
+        <article className="panel assistant-settings">
+          <div className="suggestions-card__header">
+            <p className="eyebrow">Assistant Memory</p>
+            <span className="suggestions-card__tag">What your assistant remembers</span>
+          </div>
+          <div className="creator-form">
+            <label className="input-card">
+              <span className="input-card__label">Assistant Name</span>
+              <input
+                className="input-card__field"
+                value={assistantMemory.assistantName}
+                onChange={(event) =>
+                  updateAssistantMemory({ assistantName: event.target.value })
+                }
+              />
+              <span className="input-card__help">
+                This is the persona label the homepage assistant will use.
+              </span>
+            </label>
+
+            <div className="input-grid">
+              <label className="input-card">
+                <span className="input-card__label">Tone</span>
+                <select
+                  className="input-card__field"
+                  value={assistantMemory.tone}
+                  onChange={(event) =>
+                    updateAssistantMemory({
+                      tone: event.target.value as AssistantMemory["tone"]
+                    })
+                  }
+                >
+                  {assistantToneOptions.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="input-card">
+                <span className="input-card__label">Focus Mode</span>
+                <select
+                  className="input-card__field"
+                  value={assistantMemory.focus}
+                  onChange={(event) =>
+                    updateAssistantMemory({
+                      focus: event.target.value as AssistantMemory["focus"]
+                    })
+                  }
+                >
+                  {assistantFocusOptions.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+
+            <label className="input-card">
+              <span className="input-card__label">Main Goal</span>
+              <textarea
+                className="input-card__field input-card__field--short-textarea"
+                value={assistantMemory.mainGoal}
+                onChange={(event) =>
+                  updateAssistantMemory({ mainGoal: event.target.value })
+                }
+              />
+            </label>
+
+            <label className="input-card">
+              <span className="input-card__label">Current Priority</span>
+              <textarea
+                className="input-card__field input-card__field--short-textarea"
+                value={assistantMemory.currentPriority}
+                onChange={(event) =>
+                  updateAssistantMemory({ currentPriority: event.target.value })
+                }
+              />
+            </label>
+
+            <label className="input-card">
+              <span className="input-card__label">Success Signal</span>
+              <textarea
+                className="input-card__field input-card__field--short-textarea"
+                value={assistantMemory.successSignal}
+                onChange={(event) =>
+                  updateAssistantMemory({ successSignal: event.target.value })
+                }
+              />
+            </label>
+
+            <label className="input-card">
+              <span className="input-card__label">Manager Notes</span>
+              <textarea
+                className="input-card__field input-card__field--short-textarea"
+                value={assistantMemory.managerNotes}
+                onChange={(event) =>
+                  updateAssistantMemory({ managerNotes: event.target.value })
+                }
+              />
+            </label>
+
+            <label className="input-card">
+              <span className="input-card__label">Creator Context</span>
+              <textarea
+                className="input-card__field input-card__field--short-textarea"
+                value={assistantMemory.creatorContext}
+                onChange={(event) =>
+                  updateAssistantMemory({ creatorContext: event.target.value })
+                }
+              />
+              <span className="input-card__help">
+                Use this for things like your style, working preferences, what confuses you,
+                or what kind of support helps most.
+              </span>
+            </label>
+          </div>
+        </article>
+      </section>
+
+      <section className="bottom-grid">
         <article className="panel suggestions-card">
           <div className="suggestions-card__header">
             <p className="eyebrow">Safety Reminder</p>
