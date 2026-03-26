@@ -892,6 +892,12 @@ li + li {
   line-height: 1.65;
 }
 
+.event-card__list {
+  margin: 14px 0 0;
+  color: rgba(248, 255, 213, 0.76);
+  line-height: 1.55;
+}
+
 .chat-composer {
   display: flex;
   flex-direction: column;
