@@ -125,6 +125,23 @@ export function buildConversionSummary(inputs: ConversionInputs) {
   };
 }
 
+export function buildConversionSnapshot(inputs: ConversionInputs) {
+  const ofConversionRate =
+    inputs.ofPageViews > 0 ? (inputs.newSubscribers / inputs.ofPageViews) * 100 : 0;
+  const profileToOfRate =
+    inputs.profileVisits > 0 ? (inputs.ofPageViews / inputs.profileVisits) * 100 : 0;
+
+  return {
+    ofConversionRate,
+    profileToOfRate,
+    ofConversionLabel: formatPercent(ofConversionRate),
+    profileToOfLabel: formatPercent(profileToOfRate),
+    subsLabel: formatWholeNumber(inputs.newSubscribers),
+    pageViewsLabel: formatWholeNumber(inputs.ofPageViews),
+    topSpenderLabel: formatCurrency(inputs.topSpenderAmount)
+  };
+}
+
 export const managerNotes = [
   "Track OF page views and new subscribers together so the app can calculate your rough conversion rate automatically.",
   "When a reel brings subs, note the hook, cover, and posting window so you can compare what kind of traffic converts best.",
