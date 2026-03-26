@@ -23,12 +23,14 @@ export default function CreatorPage() {
   const [assistantMemory, setAssistantMemory] = useState<AssistantMemory>(() =>
     buildDefaultAssistantMemory(activeProfile.name)
   );
+  const [hasLoadedAssistantMemory, setHasLoadedAssistantMemory] = useState(false);
 
   useEffect(() => {
     const saved = window.localStorage.getItem(buildAssistantMemoryStorageKey(activeProfile.id));
 
     if (!saved) {
       setAssistantMemory(buildDefaultAssistantMemory(activeProfile.name));
+      setHasLoadedAssistantMemory(true);
       return;
     }
 
@@ -38,17 +40,23 @@ export default function CreatorPage() {
         ...buildDefaultAssistantMemory(activeProfile.name),
         ...parsed
       });
+      setHasLoadedAssistantMemory(true);
     } catch {
       setAssistantMemory(buildDefaultAssistantMemory(activeProfile.name));
+      setHasLoadedAssistantMemory(true);
     }
   }, [activeProfile.id, activeProfile.name]);
 
   useEffect(() => {
+    if (!hasLoadedAssistantMemory) {
+      return;
+    }
+
     window.localStorage.setItem(
       buildAssistantMemoryStorageKey(activeProfile.id),
       JSON.stringify(assistantMemory)
     );
-  }, [activeProfile.id, assistantMemory]);
+  }, [activeProfile.id, assistantMemory, hasLoadedAssistantMemory]);
 
   function updateAssistantMemory(updates: Partial<AssistantMemory>) {
     setAssistantMemory((current) => ({ ...current, ...updates }));

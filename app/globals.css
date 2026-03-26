@@ -840,6 +840,68 @@ li + li {
   gap: 16px;
 }
 
+.assistant-room,
+.chat-thread,
+.event-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.assistant-room {
+  gap: 18px;
+}
+
+.chat-thread,
+.event-list {
+  gap: 14px;
+}
+
+.chat-message,
+.event-card {
+  padding: 18px;
+  border-radius: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.chat-message {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.chat-message--assistant {
+  background: linear-gradient(180deg, rgba(182, 255, 39, 0.08), rgba(255, 255, 255, 0.03));
+}
+
+.chat-message--user {
+  background: linear-gradient(180deg, rgba(255, 79, 163, 0.1), rgba(255, 255, 255, 0.03));
+}
+
+.chat-message__role,
+.event-card__title {
+  margin: 0 0 10px;
+  color: var(--lime-soft);
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.chat-message__text,
+.event-card__detail {
+  margin: 0;
+  color: rgba(248, 255, 213, 0.84);
+  line-height: 1.65;
+}
+
+.chat-composer {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.event-card {
+  background: rgba(255, 255, 255, 0.04);
+}
+
 .brainstorm-panel,
 .brainstorm-form,
 .brainstorm-list {
