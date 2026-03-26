@@ -17,6 +17,7 @@ import {
   buildDefaultAssistantMemory,
   type AssistantMemory
 } from "@/lib/assistant-memory";
+import { buildAssistantTeam } from "@/lib/assistant-team";
 import {
   buildConversionStorageKey,
   defaultConversionInputs,
@@ -40,6 +41,7 @@ export default function AssistantPage() {
   const [draft, setDraft] = useState("");
 
   const chatStorageKey = useMemo(() => buildChatStorageKey(activeProfile.id), [activeProfile.id]);
+  const team = useMemo(() => buildAssistantTeam(memory), [memory]);
 
   useEffect(() => {
     setMessages([]);
@@ -116,7 +118,8 @@ export default function AssistantPage() {
     const userMessage: AssistantChatMessage = {
       id: `${Date.now()}-user`,
       role: "user",
-      text: trimmed
+      text: trimmed,
+      speaker: activeProfile.name
     };
 
     const assistantMessage: AssistantChatMessage = {
@@ -127,7 +130,8 @@ export default function AssistantPage() {
         memory,
         events,
         conversionInputs
-      })
+      }),
+      speaker: memory.assistantName
     };
 
     setMessages((current) => [...current, userMessage, assistantMessage].slice(-18));
@@ -178,7 +182,8 @@ export default function AssistantPage() {
                 key={message.id}
               >
                 <p className="chat-message__role">
-                  {message.role === "assistant" ? memory.assistantName : activeProfile.name}
+                  {message.speaker ??
+                    (message.role === "assistant" ? memory.assistantName : activeProfile.name)}
                 </p>
                 <p className="chat-message__text">{message.text}</p>
               </article>
@@ -203,6 +208,33 @@ export default function AssistantPage() {
           </div>
         </article>
 
+        <article className="panel assistant-room">
+          <div className="suggestions-card__header">
+            <div>
+              <p className="eyebrow">Team</p>
+              <h2>The first agency roles behind the manager.</h2>
+            </div>
+            <span className="suggestions-card__tag">{team.length} roles</span>
+          </div>
+          <div className="event-list">
+            {team.map((member) => (
+              <article className="event-card" key={member.role}>
+                <p className="event-card__title">
+                  {member.name} · {member.title}
+                </p>
+                <p className="event-card__detail">{member.specialty}</p>
+                <ul className="event-card__list">
+                  {member.responsibilities.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </article>
+            ))}
+          </div>
+        </article>
+      </section>
+
+      <section className="bottom-grid">
         <article className="panel assistant-room">
           <div className="suggestions-card__header">
             <div>
