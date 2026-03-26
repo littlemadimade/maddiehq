@@ -26,13 +26,17 @@ export type AssistantMemory = {
   creatorContext: string;
 };
 
+function isLegacyAssistantName(name: string, profileName: string) {
+  return !name.trim() || name === `${profileName}'s assistant`;
+}
+
 export function buildAssistantMemoryStorageKey(creatorId: string) {
   return `maddiehq:${creatorId}:assistant-memory`;
 }
 
 export function buildDefaultAssistantMemory(profileName: string): AssistantMemory {
   return {
-    assistantName: `${profileName}'s assistant`,
+    assistantName: "Kian",
     tone: "Warm manager",
     focus: "Balanced",
     mainGoal: "Turn Instagram traffic into stronger OF conversion and steadier revenue.",
@@ -43,4 +47,21 @@ export function buildDefaultAssistantMemory(profileName: string): AssistantMemor
     creatorContext:
       "Fast learner, creator-first, wants the app to explain what matters instead of dumping confusing numbers."
   };
+}
+
+export function hydrateAssistantMemory(
+  profileName: string,
+  saved?: Partial<AssistantMemory> | null
+): AssistantMemory {
+  const defaults = buildDefaultAssistantMemory(profileName);
+  const merged = {
+    ...defaults,
+    ...saved
+  };
+
+  if (isLegacyAssistantName(merged.assistantName, profileName)) {
+    merged.assistantName = defaults.assistantName;
+  }
+
+  return merged;
 }

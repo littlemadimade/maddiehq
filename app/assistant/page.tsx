@@ -14,7 +14,7 @@ import {
 } from "@/lib/assistant-events";
 import {
   buildAssistantMemoryStorageKey,
-  buildDefaultAssistantMemory,
+  hydrateAssistantMemory,
   type AssistantMemory
 } from "@/lib/assistant-memory";
 import { buildAssistantTeam } from "@/lib/assistant-team";
@@ -33,7 +33,7 @@ function buildChatStorageKey(creatorId: string) {
 export default function AssistantPage() {
   const { activeProfile } = useCreator();
   const [memory, setMemory] = useState<AssistantMemory>(() =>
-    buildDefaultAssistantMemory(activeProfile.name)
+    hydrateAssistantMemory(activeProfile.name)
   );
   const [events, setEvents] = useState<AssistantEvent[]>([]);
   const [conversionInputs, setConversionInputs] = useState<ConversionInputs | null>(null);
@@ -52,15 +52,17 @@ export default function AssistantPage() {
 
     if (savedMemory) {
       try {
-        setMemory({
-          ...buildDefaultAssistantMemory(activeProfile.name),
-          ...(JSON.parse(savedMemory) as Partial<AssistantMemory>)
-        });
+        setMemory(
+          hydrateAssistantMemory(
+            activeProfile.name,
+            JSON.parse(savedMemory) as Partial<AssistantMemory>
+          )
+        );
       } catch {
-        setMemory(buildDefaultAssistantMemory(activeProfile.name));
+        setMemory(hydrateAssistantMemory(activeProfile.name));
       }
     } else {
-      setMemory(buildDefaultAssistantMemory(activeProfile.name));
+      setMemory(hydrateAssistantMemory(activeProfile.name));
     }
 
     setEvents(readAssistantEvents(activeProfile.id));

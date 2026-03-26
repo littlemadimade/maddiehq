@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { Providers } from "@/app/providers";
+import { FloatingAssistant } from "@/components/floating-assistant";
 import { Topbar } from "@/components/topbar";
 import "./globals.css";
 
@@ -21,6 +22,7 @@ export default function RootLayout({
           <div className="app-shell">
             <Topbar />
             {children}
+            <FloatingAssistant />
           </div>
         </Providers>
       </body>

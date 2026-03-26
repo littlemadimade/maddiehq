@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useCreator } from "@/components/creator-provider";
 import {
   buildAssistantMemoryStorageKey,
-  buildDefaultAssistantMemory,
+  hydrateAssistantMemory,
   type AssistantMemory
 } from "@/lib/assistant-memory";
 import { appendAssistantEvent } from "@/lib/assistant-events";
@@ -30,7 +30,7 @@ export default function HomePage() {
   const [entries, setEntries] = useState<BrainstormEntry[]>([]);
   const [conversionInputs, setConversionInputs] = useState<ConversionInputs | null>(null);
   const [assistantMemory, setAssistantMemory] = useState<AssistantMemory>(() =>
-    buildDefaultAssistantMemory(activeProfile.name)
+    hydrateAssistantMemory(activeProfile.name)
   );
 
   useEffect(() => {
@@ -74,18 +74,15 @@ export default function HomePage() {
     const saved = window.localStorage.getItem(buildAssistantMemoryStorageKey(activeProfile.id));
 
     if (!saved) {
-      setAssistantMemory(buildDefaultAssistantMemory(activeProfile.name));
+      setAssistantMemory(hydrateAssistantMemory(activeProfile.name));
       return;
     }
 
     try {
       const parsed = JSON.parse(saved) as Partial<AssistantMemory>;
-      setAssistantMemory({
-        ...buildDefaultAssistantMemory(activeProfile.name),
-        ...parsed
-      });
+      setAssistantMemory(hydrateAssistantMemory(activeProfile.name, parsed));
     } catch {
-      setAssistantMemory(buildDefaultAssistantMemory(activeProfile.name));
+      setAssistantMemory(hydrateAssistantMemory(activeProfile.name));
     }
   }, [activeProfile.id, activeProfile.name]);
 
