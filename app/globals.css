@@ -2790,3 +2790,108 @@ li + li {
 .analytics-heatmap__cell:hover {
   outline: 1px solid var(--lime);
 }
+
+/* ── AI Report ────────────────────────────────────────────────────── */
+
+.ai-report {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-top: 16px;
+}
+
+.ai-report__summary {
+  padding: 18px;
+  border-radius: 16px;
+  background: rgba(182, 255, 39, 0.06);
+  border: 1px solid rgba(182, 255, 39, 0.12);
+}
+
+.ai-report__summary p {
+  margin: 0;
+  line-height: 1.6;
+  color: var(--text);
+}
+
+.ai-report__meta {
+  margin-top: 10px !important;
+  color: rgba(248, 255, 213, 0.45) !important;
+  font-size: 0.82rem;
+}
+
+.ai-report__section h3 {
+  margin: 0 0 12px;
+  color: var(--lime-soft);
+  font-size: 1.05rem;
+}
+
+.ai-report__cards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ai-report__card {
+  padding: 16px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.ai-report__card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.ai-report__card h4 {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--text);
+}
+
+.ai-report__card p {
+  margin: 0;
+  color: rgba(248, 255, 213, 0.75);
+  line-height: 1.5;
+  font-size: 0.9rem;
+}
+
+.ai-report__evidence {
+  margin-top: 8px !important;
+  color: rgba(248, 255, 213, 0.5) !important;
+  font-size: 0.82rem !important;
+  font-style: italic;
+}
+
+.ai-report__impact,
+.ai-report__priority {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.ai-report__impact--high,
+.ai-report__priority--high {
+  background: rgba(182, 255, 39, 0.12);
+  color: var(--lime);
+}
+
+.ai-report__impact--medium,
+.ai-report__priority--medium {
+  background: rgba(255, 200, 39, 0.12);
+  color: #ffc827;
+}
+
+.ai-report__impact--low,
+.ai-report__priority--low {
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(248, 255, 213, 0.5);
+}

@@ -40,8 +40,16 @@ interface DemographicsData {
   genderAge: DemoEntry[];
 }
 
+interface ContentReport {
+  patterns: Array<{ title: string; description: string; evidence: string; impact: string }>;
+  recommendations: Array<{ action: string; reasoning: string; priority: "high" | "medium" | "low" }>;
+  summary: string;
+  postsAnalyzed: number;
+  generatedAt: string;
+}
+
 type SortField = "published_at" | "engagement" | "reach" | "impressions" | "saves" | "likes" | "comments";
-type Tab = "posts" | "growth" | "demographics" | "times";
+type Tab = "posts" | "growth" | "demographics" | "times" | "ai";
 type TimeRange = "7" | "30" | "90" | "all";
 
 // ── Component ────────────────────────────────────────────────────────
@@ -52,8 +60,10 @@ export default function AnalyticsPage() {
   const [snapshots, setSnapshots] = useState<Snapshot[]>([]);
   const [demographics, setDemographics] = useState<DemographicsData | null>(null);
   const [trend, setTrend] = useState<"up" | "down" | "flat">("flat");
+  const [report, setReport] = useState<ContentReport | null>(null);
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
+  const [analyzing, setAnalyzing] = useState(false);
   const [sortField, setSortField] = useState<SortField>("published_at");
   const [sortDir, setSortDir] = useState<"desc" | "asc">("desc");
   const [timeRange, setTimeRange] = useState<TimeRange>("30");
@@ -85,17 +95,25 @@ export default function AnalyticsPage() {
     }
   }, []);
 
+  const fetchReport = useCallback(async () => {
+    const res = await fetch("/api/analyze/instagram");
+    if (res.ok) {
+      const json = await res.json();
+      setReport(json.report ?? null);
+    }
+  }, []);
+
   const loadAll = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      await Promise.all([fetchPosts(), fetchInsights(), fetchDemographics()]);
+      await Promise.all([fetchPosts(), fetchInsights(), fetchDemographics(), fetchReport()]);
     } catch {
       setError("Failed to load data. Make sure Instagram is connected.");
     } finally {
       setLoading(false);
     }
-  }, [fetchPosts, fetchInsights, fetchDemographics]);
+  }, [fetchPosts, fetchInsights, fetchDemographics, fetchReport]);
 
   useEffect(() => { loadAll(); }, [loadAll]);
 
@@ -114,6 +132,29 @@ export default function AnalyticsPage() {
       setError("Sync failed. Check your connection and credentials.");
     } finally {
       setSyncing(false);
+    }
+  }
+
+  async function handleAnalyze() {
+    setAnalyzing(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/analyze/instagram", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "full" })
+      });
+      if (!res.ok) {
+        const json = await res.json();
+        setError(json.error ?? "Analysis failed");
+        return;
+      }
+      const json = await res.json();
+      setReport(json.report ?? null);
+    } catch {
+      setError("Analysis failed. Make sure ANTHROPIC_API_KEY is set in .env");
+    } finally {
+      setAnalyzing(false);
     }
   }
 
@@ -158,7 +199,8 @@ export default function AnalyticsPage() {
     { key: "posts", label: "Posts" },
     { key: "growth", label: "Growth" },
     { key: "demographics", label: "Audience" },
-    { key: "times", label: "Best Times" }
+    { key: "times", label: "Best Times" },
+    { key: "ai", label: "AI Insights" }
   ];
 
   const dayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -394,6 +436,88 @@ export default function AnalyticsPage() {
                       </React.Fragment>
                     ))}
                   </div>
+                </div>
+              )}
+            </section>
+          )}
+
+          {/* ── AI Insights ──────────────────────────────────────── */}
+          {tab === "ai" && (
+            <section className="panel analytics-section">
+              <div className="analytics-section__header">
+                <h2>AI Content Analysis</h2>
+                <button
+                  className="page-header__action"
+                  type="button"
+                  disabled={analyzing}
+                  onClick={handleAnalyze}
+                >
+                  {analyzing ? "Analyzing..." : "Analyze Content"}
+                </button>
+              </div>
+              <p className="analytics-section__sub">
+                Uses AI vision and text analysis to find patterns in what content performs best.
+              </p>
+
+              {analyzing && (
+                <div className="analytics-loading">
+                  <p>Analyzing posts with AI — this can take a minute or two...</p>
+                </div>
+              )}
+
+              {!analyzing && !report && (
+                <div className="analytics-empty">
+                  <p>No analysis report yet. Click &ldquo;Analyze Content&rdquo; to run AI analysis on your posts.</p>
+                </div>
+              )}
+
+              {!analyzing && report && (
+                <div className="ai-report">
+                  <div className="ai-report__summary">
+                    <p>{report.summary}</p>
+                    <p className="ai-report__meta">
+                      {report.postsAnalyzed} posts analyzed · {report.generatedAt ? formatDate(report.generatedAt) : ""}
+                    </p>
+                  </div>
+
+                  {report.patterns.length > 0 && (
+                    <div className="ai-report__section">
+                      <h3>Patterns Found</h3>
+                      <div className="ai-report__cards">
+                        {report.patterns.map((pattern, i) => (
+                          <article key={i} className="ai-report__card">
+                            <div className="ai-report__card-header">
+                              <h4>{pattern.title}</h4>
+                              <span className={`ai-report__impact ai-report__impact--${pattern.impact}`}>
+                                {pattern.impact}
+                              </span>
+                            </div>
+                            <p>{pattern.description}</p>
+                            <p className="ai-report__evidence">{pattern.evidence}</p>
+                          </article>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {report.recommendations.length > 0 && (
+                    <div className="ai-report__section">
+                      <h3>Recommendations</h3>
+                      <div className="ai-report__cards">
+                        {report.recommendations.map((rec, i) => (
+                          <article key={i} className="ai-report__card">
+                            <div className="ai-report__card-header">
+                              <h4>{rec.action}</h4>
+                              <span className={`ai-report__priority ai-report__priority--${rec.priority}`}>
+                                {rec.priority}
+                              </span>
+                            </div>
+                            <p>{rec.reasoning}</p>
+                          </article>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </section>
