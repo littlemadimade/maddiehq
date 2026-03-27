@@ -2442,3 +2442,310 @@ li + li {
     height: 126px;
   }
 }
+
+/* ── Analytics Dashboard ──────────────────────────────────────────── */
+
+.analytics-error {
+  padding: 14px 18px;
+  border: 1px solid rgba(255, 79, 163, 0.3);
+  background: rgba(255, 79, 163, 0.08);
+  border-radius: 16px;
+  color: var(--pink-soft);
+}
+
+.analytics-error p {
+  margin: 0;
+}
+
+.analytics-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.analytics-tab {
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.analytics-tab--active {
+  background: rgba(182, 255, 39, 0.12);
+  border-color: rgba(182, 255, 39, 0.3);
+  color: var(--lime-soft);
+}
+
+.analytics-loading {
+  padding: 40px;
+  text-align: center;
+  color: rgba(248, 255, 213, 0.6);
+}
+
+.analytics-empty {
+  padding: 30px;
+  text-align: center;
+  color: rgba(248, 255, 213, 0.5);
+}
+
+.analytics-empty p {
+  margin: 0;
+}
+
+.analytics-section {
+  padding: 24px;
+}
+
+.analytics-section h2 {
+  margin: 0 0 6px;
+  color: var(--lime-soft);
+  font-size: clamp(1.2rem, 2vw, 1.5rem);
+}
+
+.analytics-section__sub {
+  margin: 0 0 20px;
+  color: rgba(248, 255, 213, 0.6);
+  font-size: 0.9rem;
+}
+
+.analytics-section__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.analytics-section__header h2 {
+  margin: 0;
+}
+
+.analytics-trend {
+  margin: 0 0 16px;
+  color: rgba(248, 255, 213, 0.7);
+}
+
+.analytics-trend--up {
+  color: var(--lime);
+  font-weight: 700;
+}
+
+.analytics-trend--down {
+  color: var(--pink);
+  font-weight: 700;
+}
+
+.analytics-trend--flat {
+  color: rgba(248, 255, 213, 0.5);
+}
+
+/* ── Table ────────────────────────────────────────────────────────── */
+
+.analytics-table-wrap {
+  overflow-x: auto;
+  margin-top: 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.analytics-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+.analytics-table th,
+.analytics-table td {
+  padding: 10px 14px;
+  text-align: left;
+  white-space: nowrap;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.analytics-table th {
+  color: rgba(248, 255, 213, 0.5);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.analytics-table__sortable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.analytics-table__sortable:hover {
+  color: var(--lime-soft);
+}
+
+.analytics-table__sortable--active {
+  color: var(--lime);
+}
+
+.analytics-table__caption {
+  max-width: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.analytics-table__caption a {
+  color: var(--lime-soft);
+  text-decoration: none;
+}
+
+.analytics-table__caption a:hover {
+  text-decoration: underline;
+}
+
+.analytics-badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* ── Range buttons ────────────────────────────────────────────────── */
+
+.analytics-range-buttons {
+  display: flex;
+  gap: 6px;
+}
+
+.analytics-range-btn {
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.analytics-range-btn--active {
+  background: rgba(182, 255, 39, 0.12);
+  border-color: rgba(182, 255, 39, 0.3);
+  color: var(--lime-soft);
+}
+
+/* ── Bar chart ────────────────────────────────────────────────────── */
+
+.analytics-chart {
+  margin-top: 16px;
+}
+
+.analytics-bar-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.analytics-bar {
+  display: grid;
+  grid-template-columns: 100px 1fr 60px;
+  align-items: center;
+  gap: 10px;
+}
+
+.analytics-bar__label {
+  font-size: 0.82rem;
+  color: rgba(248, 255, 213, 0.7);
+  text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.analytics-bar__track {
+  height: 20px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  overflow: hidden;
+}
+
+.analytics-bar__fill {
+  height: 100%;
+  border-radius: 10px;
+  background: linear-gradient(90deg, var(--lime), var(--pink));
+  transition: width 0.3s ease;
+}
+
+.analytics-bar__value {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* ── Demographics grid ────────────────────────────────────────────── */
+
+.analytics-demo-grid {
+  display: grid;
+  gap: 24px;
+}
+
+.analytics-demo-panel h3 {
+  margin: 0 0 8px;
+  color: var(--lime-soft);
+  font-size: 1rem;
+}
+
+/* ── Heatmap ──────────────────────────────────────────────────────── */
+
+.analytics-heatmap-wrap {
+  overflow-x: auto;
+  margin-top: 16px;
+}
+
+.analytics-heatmap {
+  display: grid;
+  grid-template-columns: 50px repeat(24, 1fr);
+  gap: 2px;
+  min-width: 600px;
+}
+
+.analytics-heatmap__corner {
+  /* empty top-left cell */
+}
+
+.analytics-heatmap__hour-label {
+  font-size: 0.68rem;
+  color: rgba(248, 255, 213, 0.4);
+  text-align: center;
+  padding: 2px 0;
+}
+
+.analytics-heatmap__day-label {
+  font-size: 0.78rem;
+  color: rgba(248, 255, 213, 0.6);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 8px;
+}
+
+.analytics-heatmap__cell {
+  aspect-ratio: 1;
+  border-radius: 4px;
+  cursor: default;
+  transition: background-color 0.15s;
+  min-height: 20px;
+}
+
+.analytics-heatmap__cell:hover {
+  outline: 1px solid var(--lime);
+}
