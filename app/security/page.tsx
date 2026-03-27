@@ -1,5 +1,3 @@
-import Link from "next/link";
-
 const protectionCards = [
   {
     title: "Creator data is separated",
@@ -35,28 +33,9 @@ const nextLocks = [
 export default function SecurityPage() {
   return (
     <main className="page">
-      <section className="hero panel">
-        <div>
-          <p className="eyebrow">Safety and Security</p>
-          <h1>Protect creator data first, then connect real accounts.</h1>
-          <p className="lede">
-            Think of this room like the lock-and-keys checklist for the app. It
-            explains what is already protecting creator data, what is still only local,
-            and what must be upgraded before live Instagram connection work begins.
-          </p>
-        </div>
-        <div className="hero__note">
-          <span className="hero__badge">Safety first</span>
-          <p>
-            Authentication proves who the creator is, authorization controls what she
-            can access, and encryption helps keep sensitive data unreadable if it is
-            intercepted or stored in the wrong place.
-          </p>
-          <Link className="hero__cta" href="/creator">
-            Open Creator Setup
-          </Link>
-        </div>
-      </section>
+      <header className="page-header">
+        <h1 className="page-title">Safety and Security</h1>
+      </header>
 
       <section className="overview-grid">
         {protectionCards.map((card) => (

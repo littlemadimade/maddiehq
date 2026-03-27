@@ -165,27 +165,17 @@ export default function AnalyticsPage() {
 
   return (
     <main className="page">
-      <section className="hero panel">
-        <div>
-          <p className="eyebrow">Analytics Dashboard</p>
-          <h1>Real performance data from your connected Instagram account.</h1>
-          <p className="lede">
-            Synced from the Instagram Graph API. Posts, engagement, follower
-            trends, audience demographics, and best posting times — all in one place.
-          </p>
-        </div>
-        <div className="hero__note">
-          <span className="hero__badge">Instagram</span>
-          <button
-            className="hero__cta"
-            type="button"
-            disabled={syncing}
-            onClick={handleSync}
-          >
-            {syncing ? "Syncing..." : "Sync Now"}
-          </button>
-        </div>
-      </section>
+      <header className="page-header">
+        <h1 className="page-title">Analytics</h1>
+        <button
+          className="page-header__action"
+          type="button"
+          disabled={syncing}
+          onClick={handleSync}
+        >
+          {syncing ? "Syncing..." : "Sync Now"}
+        </button>
+      </header>
 
       {error && (
         <div className="analytics-error panel">

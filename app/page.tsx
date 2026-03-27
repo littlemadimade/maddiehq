@@ -172,23 +172,9 @@ export default function HomePage() {
 
   return (
     <main className="page">
-      <section className="hero panel command-hero">
-        <div>
-          <p className="eyebrow">Command Room</p>
-          <h1>See what matters now, what is moving, and what the manager wants next.</h1>
-          <p className="lede">
-            Home should feel like the briefing board for the whole app. Start here for the
-            manager read, workflow urgency, business pulse, and a quick place to capture ideas.
-          </p>
-        </div>
-        <div className="hero__note">
-          <span className="hero__badge">Manager briefing</span>
-          <p>
-            Current operator: {assistantMemory.assistantName}
-          </p>
-          <p className="hero__save-state">{assistantMemory.currentPriority}</p>
-        </div>
-      </section>
+      <header className="page-header">
+        <h1 className="page-title">Home</h1>
+      </header>
 
       <section className="panel assistant-card command-brief">
         <div className="assistant-card__copy">

@@ -31,23 +31,9 @@ const focusMap: Record<string, string[]> = {
 export default function SuggestionsPage() {
   return (
     <main className="page">
-      <section className="hero panel">
-        <div>
-          <p className="eyebrow">Suggestions Engine</p>
-          <h1>Recommended next moves based on the signals already showing up in your Instagram content.</h1>
-          <p className="lede">
-            This page turns patterns from your insights into action ideas, so you
-            do not have to stare at numbers and guess what they mean.
-          </p>
-        </div>
-        <div className="hero__note">
-          <span className="hero__badge">Decision support</span>
-          <p>
-            These suggestions are generated from the current insights data model.
-            As the app gets real data later, the recommendations can get smarter too.
-          </p>
-        </div>
-      </section>
+      <header className="page-header">
+        <h1 className="page-title">Suggestions</h1>
+      </header>
 
       <section className="overview-grid">
         <article className="stat-card panel">
