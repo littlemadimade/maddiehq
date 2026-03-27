@@ -2932,3 +2932,70 @@ li + li {
 .ai-report__elaboration p:last-child {
   margin-bottom: 0;
 }
+
+/* ── Progress Indicator ───────────────────────────────────────────── */
+
+.progress-panel {
+  padding: 24px;
+}
+
+.progress-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.progress-header h2 {
+  margin: 0;
+  color: var(--lime-soft);
+  font-size: 1.1rem;
+}
+
+.progress-count {
+  color: var(--text);
+  font-size: 0.9rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.progress-step {
+  margin: 0 0 14px;
+  color: rgba(248, 255, 213, 0.6);
+  font-size: 0.88rem;
+}
+
+.progress-bar {
+  height: 8px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+  margin-bottom: 18px;
+}
+
+.progress-bar__fill {
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--lime), var(--pink));
+  transition: width 0.3s ease;
+}
+
+.progress-phases {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.progress-phase {
+  font-size: 0.82rem;
+  color: rgba(248, 255, 213, 0.3);
+  font-weight: 600;
+}
+
+.progress-phase--active {
+  color: var(--lime);
+}
+
+.progress-phase--done {
+  color: rgba(248, 255, 213, 0.5);
+}

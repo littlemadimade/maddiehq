@@ -12,6 +12,13 @@ interface ContentReport {
   generatedAt: string;
 }
 
+interface ProgressState {
+  phase: string;
+  step: string;
+  current: number;
+  total: number;
+}
+
 // ── Component ────────────────────────────────────────────────────────
 
 export default function InsightsPage() {
@@ -20,6 +27,7 @@ export default function InsightsPage() {
   const [elaborating, setElaborating] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [analyzing, setAnalyzing] = useState(false);
+  const [progress, setProgress] = useState<ProgressState | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const fetchReport = useCallback(async () => {
@@ -42,39 +50,62 @@ export default function InsightsPage() {
   async function handleAnalyze() {
     setAnalyzing(true);
     setError(null);
+    setProgress({ phase: "starting", step: "Starting analysis...", current: 0, total: 0 });
+
     try {
-      // Step 1: Run base analysis (vision + caption) on unanalyzed posts
-      const analyzeRes = await fetch("/api/analyze/instagram", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "analyze" })
-      });
-      if (!analyzeRes.ok) {
-        const json = await analyzeRes.json();
-        setError(json.error ?? "Analysis failed");
+      const response = await fetch("/api/analyze/instagram/stream");
+
+      if (!response.ok || !response.body) {
+        setError("Failed to start analysis stream");
+        setAnalyzing(false);
+        setProgress(null);
         return;
       }
 
-      // Step 2: Process videos (transcription + key frames)
-      await fetch("/api/analyze/instagram/video", { method: "POST" });
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
 
-      // Step 3: Generate the pattern report
-      const reportRes = await fetch("/api/analyze/instagram", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "report" })
-      });
-      if (!reportRes.ok) {
-        const json = await reportRes.json();
-        setError(json.error ?? "Report generation failed");
-        return;
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+
+        // Parse SSE events from buffer
+        const lines = buffer.split("\n");
+        buffer = lines.pop() ?? ""; // Keep incomplete line in buffer
+
+        for (const line of lines) {
+          if (!line.startsWith("data: ")) continue;
+
+          try {
+            const data = JSON.parse(line.slice(6));
+
+            if (data.phase === "complete" && data.report) {
+              setReport(data.report);
+              setProgress(null);
+            } else if (data.phase === "error") {
+              setError(data.error ?? "Analysis failed");
+              setProgress(null);
+            } else {
+              setProgress({
+                phase: data.phase,
+                step: data.step,
+                current: data.current ?? 0,
+                total: data.total ?? 0
+              });
+            }
+          } catch {
+            // Skip malformed SSE data
+          }
+        }
       }
-      const json = await reportRes.json();
-      setReport(json.report ?? null);
     } catch {
-      setError("Analysis failed. Make sure ANTHROPIC_API_KEY is set in .env");
+      setError("Analysis failed. Check your API keys in .env");
     } finally {
       setAnalyzing(false);
+      setProgress(null);
     }
   }
 
@@ -101,6 +132,13 @@ export default function InsightsPage() {
     return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
   }
 
+  const phaseLabels: Record<string, string> = {
+    starting: "Starting",
+    analyze: "Analyzing posts",
+    video: "Processing videos",
+    report: "Generating report"
+  };
+
   return (
     <main className="page">
       <header className="page-header">
@@ -121,16 +159,41 @@ export default function InsightsPage() {
         </div>
       )}
 
-      {loading && (
+      {loading && !analyzing && (
         <div className="analytics-loading panel">
           <p>Loading insights...</p>
         </div>
       )}
 
-      {analyzing && (
-        <div className="analytics-loading panel">
-          <p>Analyzing posts with AI — this can take a minute or two...</p>
-        </div>
+      {analyzing && progress && (
+        <section className="panel analytics-section progress-panel">
+          <div className="progress-header">
+            <h2>{phaseLabels[progress.phase] ?? progress.phase}</h2>
+            {progress.total > 0 && (
+              <span className="progress-count">{progress.current} / {progress.total}</span>
+            )}
+          </div>
+          <p className="progress-step">{progress.step}</p>
+          {progress.total > 0 && (
+            <div className="progress-bar">
+              <div
+                className="progress-bar__fill"
+                style={{ width: `${Math.round((progress.current / progress.total) * 100)}%` }}
+              />
+            </div>
+          )}
+          <div className="progress-phases">
+            <span className={`progress-phase ${progress.phase === "analyze" ? "progress-phase--active" : ["video", "report", "complete"].includes(progress.phase) ? "progress-phase--done" : ""}`}>
+              1. Analyze posts
+            </span>
+            <span className={`progress-phase ${progress.phase === "video" ? "progress-phase--active" : ["report", "complete"].includes(progress.phase) ? "progress-phase--done" : ""}`}>
+              2. Process videos
+            </span>
+            <span className={`progress-phase ${progress.phase === "report" ? "progress-phase--active" : progress.phase === "complete" ? "progress-phase--done" : ""}`}>
+              3. Generate report
+            </span>
+          </div>
+        </section>
       )}
 
       {!loading && !analyzing && !report && (

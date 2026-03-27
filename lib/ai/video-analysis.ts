@@ -175,7 +175,14 @@ export interface VideoAnalysisResult {
   errors: number;
 }
 
-export async function processVideoPosts(limit = 50): Promise<VideoAnalysisResult> {
+export type ProgressCallback = (event: {
+  phase: string;
+  step: string;
+  current: number;
+  total: number;
+}) => void;
+
+export async function processVideoPosts(limit = 50, onProgress?: ProgressCallback): Promise<VideoAnalysisResult> {
   ensureTmpDir();
 
   // Find video posts that have a media_url and an analysis row but no transcript
@@ -205,7 +212,10 @@ export async function processVideoPosts(limit = 50): Promise<VideoAnalysisResult
   let skipped = 0;
   let errors = 0;
 
-  for (const post of videoPosts) {
+  for (let i = 0; i < videoPosts.length; i++) {
+    const post = videoPosts[i];
+    onProgress?.({ phase: "video", step: `Processing video ${i + 1} of ${videoPosts.length}`, current: i + 1, total: videoPosts.length });
+
     if (!post.mediaUrl) { skipped++; continue; }
 
     const videoPath = join(TMP_DIR, `${post.platformPostId}.mp4`);
