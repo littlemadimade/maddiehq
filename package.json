@@ -6,22 +6,28 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate"
   },
   "dependencies": {
     "@react-three/drei": "^9.122.0",
     "@react-three/fiber": "^8.17.10",
+    "better-sqlite3": "^12.8.0",
+    "drizzle-orm": "^0.45.2",
     "next": "^14.2.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "three": "^0.176.0"
   },
   "devDependencies": {
-    "@types/node": "^22.14.1",
-    "@types/react": "^18.3.12",
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "22.19.15",
+    "@types/react": "18.3.28",
     "@types/react-dom": "^18.3.1",
+    "drizzle-kit": "^0.31.10",
     "eslint": "^8.57.1",
     "eslint-config-next": "^14.2.0",
-    "typescript": "^5.8.3"
+    "typescript": "5.9.3"
   }
 }
