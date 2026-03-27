@@ -1,97 +1,195 @@
-import Link from "next/link";
-import { overviewStats, platformCards, suggestions } from "@/lib/insights";
+"use client";
+
+import { useCallback, useEffect, useState } from "react";
+
+// ── Types ────────────────────────────────────────────────────────────
+
+interface ContentReport {
+  patterns: Array<{ title: string; description: string; evidence: string; impact: string }>;
+  recommendations: Array<{ action: string; reasoning: string; priority: "high" | "medium" | "low" }>;
+  summary: string;
+  postsAnalyzed: number;
+  generatedAt: string;
+}
+
+// ── Component ────────────────────────────────────────────────────────
 
 export default function InsightsPage() {
+  const [report, setReport] = useState<ContentReport | null>(null);
+  const [elaborations, setElaborations] = useState<Record<string, string>>({});
+  const [elaborating, setElaborating] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchReport = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/analyze/instagram");
+      if (res.ok) {
+        const json = await res.json();
+        setReport(json.report ?? null);
+      }
+    } catch {
+      // Silently fail on load
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { fetchReport(); }, [fetchReport]);
+
+  async function handleAnalyze() {
+    setAnalyzing(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/analyze/instagram", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "full" })
+      });
+      if (!res.ok) {
+        const json = await res.json();
+        setError(json.error ?? "Analysis failed");
+        return;
+      }
+      const json = await res.json();
+      setReport(json.report ?? null);
+    } catch {
+      setError("Analysis failed. Make sure ANTHROPIC_API_KEY is set in .env");
+    } finally {
+      setAnalyzing(false);
+    }
+  }
+
+  async function handleElaborate(pattern: { title: string; description: string; evidence: string }) {
+    setElaborating(pattern.title);
+    try {
+      const res = await fetch("/api/analyze/instagram/elaborate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(pattern)
+      });
+      if (res.ok) {
+        const json = await res.json();
+        setElaborations((prev) => ({ ...prev, [pattern.title]: json.elaboration }));
+      }
+    } catch {
+      // Silently fail
+    } finally {
+      setElaborating(null);
+    }
+  }
+
+  function formatDate(iso: string): string {
+    return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  }
+
   return (
     <main className="page">
       <header className="page-header">
         <h1 className="page-title">Insights</h1>
+        <button
+          className="page-header__action"
+          type="button"
+          disabled={analyzing}
+          onClick={handleAnalyze}
+        >
+          {analyzing ? "Analyzing..." : "Analyze Content"}
+        </button>
       </header>
 
-      <section className="overview-grid">
-        {overviewStats.map((stat) => (
-          <article className="stat-card panel" key={stat.label}>
-            <p className="stat-card__label">{stat.label}</p>
-            <p className="stat-card__value">{stat.value}</p>
-            <p className="stat-card__change">{stat.change}</p>
-          </article>
-        ))}
-      </section>
+      {error && (
+        <div className="analytics-error panel">
+          <p>{error}</p>
+        </div>
+      )}
 
-      <section className="platform-grid">
-        {platformCards.map((platform) => (
-          <article className={`platform-card panel ${platform.accent}`} key={platform.name}>
-            <div className="platform-card__header">
-              <div>
-                <p className="platform-card__eyebrow">{platform.name}</p>
-                <h2>{platform.handle}</h2>
-              </div>
-              <span className="platform-card__pill">Insights</span>
+      {loading && (
+        <div className="analytics-loading panel">
+          <p>Loading insights...</p>
+        </div>
+      )}
+
+      {analyzing && (
+        <div className="analytics-loading panel">
+          <p>Analyzing posts with AI — this can take a minute or two...</p>
+        </div>
+      )}
+
+      {!loading && !analyzing && !report && (
+        <div className="analytics-empty panel">
+          <p>No analysis report yet. Click &ldquo;Analyze Content&rdquo; to run AI analysis on your posts.</p>
+        </div>
+      )}
+
+      {!loading && !analyzing && report && (
+        <>
+          <section className="panel analytics-section">
+            <div className="ai-report__summary">
+              <p>{report.summary}</p>
+              <p className="ai-report__meta">
+                {report.postsAnalyzed} posts analyzed · {report.generatedAt ? formatDate(report.generatedAt) : ""}
+              </p>
             </div>
+          </section>
 
-            <div className="metric-grid">
-              {platform.stats.map((stat) => (
-                <div className="metric" key={stat.label}>
-                  <p className="metric__label">{stat.label}</p>
-                  <p className="metric__value">{stat.value}</p>
-                </div>
-              ))}
-            </div>
-
-            <div className="platform-card__analysis">
-              <div>
-                <h3>What&apos;s Working</h3>
-                <ul>
-                  {platform.wins.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
+          {report.patterns.length > 0 && (
+            <section className="panel analytics-section">
+              <h2>Patterns Found</h2>
+              <div className="ai-report__cards">
+                {report.patterns.map((pattern, i) => (
+                  <article key={i} className="ai-report__card">
+                    <div className="ai-report__card-header">
+                      <h4>{pattern.title}</h4>
+                      <span className={`ai-report__impact ai-report__impact--${pattern.impact}`}>
+                        {pattern.impact}
+                      </span>
+                    </div>
+                    <p>{pattern.description}</p>
+                    <p className="ai-report__evidence">{pattern.evidence}</p>
+                    {elaborations[pattern.title] ? (
+                      <div className="ai-report__elaboration">
+                        {elaborations[pattern.title].split("\n\n").map((para, j) => (
+                          <p key={j}>{para}</p>
+                        ))}
+                      </div>
+                    ) : (
+                      <button
+                        className="ai-report__elaborate-btn"
+                        type="button"
+                        disabled={elaborating === pattern.title}
+                        onClick={() => handleElaborate(pattern)}
+                      >
+                        {elaborating === pattern.title ? "Thinking..." : "Go deeper"}
+                      </button>
+                    )}
+                  </article>
+                ))}
               </div>
-              <div>
-                <h3>What&apos;s Not Working</h3>
-                <ul>
-                  {platform.misses.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
+            </section>
+          )}
+
+          {report.recommendations.length > 0 && (
+            <section className="panel analytics-section">
+              <h2>Recommendations</h2>
+              <div className="ai-report__cards">
+                {report.recommendations.map((rec, i) => (
+                  <article key={i} className="ai-report__card">
+                    <div className="ai-report__card-header">
+                      <h4>{rec.action}</h4>
+                      <span className={`ai-report__priority ai-report__priority--${rec.priority}`}>
+                        {rec.priority}
+                      </span>
+                    </div>
+                    <p>{rec.reasoning}</p>
+                  </article>
+                ))}
               </div>
-            </div>
-          </article>
-        ))}
-      </section>
-
-      <section className="bottom-grid">
-        <article className="panel breakdown-card">
-          <p className="eyebrow">Instagram Read</p>
-          <h2>Your strongest Instagram content is quick, direct, and visually easy to understand.</h2>
-          <p>
-            Right now the pattern says your audience responds best when the value
-            of the content is obvious early. Reels are carrying the most momentum,
-            and posts that feel human and immediate are beating content that feels
-            too staged or too vague.
-          </p>
-          <p>
-            That means your system should focus on repeatable Instagram video ideas,
-            stronger hooks, clearer covers, and simpler follow-through instead of
-            reinventing every post from scratch.
-          </p>
-        </article>
-
-        <article className="panel suggestions-card">
-          <div className="suggestions-card__header">
-            <p className="eyebrow">Suggestions</p>
-            <span className="suggestions-card__tag">Generated from insights</span>
-          </div>
-          <ul>
-            {suggestions.map((suggestion) => (
-              <li key={suggestion.title}>{suggestion.title}</li>
-            ))}
-          </ul>
-          <Link className="suggestions-card__link" href="/insights/suggestions">
-            Open full suggestions view
-          </Link>
-        </article>
-      </section>
+            </section>
+          )}
+        </>
+      )}
     </main>
   );
 }
