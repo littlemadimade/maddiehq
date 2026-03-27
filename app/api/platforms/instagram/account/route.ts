@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import {
   getAccountInfo,
-  getRateLimitStatus,
   InstagramAuthError,
   InstagramRateLimitError,
   InstagramApiError
@@ -10,9 +9,8 @@ import {
 export async function GET() {
   try {
     const account = await getAccountInfo();
-    const rateLimit = getRateLimitStatus();
 
-    return NextResponse.json({ account, rateLimit });
+    return NextResponse.json({ account });
   } catch (error) {
     if (error instanceof InstagramAuthError) {
       return NextResponse.json({ error: error.message }, { status: 401 });

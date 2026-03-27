@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { exchangeForLongLivedToken, InstagramAuthError, InstagramApiError } from "@/lib/platforms/instagram";
+import { storeToken, InstagramAuthError, InstagramApiError } from "@/lib/platforms/instagram";
 
 export async function POST(request: NextRequest) {
   try {
@@ -7,14 +7,14 @@ export async function POST(request: NextRequest) {
 
     if (!body.token || typeof body.token !== "string") {
       return NextResponse.json(
-        { error: "Missing required field: token (short-lived Instagram token)" },
+        { error: "Missing required field: token" },
         { status: 400 }
       );
     }
 
-    await exchangeForLongLivedToken(body.token);
+    const account = await storeToken(body.token);
 
-    return NextResponse.json({ status: "connected" });
+    return NextResponse.json({ status: "connected", account });
   } catch (error) {
     if (error instanceof InstagramAuthError) {
       return NextResponse.json({ error: error.message }, { status: 401 });

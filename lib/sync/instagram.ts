@@ -1,4 +1,4 @@
-import { eq, and, sql } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { db } from "@/lib/db/client";
 import { posts, postInsights, accountSnapshots, demographics } from "@/lib/db/schema";
 import {
@@ -84,12 +84,13 @@ export async function syncInstagramPosts(maxPages = 10): Promise<SyncPostsResult
         if (existingInsight.length > 0) {
           db.update(postInsights)
             .set({
-              impressions: insights.impressions,
+              impressions: insights.views,
               reach: insights.reach,
-              engagement: insights.engagement,
+              engagement: insights.totalInteractions,
               saves: insights.saved,
-              likes: media.likeCount,
-              comments: media.commentsCount
+              likes: insights.likes,
+              comments: insights.comments,
+              shares: insights.shares
             })
             .where(eq(postInsights.id, existingInsight[0].id))
             .run();
@@ -98,20 +99,20 @@ export async function syncInstagramPosts(maxPages = 10): Promise<SyncPostsResult
             .values({
               postId,
               snapshotDate: today,
-              impressions: insights.impressions,
+              impressions: insights.views,
               reach: insights.reach,
-              engagement: insights.engagement,
+              engagement: insights.totalInteractions,
               saves: insights.saved,
-              likes: media.likeCount,
-              comments: media.commentsCount
+              likes: insights.likes,
+              comments: insights.comments,
+              shares: insights.shares
             })
             .run();
         }
 
         insightsUpserted++;
       } catch {
-        // Some media types (stories, reels) may not support all insight metrics.
-        // Skip and continue rather than failing the whole sync.
+        // Some media types may not support all insight metrics — skip gracefully
       }
     }
 
@@ -142,62 +143,35 @@ export async function syncInstagramAccount(): Promise<SyncAccountResult> {
 
   const insights = await getAccountInsights(since, until);
 
-  let snapshotsUpserted = 0;
-
-  for (const insight of insights) {
-    const existing = db
-      .select()
-      .from(accountSnapshots)
-      .where(and(eq(accountSnapshots.platform, PLATFORM), eq(accountSnapshots.snapshotDate, insight.date)))
-      .all();
-
-    if (existing.length > 0) {
-      db.update(accountSnapshots)
-        .set({
-          followerCount: insight.followerCount,
-          reach: insight.reach,
-          impressions: insight.impressions,
-          mediaCount: accountInfo.mediaCount
-        })
-        .where(eq(accountSnapshots.id, existing[0].id))
-        .run();
-    } else {
-      db.insert(accountSnapshots)
-        .values({
-          platform: PLATFORM,
-          snapshotDate: insight.date,
-          followerCount: insight.followerCount,
-          reach: insight.reach,
-          impressions: insight.impressions,
-          mediaCount: accountInfo.mediaCount
-        })
-        .run();
-    }
-
-    snapshotsUpserted++;
-  }
-
-  // Also store today's snapshot with current follower count even if API insights
-  // haven't rolled over yet
-  const todayExists = db
+  // Upsert today's snapshot
+  const existing = db
     .select()
     .from(accountSnapshots)
     .where(and(eq(accountSnapshots.platform, PLATFORM), eq(accountSnapshots.snapshotDate, today)))
     .all();
 
-  if (todayExists.length === 0) {
+  if (existing.length > 0) {
+    db.update(accountSnapshots)
+      .set({
+        mediaCount: accountInfo.mediaCount,
+        reach: insights.reach,
+        profileViews: insights.profileViews
+      })
+      .where(eq(accountSnapshots.id, existing[0].id))
+      .run();
+  } else {
     db.insert(accountSnapshots)
       .values({
         platform: PLATFORM,
         snapshotDate: today,
-        followerCount: accountInfo.followersCount,
-        mediaCount: accountInfo.mediaCount
+        mediaCount: accountInfo.mediaCount,
+        reach: insights.reach,
+        profileViews: insights.profileViews
       })
       .run();
-    snapshotsUpserted++;
   }
 
-  return { snapshotsUpserted };
+  return { snapshotsUpserted: 1 };
 }
 
 // ── Demographics ─────────────────────────────────────────────────────
@@ -214,9 +188,9 @@ export async function syncInstagramDemographics(): Promise<SyncDemographicsResul
     const demo = await getDemographics();
 
     const allEntries: Array<{ metric: string; key: string; value: number }> = [
-      ...demo.cities.map((e) => ({ metric: "city" as const, ...e })),
+      ...demo.ageGender.map((e) => ({ metric: "gender_age" as const, ...e })),
       ...demo.countries.map((e) => ({ metric: "country" as const, ...e })),
-      ...demo.genderAge.map((e) => ({ metric: "gender_age" as const, ...e }))
+      ...demo.cities.map((e) => ({ metric: "city" as const, ...e }))
     ];
 
     for (const entry of allEntries) {
@@ -253,8 +227,7 @@ export async function syncInstagramDemographics(): Promise<SyncDemographicsResul
       entriesUpserted++;
     }
   } catch {
-    // Demographics require 100+ followers. If the account doesn't have enough,
-    // the API returns an error. Skip gracefully.
+    // Demographics require sufficient followers — skip gracefully
   }
 
   return { entriesUpserted };
