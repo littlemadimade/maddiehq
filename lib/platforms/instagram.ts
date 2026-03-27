@@ -1,14 +1,14 @@
 import { eq } from "drizzle-orm";
 import { db } from "@/lib/db/client";
 import { platforms } from "@/lib/db/schema";
-import { requireInstagramCredentials } from "./config";
 
 // ── Types ────────────────────────────────────────────────────────────
 
 export interface InstagramAccountInfo {
   id: string;
+  userId: string;
   username: string;
-  followersCount: number;
+  accountType: string;
   mediaCount: number;
 }
 
@@ -18,7 +18,7 @@ export interface InstagramMedia {
   timestamp: string;
   likeCount: number;
   commentsCount: number;
-  mediaType: "IMAGE" | "VIDEO" | "CAROUSEL_ALBUM";
+  mediaType: string;
   permalink: string;
 }
 
@@ -28,17 +28,18 @@ export interface InstagramMediaPage {
 }
 
 export interface InstagramPostInsights {
-  impressions: number;
+  views: number;
   reach: number;
-  engagement: number;
+  likes: number;
+  comments: number;
+  shares: number;
   saved: number;
+  totalInteractions: number;
 }
 
-export interface InstagramAccountInsight {
-  date: string;
+export interface InstagramAccountInsights {
   reach: number;
-  impressions: number;
-  followerCount: number;
+  profileViews: number;
 }
 
 export interface InstagramDemographicEntry {
@@ -47,17 +48,16 @@ export interface InstagramDemographicEntry {
 }
 
 export interface InstagramDemographics {
-  cities: InstagramDemographicEntry[];
+  ageGender: InstagramDemographicEntry[];
   countries: InstagramDemographicEntry[];
-  genderAge: InstagramDemographicEntry[];
+  cities: InstagramDemographicEntry[];
 }
 
-interface GraphApiError {
+interface IGApiError {
   error: {
     message: string;
     type: string;
     code: number;
-    error_subcode?: number;
   };
 }
 
@@ -86,61 +86,28 @@ export class InstagramApiError extends Error {
   }
 }
 
-// ── Rate limit tracking ──────────────────────────────────────────────
+// Rate limiting is handled by Instagram's API (returns 429 when exceeded).
+// We catch 429 responses in igFetch and throw InstagramRateLimitError.
 
-const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000; // 1 hour
-const RATE_LIMIT_MAX = 200;
+// ── Core fetch ───────────────────────────────────────────────────────
 
-let rateLimitState = {
-  count: 0,
-  windowStart: Date.now()
-};
-
-function checkRateLimit() {
-  const now = Date.now();
-
-  if (now - rateLimitState.windowStart > RATE_LIMIT_WINDOW_MS) {
-    rateLimitState = { count: 0, windowStart: now };
-  }
-
-  if (rateLimitState.count >= RATE_LIMIT_MAX) {
-    throw new InstagramRateLimitError(
-      `Rate limit reached (${RATE_LIMIT_MAX} requests/hour). Resets at ${new Date(rateLimitState.windowStart + RATE_LIMIT_WINDOW_MS).toISOString()}`
-    );
-  }
-
-  rateLimitState.count++;
-}
-
-export function getRateLimitStatus() {
-  return {
-    used: rateLimitState.count,
-    remaining: RATE_LIMIT_MAX - rateLimitState.count,
-    resetsAt: new Date(rateLimitState.windowStart + RATE_LIMIT_WINDOW_MS).toISOString()
-  };
-}
-
-// ── Token management ─────────────────────────────────────────────────
-
-const GRAPH_API_BASE = "https://graph.facebook.com/v21.0";
+const IG_API_BASE = "https://graph.instagram.com/v21.0";
 const PLATFORM_NAME = "instagram";
 
-async function graphFetch<T>(url: string): Promise<T> {
-  checkRateLimit();
-
+async function igFetch<T>(url: string): Promise<T> {
   const response = await fetch(url);
   const data = await response.json();
 
-  if (!response.ok || (data as GraphApiError).error) {
-    const err = (data as GraphApiError).error;
+  if (!response.ok || (data as IGApiError).error) {
+    const err = (data as IGApiError).error;
     const code = err?.code ?? response.status;
     const message = err?.message ?? `Instagram API error: ${response.status}`;
 
-    if (code === 190 || err?.error_subcode === 463) {
+    if (code === 190) {
       throw new InstagramAuthError(message);
     }
 
-    if (response.status === 429 || code === 4 || code === 32) {
+    if (response.status === 429 || code === 4) {
       throw new InstagramRateLimitError(message);
     }
 
@@ -150,7 +117,9 @@ async function graphFetch<T>(url: string): Promise<T> {
   return data as T;
 }
 
-function getStoredToken(): { accessToken: string; expiresAt: string; accountId: string } | null {
+// ── Token management ─────────────────────────────────────────────────
+
+function getStoredToken(): string | null {
   const [row] = db
     .select()
     .from(platforms)
@@ -158,52 +127,32 @@ function getStoredToken(): { accessToken: string; expiresAt: string; accountId: 
     .limit(1)
     .all();
 
-  if (!row?.accessToken || !row?.tokenExpiresAt) {
-    return null;
-  }
-
-  return {
-    accessToken: row.accessToken,
-    expiresAt: row.tokenExpiresAt,
-    accountId: row.accountId
-  };
+  return row?.accessToken ?? null;
 }
 
-function tokenExpiresWithinDays(expiresAt: string, days: number): boolean {
-  const expiryDate = new Date(expiresAt);
-  const threshold = new Date();
-  threshold.setDate(threshold.getDate() + days);
-  return expiryDate <= threshold;
-}
+function getToken(): string {
+  const token = getStoredToken();
 
-export async function exchangeForLongLivedToken(shortLivedToken: string): Promise<void> {
-  const creds = requireInstagramCredentials();
-
-  const url = `${GRAPH_API_BASE}/oauth/access_token?grant_type=fb_exchange_token&client_id=${creds.appId}&client_secret=${creds.appSecret}&fb_exchange_token=${shortLivedToken}`;
-
-  const result = await graphFetch<{ access_token: string; token_type: string; expires_in: number }>(url);
-
-  // Calculate expiry date
-  const expiresAt = new Date(Date.now() + result.expires_in * 1000).toISOString();
-
-  // Discover the Instagram Business Account ID
-  const pagesResult = await graphFetch<{ data: Array<{ id: string; instagram_business_account?: { id: string } }> }>(
-    `${GRAPH_API_BASE}/me/accounts?fields=id,instagram_business_account&access_token=${result.access_token}`
-  );
-
-  const igAccount = pagesResult.data.find((page) => page.instagram_business_account)?.instagram_business_account;
-
-  if (!igAccount) {
-    throw new InstagramApiError(
-      "No Instagram Business Account found. Make sure the Instagram account is a Business account linked to a Facebook Page.",
-      0
+  if (!token) {
+    throw new InstagramAuthError(
+      "No Instagram token found. Connect your account first via POST /api/auth/instagram."
     );
   }
 
-  // Get the username
-  const accountInfo = await graphFetch<{ username: string }>(
-    `${GRAPH_API_BASE}/${igAccount.id}?fields=username&access_token=${result.access_token}`
-  );
+  return token;
+}
+
+export async function storeToken(token: string): Promise<InstagramAccountInfo> {
+  // Verify the token works and get account info
+  const account = await igFetch<{
+    user_id: string;
+    username: string;
+    account_type: string;
+    media_count: number;
+    id: string;
+  }>(`${IG_API_BASE}/me?fields=user_id,username,account_type,media_count&access_token=${token}`);
+
+  const now = new Date().toISOString();
 
   // Upsert into platforms table
   const existing = db
@@ -212,15 +161,12 @@ export async function exchangeForLongLivedToken(shortLivedToken: string): Promis
     .where(eq(platforms.platform, PLATFORM_NAME))
     .all();
 
-  const now = new Date().toISOString();
-
   if (existing.length > 0) {
     db.update(platforms)
       .set({
-        accountId: igAccount.id,
-        username: accountInfo.username,
-        accessToken: result.access_token,
-        tokenExpiresAt: expiresAt,
+        accountId: account.user_id,
+        username: account.username,
+        accessToken: token,
         updatedAt: now
       })
       .where(eq(platforms.platform, PLATFORM_NAME))
@@ -229,94 +175,63 @@ export async function exchangeForLongLivedToken(shortLivedToken: string): Promis
     db.insert(platforms)
       .values({
         platform: PLATFORM_NAME,
-        accountId: igAccount.id,
-        username: accountInfo.username,
-        accessToken: result.access_token,
-        tokenExpiresAt: expiresAt,
+        accountId: account.user_id,
+        username: account.username,
+        accessToken: token,
         createdAt: now,
         updatedAt: now
       })
       .run();
   }
-}
 
-async function refreshTokenIfNeeded(): Promise<string> {
-  const stored = getStoredToken();
-
-  if (!stored) {
-    throw new InstagramAuthError("No Instagram token found. Connect your account first via POST /api/auth/instagram.");
-  }
-
-  // Refresh if token expires within 7 days
-  if (tokenExpiresWithinDays(stored.expiresAt, 7)) {
-    const url = `${GRAPH_API_BASE}/oauth/access_token?grant_type=fb_exchange_token&client_id=${requireInstagramCredentials().appId}&client_secret=${requireInstagramCredentials().appSecret}&fb_exchange_token=${stored.accessToken}`;
-
-    const result = await graphFetch<{ access_token: string; expires_in: number }>(url);
-    const newExpiresAt = new Date(Date.now() + result.expires_in * 1000).toISOString();
-
-    db.update(platforms)
-      .set({
-        accessToken: result.access_token,
-        tokenExpiresAt: newExpiresAt,
-        updatedAt: new Date().toISOString()
-      })
-      .where(eq(platforms.platform, PLATFORM_NAME))
-      .run();
-
-    return result.access_token;
-  }
-
-  return stored.accessToken;
-}
-
-async function getTokenAndAccountId(): Promise<{ token: string; accountId: string }> {
-  const token = await refreshTokenIfNeeded();
-  const stored = getStoredToken();
-
-  if (!stored) {
-    throw new InstagramAuthError("No Instagram account connected.");
-  }
-
-  return { token, accountId: stored.accountId };
+  return {
+    id: account.id,
+    userId: account.user_id,
+    username: account.username,
+    accountType: account.account_type,
+    mediaCount: account.media_count
+  };
 }
 
 // ── API methods ──────────────────────────────────────────────────────
 
 export async function getAccountInfo(): Promise<InstagramAccountInfo> {
-  const { token, accountId } = await getTokenAndAccountId();
+  const token = getToken();
 
-  const result = await graphFetch<{
-    id: string;
+  const result = await igFetch<{
+    user_id: string;
     username: string;
-    followers_count: number;
+    account_type: string;
     media_count: number;
-  }>(`${GRAPH_API_BASE}/${accountId}?fields=id,username,followers_count,media_count&access_token=${token}`);
+    id: string;
+  }>(`${IG_API_BASE}/me?fields=user_id,username,account_type,media_count&access_token=${token}`);
 
   return {
     id: result.id,
+    userId: result.user_id,
     username: result.username,
-    followersCount: result.followers_count,
+    accountType: result.account_type,
     mediaCount: result.media_count
   };
 }
 
 export async function getMedia(cursor?: string): Promise<InstagramMediaPage> {
-  const { token, accountId } = await getTokenAndAccountId();
+  const token = getToken();
 
-  let url = `${GRAPH_API_BASE}/${accountId}/media?fields=id,caption,timestamp,like_count,comments_count,media_type,permalink&limit=25&access_token=${token}`;
+  let url = `${IG_API_BASE}/me/media?fields=id,caption,timestamp,like_count,comments_count,media_type,permalink&limit=25&access_token=${token}`;
 
   if (cursor) {
     url += `&after=${cursor}`;
   }
 
-  const result = await graphFetch<{
+  const result = await igFetch<{
     data: Array<{
       id: string;
       caption?: string;
       timestamp: string;
       like_count: number;
       comments_count: number;
-      media_type: "IMAGE" | "VIDEO" | "CAROUSEL_ALBUM";
+      media_type: string;
       permalink: string;
     }>;
     paging?: { cursors?: { after?: string } };
@@ -337,11 +252,11 @@ export async function getMedia(cursor?: string): Promise<InstagramMediaPage> {
 }
 
 export async function getPostInsights(mediaId: string): Promise<InstagramPostInsights> {
-  const { token } = await getTokenAndAccountId();
+  const token = getToken();
 
-  const result = await graphFetch<{
+  const result = await igFetch<{
     data: Array<{ name: string; values: Array<{ value: number }> }>;
-  }>(`${GRAPH_API_BASE}/${mediaId}/insights?metric=impressions,reach,engagement,saved&access_token=${token}`);
+  }>(`${IG_API_BASE}/${mediaId}/insights?metric=views,reach,likes,comments,shares,saved,total_interactions&access_token=${token}`);
 
   const metrics: Record<string, number> = {};
 
@@ -350,72 +265,113 @@ export async function getPostInsights(mediaId: string): Promise<InstagramPostIns
   }
 
   return {
-    impressions: metrics.impressions ?? 0,
+    views: metrics.views ?? 0,
     reach: metrics.reach ?? 0,
-    engagement: metrics.engagement ?? 0,
-    saved: metrics.saved ?? 0
+    likes: metrics.likes ?? 0,
+    comments: metrics.comments ?? 0,
+    shares: metrics.shares ?? 0,
+    saved: metrics.saved ?? 0,
+    totalInteractions: metrics.total_interactions ?? 0
   };
 }
 
-export async function getAccountInsights(since: Date, until: Date): Promise<InstagramAccountInsight[]> {
-  const { token, accountId } = await getTokenAndAccountId();
+export async function getAccountInsights(since: Date, until: Date): Promise<InstagramAccountInsights> {
+  const token = getToken();
 
   const sinceUnix = Math.floor(since.getTime() / 1000);
   const untilUnix = Math.floor(until.getTime() / 1000);
 
-  const result = await graphFetch<{
+  const result = await igFetch<{
     data: Array<{
       name: string;
-      values: Array<{ value: number; end_time: string }>;
+      total_value: { value: number };
     }>;
   }>(
-    `${GRAPH_API_BASE}/${accountId}/insights?metric=reach,impressions,follower_count&period=day&since=${sinceUnix}&until=${untilUnix}&access_token=${token}`
+    `${IG_API_BASE}/me/insights?metric=reach,profile_views&metric_type=total_value&period=day&since=${sinceUnix}&until=${untilUnix}&access_token=${token}`
   );
 
-  // Pivot from metric-first to date-first
-  const byDate = new Map<string, { reach: number; impressions: number; followerCount: number }>();
+  const metrics: Record<string, number> = {};
 
   for (const metric of result.data) {
-    for (const point of metric.values) {
-      const date = point.end_time.split("T")[0];
-      const existing = byDate.get(date) ?? { reach: 0, impressions: 0, followerCount: 0 };
-
-      if (metric.name === "reach") existing.reach = point.value;
-      if (metric.name === "impressions") existing.impressions = point.value;
-      if (metric.name === "follower_count") existing.followerCount = point.value;
-
-      byDate.set(date, existing);
-    }
-  }
-
-  return Array.from(byDate.entries())
-    .map(([date, values]) => ({ date, ...values }))
-    .sort((a, b) => a.date.localeCompare(b.date));
-}
-
-export async function getDemographics(): Promise<InstagramDemographics> {
-  const { token, accountId } = await getTokenAndAccountId();
-
-  const result = await graphFetch<{
-    data: Array<{
-      name: string;
-      values: Array<{ value: Record<string, number> }>;
-    }>;
-  }>(
-    `${GRAPH_API_BASE}/${accountId}/insights?metric=audience_city,audience_country,audience_gender_age&period=lifetime&access_token=${token}`
-  );
-
-  function toEntries(metricName: string): InstagramDemographicEntry[] {
-    const metric = result.data.find((m) => m.name === metricName);
-    const values = metric?.values[0]?.value ?? {};
-    return Object.entries(values)
-      .map(([key, value]) => ({ key, value }))
-      .sort((a, b) => b.value - a.value);
+    metrics[metric.name] = metric.total_value?.value ?? 0;
   }
 
   return {
-    cities: toEntries("audience_city"),
-    countries: toEntries("audience_country"),
-    genderAge: toEntries("audience_gender_age")
+    reach: metrics.reach ?? 0,
+    profileViews: metrics.profile_views ?? 0
+  };
+}
+
+export async function getDemographics(): Promise<InstagramDemographics> {
+  const token = getToken();
+
+  // Age/gender breakdown
+  const ageGenderResult = await igFetch<{
+    data: Array<{
+      name: string;
+      total_value: {
+        breakdowns: Array<{
+          dimension_keys: string[];
+          results: Array<{ dimension_values: string[]; value: number }>;
+        }>;
+      };
+    }>;
+  }>(
+    `${IG_API_BASE}/me/insights?metric=follower_demographics&period=lifetime&metric_type=total_value&timeframe=last_30_days&breakdown=age,gender&access_token=${token}`
+  );
+
+  const ageGender: InstagramDemographicEntry[] = [];
+  const ageGenderData = ageGenderResult.data[0]?.total_value?.breakdowns[0]?.results ?? [];
+  for (const entry of ageGenderData) {
+    const [age, gender] = entry.dimension_values;
+    ageGender.push({ key: `${gender}.${age}`, value: entry.value });
+  }
+
+  // Country breakdown
+  const countryResult = await igFetch<{
+    data: Array<{
+      name: string;
+      total_value: {
+        breakdowns: Array<{
+          dimension_keys: string[];
+          results: Array<{ dimension_values: string[]; value: number }>;
+        }>;
+      };
+    }>;
+  }>(
+    `${IG_API_BASE}/me/insights?metric=follower_demographics&period=lifetime&metric_type=total_value&timeframe=last_30_days&breakdown=country&access_token=${token}`
+  );
+
+  const countries: InstagramDemographicEntry[] = [];
+  const countryData = countryResult.data[0]?.total_value?.breakdowns[0]?.results ?? [];
+  for (const entry of countryData) {
+    countries.push({ key: entry.dimension_values[0], value: entry.value });
+  }
+
+  // City breakdown
+  const cityResult = await igFetch<{
+    data: Array<{
+      name: string;
+      total_value: {
+        breakdowns: Array<{
+          dimension_keys: string[];
+          results: Array<{ dimension_values: string[]; value: number }>;
+        }>;
+      };
+    }>;
+  }>(
+    `${IG_API_BASE}/me/insights?metric=follower_demographics&period=lifetime&metric_type=total_value&timeframe=last_30_days&breakdown=city&access_token=${token}`
+  );
+
+  const cities: InstagramDemographicEntry[] = [];
+  const cityData = cityResult.data[0]?.total_value?.breakdowns[0]?.results ?? [];
+  for (const entry of cityData) {
+    cities.push({ key: entry.dimension_values[0], value: entry.value });
+  }
+
+  return {
+    ageGender: ageGender.sort((a, b) => b.value - a.value),
+    countries: countries.sort((a, b) => b.value - a.value),
+    cities: cities.sort((a, b) => b.value - a.value)
   };
 }
