@@ -26,12 +26,52 @@ export const posts = sqliteTable("posts", {
   platform: text("platform").notNull(),
   caption: text("caption"),
   mediaType: text("media_type"), // "IMAGE" | "VIDEO" | "CAROUSEL_ALBUM" | "link" | "self" etc.
+  mediaUrl: text("media_url"),
+  thumbnailUrl: text("thumbnail_url"),
   permalink: text("permalink"),
   publishedAt: text("published_at"),
   createdAt: text("created_at").notNull().$defaultFn(() => new Date().toISOString())
 }, (table) => [
   uniqueIndex("posts_platform_post_idx").on(table.platform, table.platformPostId)
 ]);
+
+// ── Post Analysis ────────────────────────────────────────────────────
+// AI-generated analysis of post content (vision + caption)
+
+export const postAnalysis = sqliteTable("post_analysis", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  postId: integer("post_id").notNull().references(() => posts.id),
+  // Vision attributes
+  setting: text("setting"), // "indoor" | "outdoor" | "studio" | "mixed"
+  lighting: text("lighting"), // "natural" | "artificial" | "dramatic" | "mixed"
+  faceVisible: integer("face_visible", { mode: "boolean" }),
+  textOverlay: integer("text_overlay", { mode: "boolean" }),
+  visualStyle: text("visual_style"), // free-form from Claude
+  // Caption attributes
+  captionLength: integer("caption_length"),
+  hookType: text("hook_type"), // "question" | "statement" | "teaser" | "cta" | "none"
+  ctaPresent: integer("cta_present", { mode: "boolean" }),
+  ctaType: text("cta_type"), // "link_in_bio" | "dm" | "follow" | "none"
+  captionTone: text("caption_tone"), // "casual" | "provocative" | "informational" | "personal"
+  emojiCount: integer("emoji_count"),
+  hashtagCount: integer("hashtag_count"),
+  // Full AI analysis as JSON
+  rawAnalysis: text("raw_analysis"), // full Claude response as JSON
+  analyzedAt: text("analyzed_at").notNull().$defaultFn(() => new Date().toISOString())
+}, (table) => [
+  uniqueIndex("post_analysis_post_idx").on(table.postId)
+]);
+
+// ── Content Insights ─────────────────────────────────────────────────
+// AI-generated content pattern reports
+
+export const contentInsights = sqliteTable("content_insights", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  platform: text("platform").notNull(),
+  reportJson: text("report_json").notNull(), // full report as JSON
+  postsAnalyzed: integer("posts_analyzed").notNull(),
+  createdAt: text("created_at").notNull().$defaultFn(() => new Date().toISOString())
+});
 
 // ── Post Insights ────────────────────────────────────────────────────
 // Per-post metrics snapshots (one row per post per snapshot date)
@@ -102,3 +142,9 @@ export type NewAccountSnapshot = typeof accountSnapshots.$inferInsert;
 
 export type Demographic = typeof demographics.$inferSelect;
 export type NewDemographic = typeof demographics.$inferInsert;
+
+export type PostAnalysisRow = typeof postAnalysis.$inferSelect;
+export type NewPostAnalysis = typeof postAnalysis.$inferInsert;
+
+export type ContentInsightRow = typeof contentInsights.$inferSelect;
+export type NewContentInsight = typeof contentInsights.$inferInsert;

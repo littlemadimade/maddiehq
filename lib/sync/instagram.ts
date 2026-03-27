@@ -50,6 +50,8 @@ export async function syncInstagramPosts(maxPages = 10): Promise<SyncPostsResult
           .set({
             caption: media.caption,
             mediaType: media.mediaType,
+            mediaUrl: media.mediaUrl,
+            thumbnailUrl: media.thumbnailUrl,
             permalink: media.permalink,
             publishedAt: media.timestamp
           })
@@ -62,6 +64,8 @@ export async function syncInstagramPosts(maxPages = 10): Promise<SyncPostsResult
             platform: PLATFORM,
             caption: media.caption,
             mediaType: media.mediaType,
+            mediaUrl: media.mediaUrl,
+            thumbnailUrl: media.thumbnailUrl,
             permalink: media.permalink,
             publishedAt: media.timestamp
           })

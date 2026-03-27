@@ -19,6 +19,8 @@ export interface InstagramMedia {
   likeCount: number;
   commentsCount: number;
   mediaType: string;
+  mediaUrl: string | null;
+  thumbnailUrl: string | null;
   permalink: string;
 }
 
@@ -218,7 +220,7 @@ export async function getAccountInfo(): Promise<InstagramAccountInfo> {
 export async function getMedia(cursor?: string): Promise<InstagramMediaPage> {
   const token = getToken();
 
-  let url = `${IG_API_BASE}/me/media?fields=id,caption,timestamp,like_count,comments_count,media_type,permalink&limit=25&access_token=${token}`;
+  let url = `${IG_API_BASE}/me/media?fields=id,caption,timestamp,like_count,comments_count,media_type,media_url,thumbnail_url,permalink&limit=25&access_token=${token}`;
 
   if (cursor) {
     url += `&after=${cursor}`;
@@ -232,6 +234,8 @@ export async function getMedia(cursor?: string): Promise<InstagramMediaPage> {
       like_count: number;
       comments_count: number;
       media_type: string;
+      media_url?: string;
+      thumbnail_url?: string;
       permalink: string;
     }>;
     paging?: { cursors?: { after?: string } };
@@ -245,6 +249,8 @@ export async function getMedia(cursor?: string): Promise<InstagramMediaPage> {
       likeCount: item.like_count,
       commentsCount: item.comments_count,
       mediaType: item.media_type,
+      mediaUrl: item.media_url ?? null,
+      thumbnailUrl: item.thumbnail_url ?? null,
       permalink: item.permalink
     })),
     nextCursor: result.paging?.cursors?.after ?? null

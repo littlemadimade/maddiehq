@@ -11,6 +11,7 @@
     "db:migrate": "drizzle-kit migrate"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.80.0",
     "@react-three/drei": "^9.122.0",
     "@react-three/fiber": "^8.17.10",
     "better-sqlite3": "^12.8.0",
