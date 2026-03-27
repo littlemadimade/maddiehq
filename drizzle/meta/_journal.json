@@ -15,6 +15,13 @@
       "when": 1774640568673,
       "tag": "0001_superb_maginty",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1774643096311,
+      "tag": "0002_outgoing_silk_fever",
+      "breakpoints": true
     }
   ]
 }

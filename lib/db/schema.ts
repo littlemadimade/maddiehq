@@ -55,6 +55,10 @@ export const postAnalysis = sqliteTable("post_analysis", {
   captionTone: text("caption_tone"), // "casual" | "provocative" | "informational" | "personal"
   emojiCount: integer("emoji_count"),
   hashtagCount: integer("hashtag_count"),
+  // Video analysis
+  transcript: text("transcript"),
+  spokenHook: text("spoken_hook"), // first ~15 words of the transcript
+  keyFrameAnalysis: text("key_frame_analysis"), // JSON from multi-frame vision analysis
   // Full AI analysis as JSON
   rawAnalysis: text("raw_analysis"), // full Claude response as JSON
   analyzedAt: text("analyzed_at").notNull().$defaultFn(() => new Date().toISOString())
