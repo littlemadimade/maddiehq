@@ -30,6 +30,7 @@ export function Topbar() {
         <Link href="/assistant">Assistant</Link>
         <Link href="/">Home</Link>
         <Link href="/insights">Insights</Link>
+        <Link href="/analytics">Analytics</Link>
         <Link href="/tracker">Tracker</Link>
         <Link href="/conversion">Conversion</Link>
       </nav>
