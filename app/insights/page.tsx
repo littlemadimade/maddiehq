@@ -4,23 +4,9 @@ import { overviewStats, platformCards, suggestions } from "@/lib/insights";
 export default function InsightsPage() {
   return (
     <main className="page">
-      <section className="hero panel">
-        <div>
-          <p className="eyebrow">Instagram Insights</p>
-          <h1>One dashboard to track what your Instagram content is actually doing.</h1>
-          <p className="lede">
-            This first version focuses on Instagram performance, spots what is
-            working, and gives you suggestions for what to try next.
-          </p>
-        </div>
-        <div className="hero__note">
-          <span className="hero__badge">MVP</span>
-          <p>
-            Start simple, learn fast, then add account connections, uploads, and
-            smarter recommendations later.
-          </p>
-        </div>
-      </section>
+      <header className="page-header">
+        <h1 className="page-title">Insights</h1>
+      </header>
 
       <section className="overview-grid">
         {overviewStats.map((stat) => (

@@ -78,25 +78,10 @@ export default function ConversionPage() {
 
   return (
     <main className="page">
-      <section className="hero panel">
-        <div>
-          <p className="eyebrow">Conversion Room</p>
-          <h1>See whether your Instagram content is actually translating into OnlyFans results.</h1>
-          <p className="lede">
-            This room is about the funnel from attention to money. Plug in the OF-side
-            numbers you already know, and this page will turn them into a clearer
-            picture of how your Instagram traffic is translating into subscribers and spending signals.
-          </p>
-        </div>
-        <div className="hero__note">
-          <span className="hero__badge">Business layer</span>
-          <p>
-            Insights tells you how content performs. Conversion tells you whether
-            that attention is actually moving toward OF traffic and paid action.
-          </p>
-          <p className="hero__save-state">{saveState}</p>
-        </div>
-      </section>
+      <header className="page-header">
+        <h1 className="page-title">Conversion</h1>
+        {saveState ? <p className="page-header__status">{saveState}</p> : null}
+      </header>
 
       <section className="overview-grid">
         {summary.stats.map((signal) => (

@@ -2443,6 +2443,47 @@ li + li {
   }
 }
 
+/* ── Page Header ──────────────────────────────────────────────────── */
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.page-title {
+  margin: 0;
+  font-size: clamp(1.4rem, 2.5vw, 1.8rem);
+  color: var(--lime-soft);
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.page-header__action {
+  padding: 10px 20px;
+  border-radius: 999px;
+  border: 1px solid rgba(182, 255, 39, 0.3);
+  background: rgba(182, 255, 39, 0.1);
+  color: var(--lime-soft);
+  font: inherit;
+  font-weight: 700;
+  font-size: 0.88rem;
+  cursor: pointer;
+}
+
+.page-header__action:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.page-header__status {
+  margin: 0;
+  color: rgba(248, 255, 213, 0.5);
+  font-size: 0.82rem;
+}
+
 /* ── Analytics Dashboard ──────────────────────────────────────────── */
 
 .analytics-error {

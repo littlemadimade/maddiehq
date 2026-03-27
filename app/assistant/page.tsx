@@ -188,30 +188,9 @@ export default function AssistantPage() {
 
   return (
     <main className="page">
-      <section className="hero panel">
-        <div>
-          <p className="eyebrow">Assistant Room</p>
-          <h1>Talk to the manager-style AI that is starting to learn your business.</h1>
-          <p className="lede">
-            This is the first real conversation room. It uses your saved assistant memory,
-            recent app events, and your last conversion snapshot to talk more like an
-            actual manager instead of a generic helper.
-          </p>
-        </div>
-        <div className="hero__note">
-          <span className="hero__badge">{memory.assistantName}</span>
-          <p>
-            Current mode: {memory.tone} · {memory.focus} focus
-          </p>
-          {conversionSnapshot ? (
-            <p className="hero__save-state">
-              Leading with {conversionSnapshot.ofConversionLabel} OF conversion from{" "}
-              {conversionSnapshot.pageViewsLabel} OF page views.
-            </p>
-          ) : null}
-          <p className="hero__save-state">{events.length} recent events remembered</p>
-        </div>
-      </section>
+      <header className="page-header">
+        <h1 className="page-title">Assistant</h1>
+      </header>
 
       <section className="brainstorm-grid">
         <article className="panel assistant-room">

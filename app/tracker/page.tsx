@@ -127,24 +127,10 @@ export default function TrackerPage() {
 
   return (
     <main className="page">
-      <section className="hero panel">
-        <div>
-          <p className="eyebrow">Post Progress Tracker</p>
-          <h1>A day-to-day operations room for planning, making, and posting Instagram content.</h1>
-          <p className="lede">
-            Use this space to track where each piece of content stands so you can
-            see what is just an idea, what is being made, and what is ready to post.
-          </p>
-        </div>
-        <div className="hero__note">
-          <span className="hero__badge">Workflow</span>
-          <p>
-            This room now acts like a real content board, not just a mockup. Add tasks,
-            move them forward, and let the assistant learn from your workflow.
-          </p>
-          <p className="hero__save-state">{saveState}</p>
-        </div>
-      </section>
+      <header className="page-header">
+        <h1 className="page-title">Tracker</h1>
+        {saveState ? <p className="page-header__status">{saveState}</p> : null}
+      </header>
 
       <section className="overview-grid">
         {todayStats.map((stat) => (

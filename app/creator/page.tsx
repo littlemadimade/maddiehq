@@ -61,24 +61,9 @@ export default function CreatorPage() {
 
   return (
     <main className="page">
-      <section className="hero panel">
-        <div>
-          <p className="eyebrow">Creator Foundation</p>
-          <h1>Set up the active creator profile and the Instagram account details this workspace will eventually connect to.</h1>
-          <p className="lede">
-            This page is now the account setup room behind the profile menu. It tells
-            the app which creator is active, keeps saved data scoped to that creator,
-            and gives us a place to prepare the Instagram connection setup.
-          </p>
-        </div>
-        <div className="hero__note">
-          <span className="hero__badge">Foundation</span>
-          <p>
-            This is not full live login yet. It is the groundwork that makes later
-            authentication and Instagram sync much cleaner to build.
-          </p>
-        </div>
-      </section>
+      <header className="page-header">
+        <h1 className="page-title">Creator Setup</h1>
+      </header>
 
       <section className="creator-grid">
         <article className="panel">
