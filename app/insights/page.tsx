@@ -43,17 +43,33 @@ export default function InsightsPage() {
     setAnalyzing(true);
     setError(null);
     try {
-      const res = await fetch("/api/analyze/instagram", {
+      // Step 1: Run base analysis (vision + caption) on unanalyzed posts
+      const analyzeRes = await fetch("/api/analyze/instagram", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "full" })
+        body: JSON.stringify({ action: "analyze" })
       });
-      if (!res.ok) {
-        const json = await res.json();
+      if (!analyzeRes.ok) {
+        const json = await analyzeRes.json();
         setError(json.error ?? "Analysis failed");
         return;
       }
-      const json = await res.json();
+
+      // Step 2: Process videos (transcription + key frames)
+      await fetch("/api/analyze/instagram/video", { method: "POST" });
+
+      // Step 3: Generate the pattern report
+      const reportRes = await fetch("/api/analyze/instagram", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "report" })
+      });
+      if (!reportRes.ok) {
+        const json = await reportRes.json();
+        setError(json.error ?? "Report generation failed");
+        return;
+      }
+      const json = await reportRes.json();
       setReport(json.report ?? null);
     } catch {
       setError("Analysis failed. Make sure ANTHROPIC_API_KEY is set in .env");

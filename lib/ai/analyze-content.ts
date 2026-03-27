@@ -3,7 +3,7 @@ import { eq, isNull, desc, and } from "drizzle-orm";
 import { db } from "@/lib/db/client";
 import { posts, postInsights, postAnalysis, contentInsights } from "@/lib/db/schema";
 
-const client = new Anthropic();
+function getClient() { return new Anthropic(); }
 
 // ── Types ────────────────────────────────────────────────────────────
 
@@ -58,7 +58,7 @@ export interface ContentReport {
 // ── Single post analysis ─────────────────────────────────────────────
 
 async function analyzePostVisual(imageUrl: string): Promise<VisualAnalysis> {
-  const response = await client.messages.create({
+  const response = await getClient().messages.create({
     model: "claude-sonnet-4-20250514",
     max_tokens: 500,
     messages: [{
@@ -212,6 +212,9 @@ export async function generateContentReport(): Promise<ContentReport> {
       ctaPresent: postAnalysis.ctaPresent,
       captionTone: postAnalysis.captionTone,
       emojiCount: postAnalysis.emojiCount,
+      transcript: postAnalysis.transcript,
+      spokenHook: postAnalysis.spokenHook,
+      keyFrameAnalysis: postAnalysis.keyFrameAnalysis,
       impressions: postInsights.impressions,
       reach: postInsights.reach,
       engagement: postInsights.engagement,
@@ -248,7 +251,7 @@ export async function generateContentReport(): Promise<ContentReport> {
     byCaptionTone: groupAndAverage(rows, "captionTone"),
     topPosts: rows
       .sort((a, b) => (b.engagement ?? 0) - (a.engagement ?? 0))
-      .slice(0, 5)
+      .slice(0, 10)
       .map((r) => ({
         caption: r.caption?.slice(0, 80),
         mediaType: r.mediaType,
@@ -256,13 +259,16 @@ export async function generateContentReport(): Promise<ContentReport> {
         lighting: r.lighting,
         hookType: r.hookType,
         captionTone: r.captionTone,
+        spokenHook: r.spokenHook,
+        transcript: r.transcript?.slice(0, 150),
+        keyFrameHighlights: parseKeyFrameHighlights(r.keyFrameAnalysis),
         engagement: r.engagement,
         reach: r.reach,
         saves: r.saves
       })),
     bottomPosts: rows
       .sort((a, b) => (a.engagement ?? 0) - (b.engagement ?? 0))
-      .slice(0, 5)
+      .slice(0, 10)
       .map((r) => ({
         caption: r.caption?.slice(0, 80),
         mediaType: r.mediaType,
@@ -270,13 +276,16 @@ export async function generateContentReport(): Promise<ContentReport> {
         lighting: r.lighting,
         hookType: r.hookType,
         captionTone: r.captionTone,
+        spokenHook: r.spokenHook,
+        transcript: r.transcript?.slice(0, 150),
+        keyFrameHighlights: parseKeyFrameHighlights(r.keyFrameAnalysis),
         engagement: r.engagement,
         reach: r.reach,
         saves: r.saves
       }))
   };
 
-  const response = await client.messages.create({
+  const response = await getClient().messages.create({
     model: "claude-sonnet-4-20250514",
     max_tokens: 2000,
     messages: [{
@@ -389,7 +398,7 @@ export async function elaboratePattern(pattern: { title: string; description: st
     .limit(20)
     .all();
 
-  const response = await client.messages.create({
+  const response = await getClient().messages.create({
     model: "claude-sonnet-4-20250514",
     max_tokens: 1500,
     messages: [{
@@ -427,6 +436,16 @@ Write in a direct, strategic tone. Be specific — reference actual captions and
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────
+
+function parseKeyFrameHighlights(json: string | null): string | null {
+  if (!json || json === "{}") return null;
+  try {
+    const parsed = JSON.parse(json);
+    return `${parsed.appearance ?? ""} | ${parsed.location ?? ""} | ${parsed.energy ?? ""} energy`.trim();
+  } catch {
+    return null;
+  }
+}
 
 function groupAndAverage(
   rows: Array<Record<string, unknown>>,
