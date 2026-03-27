@@ -123,6 +123,15 @@ function analyzeCaptionStructure(caption: string): CaptionAnalysis & { emojiCoun
   return { hookType, ctaPresent, ctaType, captionTone, emojiCount, hashtagCount, captionLength };
 }
 
+// ── Progress callback ────────────────────────────────────────────────
+
+export type ProgressCallback = (event: {
+  phase: string;
+  step: string;
+  current: number;
+  total: number;
+}) => void;
+
 // ── Batch analysis ───────────────────────────────────────────────────
 
 export interface AnalyzeResult {
@@ -131,7 +140,7 @@ export interface AnalyzeResult {
   errors: number;
 }
 
-export async function analyzeUnanalyzedPosts(limit = 500): Promise<AnalyzeResult> {
+export async function analyzeUnanalyzedPosts(limit = 500, onProgress?: ProgressCallback): Promise<AnalyzeResult> {
   // Find posts without analysis
   const unanalyzed = db
     .select({ id: posts.id, caption: posts.caption, mediaType: posts.mediaType, thumbnailUrl: posts.thumbnailUrl, mediaUrl: posts.mediaUrl })
@@ -145,7 +154,10 @@ export async function analyzeUnanalyzedPosts(limit = 500): Promise<AnalyzeResult
   let skipped = 0;
   let errors = 0;
 
-  for (const post of unanalyzed) {
+  for (let i = 0; i < unanalyzed.length; i++) {
+    const post = unanalyzed[i];
+    onProgress?.({ phase: "analyze", step: `Analyzing post ${i + 1} of ${unanalyzed.length}`, current: i + 1, total: unanalyzed.length });
+
     try {
       // Vision analysis — use thumbnail for videos, media_url for images
       const imageUrl = post.mediaType === "VIDEO" ? post.thumbnailUrl : (post.mediaUrl ?? post.thumbnailUrl);
@@ -195,7 +207,8 @@ export async function analyzeUnanalyzedPosts(limit = 500): Promise<AnalyzeResult
 
 // ── Pattern correlation + report generation ──────────────────────────
 
-export async function generateContentReport(): Promise<ContentReport> {
+export async function generateContentReport(onProgress?: ProgressCallback): Promise<ContentReport> {
+  onProgress?.({ phase: "report", step: "Generating pattern report...", current: 0, total: 1 });
   // Get all posts with their analysis and insights
   const rows = db
     .select({
