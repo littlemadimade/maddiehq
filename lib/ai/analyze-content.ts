@@ -131,7 +131,7 @@ export interface AnalyzeResult {
   errors: number;
 }
 
-export async function analyzeUnanalyzedPosts(limit = 50): Promise<AnalyzeResult> {
+export async function analyzeUnanalyzedPosts(limit = 500): Promise<AnalyzeResult> {
   // Find posts without analysis
   const unanalyzed = db
     .select({ id: posts.id, caption: posts.caption, mediaType: posts.mediaType, thumbnailUrl: posts.thumbnailUrl, mediaUrl: posts.mediaUrl })
@@ -281,9 +281,9 @@ export async function generateContentReport(): Promise<ContentReport> {
     max_tokens: 2000,
     messages: [{
       role: "user",
-      content: `You are analyzing Instagram content performance data for a creator. Based on the data below, identify the most actionable patterns and provide specific recommendations.
+      content: `You are a senior social media strategist analyzing Instagram content performance data for a creator. Your job is to find non-obvious, actionable patterns — not surface-level observations anyone could see in Instagram's own analytics.
 
-DATA SUMMARY:
+DATA SUMMARY (${dataSummary.totalPosts} posts analyzed):
 ${JSON.stringify(dataSummary, null, 2)}
 
 Return ONLY a JSON object with this structure:
@@ -291,22 +291,27 @@ Return ONLY a JSON object with this structure:
   "patterns": [
     {
       "title": "short pattern name",
-      "description": "what the pattern is in plain English",
-      "evidence": "the specific numbers that support this",
+      "description": "A detailed 2-3 sentence explanation of the pattern. Explain WHY this matters, not just what the numbers show. Connect it to audience psychology or content strategy principles.",
+      "evidence": "Exact numbers: averages, comparisons, sample sizes. Always include how many posts are in each group so the reader can judge statistical significance.",
       "impact": "high/medium/low"
     }
   ],
   "recommendations": [
     {
-      "action": "specific thing to do",
-      "reasoning": "why this should work based on the data",
+      "action": "A specific, concrete action — not vague advice like 'post more reels'. Say exactly what to do, when, and how.",
+      "reasoning": "2-3 sentences explaining the data-backed reasoning AND the strategic logic. Reference specific numbers from the patterns.",
       "priority": "high/medium/low"
     }
   ],
-  "summary": "2-3 sentence executive summary of the most important findings"
+  "summary": "3-4 sentence executive summary. Lead with the single most important finding, then the biggest opportunity, then the biggest risk."
 }
 
-Focus on patterns that are ACTIONABLE — things the creator can actually change. Limit to 3-5 patterns and 3-5 recommendations. Be specific with numbers.`
+Rules:
+- Be specific with ALL numbers. Always cite sample sizes.
+- Go beyond the obvious. "Videos get more engagement" is useless. "Videos with face visible in natural light get 3.2x saves vs studio shots" is useful.
+- Cross-reference attributes: don't just look at one dimension. The best insights combine visual + caption + timing patterns.
+- If sample sizes are small (under 5 posts in a group), flag that explicitly as low confidence.
+- 4-6 patterns and 4-6 recommendations.`
     }]
   });
 
@@ -357,6 +362,68 @@ export function getLatestReport(): ContentReport | null {
 
   if (!row) return null;
   return JSON.parse(row.reportJson) as ContentReport;
+}
+
+// ── Elaborate on a pattern ────────────────────────────────────────────
+
+export async function elaboratePattern(pattern: { title: string; description: string; evidence: string }): Promise<string> {
+  // Get relevant posts for context
+  const rows = db
+    .select({
+      caption: posts.caption,
+      mediaType: posts.mediaType,
+      setting: postAnalysis.setting,
+      lighting: postAnalysis.lighting,
+      hookType: postAnalysis.hookType,
+      captionTone: postAnalysis.captionTone,
+      engagement: postInsights.engagement,
+      reach: postInsights.reach,
+      saves: postInsights.saves,
+      likes: postInsights.likes,
+      shares: postInsights.shares
+    })
+    .from(posts)
+    .innerJoin(postAnalysis, eq(postAnalysis.postId, posts.id))
+    .innerJoin(postInsights, eq(postInsights.postId, posts.id))
+    .orderBy(desc(postInsights.engagement))
+    .limit(20)
+    .all();
+
+  const response = await client.messages.create({
+    model: "claude-sonnet-4-20250514",
+    max_tokens: 1500,
+    messages: [{
+      role: "user",
+      content: `You are a senior social media strategist. A content analysis found this pattern:
+
+PATTERN: ${pattern.title}
+DESCRIPTION: ${pattern.description}
+EVIDENCE: ${pattern.evidence}
+
+Here are the top 20 posts by engagement for context:
+${JSON.stringify(rows.map(r => ({
+  caption: r.caption?.slice(0, 100),
+  type: r.mediaType,
+  setting: r.setting,
+  lighting: r.lighting,
+  hook: r.hookType,
+  tone: r.captionTone,
+  engagement: r.engagement,
+  reach: r.reach,
+  saves: r.saves
+})), null, 2)}
+
+Provide a detailed deep-dive on this pattern. Include:
+1. WHY this pattern likely exists (audience psychology, algorithm behavior, platform dynamics)
+2. Specific examples from the post data that illustrate it
+3. A concrete content playbook: exactly what to do in the next 5 posts to leverage this pattern
+4. What to watch out for (diminishing returns, audience fatigue, etc.)
+
+Write in a direct, strategic tone. Be specific — reference actual captions and numbers from the data. 3-4 paragraphs.`
+    }]
+  });
+
+  return response.content[0].type === "text" ? response.content[0].text : "Failed to generate elaboration.";
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────
