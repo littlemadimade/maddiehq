@@ -61,6 +61,8 @@ export default function AnalyticsPage() {
   const [demographics, setDemographics] = useState<DemographicsData | null>(null);
   const [trend, setTrend] = useState<"up" | "down" | "flat">("flat");
   const [report, setReport] = useState<ContentReport | null>(null);
+  const [elaborations, setElaborations] = useState<Record<string, string>>({});
+  const [elaborating, setElaborating] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
@@ -155,6 +157,25 @@ export default function AnalyticsPage() {
       setError("Analysis failed. Make sure ANTHROPIC_API_KEY is set in .env");
     } finally {
       setAnalyzing(false);
+    }
+  }
+
+  async function handleElaborate(pattern: { title: string; description: string; evidence: string }) {
+    setElaborating(pattern.title);
+    try {
+      const res = await fetch("/api/analyze/instagram/elaborate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(pattern)
+      });
+      if (res.ok) {
+        const json = await res.json();
+        setElaborations((prev) => ({ ...prev, [pattern.title]: json.elaboration }));
+      }
+    } catch {
+      // Silently fail — the button will just stop loading
+    } finally {
+      setElaborating(null);
     }
   }
 
@@ -494,6 +515,22 @@ export default function AnalyticsPage() {
                             </div>
                             <p>{pattern.description}</p>
                             <p className="ai-report__evidence">{pattern.evidence}</p>
+                            {elaborations[pattern.title] ? (
+                              <div className="ai-report__elaboration">
+                                {elaborations[pattern.title].split("\n\n").map((para, j) => (
+                                  <p key={j}>{para}</p>
+                                ))}
+                              </div>
+                            ) : (
+                              <button
+                                className="ai-report__elaborate-btn"
+                                type="button"
+                                disabled={elaborating === pattern.title}
+                                onClick={() => handleElaborate(pattern)}
+                              >
+                                {elaborating === pattern.title ? "Thinking..." : "Go deeper"}
+                              </button>
+                            )}
                           </article>
                         ))}
                       </div>

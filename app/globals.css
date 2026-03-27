@@ -2895,3 +2895,40 @@ li + li {
   background: rgba(255, 255, 255, 0.06);
   color: rgba(248, 255, 213, 0.5);
 }
+
+.ai-report__elaborate-btn {
+  margin-top: 10px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 79, 163, 0.25);
+  background: rgba(255, 79, 163, 0.08);
+  color: var(--pink-soft);
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.ai-report__elaborate-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ai-report__elaboration {
+  margin-top: 14px;
+  padding: 16px;
+  border-radius: 12px;
+  background: rgba(255, 79, 163, 0.04);
+  border: 1px solid rgba(255, 79, 163, 0.1);
+}
+
+.ai-report__elaboration p {
+  margin: 0 0 10px;
+  color: rgba(248, 255, 213, 0.8);
+  font-size: 0.88rem;
+  line-height: 1.65;
+}
+
+.ai-report__elaboration p:last-child {
+  margin-bottom: 0;
+}
