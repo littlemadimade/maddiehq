@@ -100,7 +100,7 @@ function buildAuth(): AuthInstance {
         origins.push("http://*.ts.net", "https://*.ts.net", "http://*.ts.net:*", "https://*.ts.net:*");
         // Always trust localhost variants in dev so both Tailscale and
         // direct localhost access work without switching BETTER_AUTH_URL.
-        const devPort = process.env.DEV_PORT || "3013";
+        const devPort = process.env.DEV_PORT || "3005";
         for (const host of ["localhost", "127.0.0.1", "0.0.0.0"]) {
           for (const scheme of ["http", "https"]) {
             const variant = `${scheme}://${host}:${devPort}`;

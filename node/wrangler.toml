@@ -6,6 +6,12 @@
 name = "maddiehq"
 main = ".open-next/worker.js"
 
+# Custom domain — Cloudflare provisions the cert on deploy.
+# Requires oqodo.com to be on this Cloudflare account.
+routes = [
+  { pattern = "maddiehq.oqodo.com", custom_domain = true }
+]
+
 # 2024-09-23 is the earliest compat date that ships the `nodejs_compat` flag
 # behavior the audit (#287) expects. Pin a date older than the SDKs we use
 # (Stripe, Resend, Anthropic) all advertise Workers support against.
@@ -27,7 +33,7 @@ APP_NAME = "MaddieHQ"
 [[d1_databases]]
 binding = "DB"
 database_name = "maddiehq-db"
-database_id = "00000000-0000-0000-0000-000000000000"
+database_id = "067da619-16e0-4dd0-b999-c6a168919a6c"
 migrations_dir = "migrations"
 
 # ── R2 (object storage) ────────────────────────────────────────────────
