@@ -1,0 +1,35 @@
+regular:
+  id: "usr-regular-0001"
+  email: "regular@example.com"
+  email_verified: true
+  name: "Regular User"
+  plan: "free"
+  subscription_status: "inactive"
+  is_admin: false
+  disabled: false
+  created_at: <%= 3.days.ago.iso8601 %>
+  updated_at: <%= 3.days.ago.iso8601 %>
+
+admin:
+  id: "usr-admin-0001"
+  email: "admin@example.com"
+  email_verified: true
+  name: "Admin User"
+  plan: "pro"
+  subscription_status: "active"
+  is_admin: true
+  disabled: false
+  created_at: <%= 7.days.ago.iso8601 %>
+  updated_at: <%= 7.days.ago.iso8601 %>
+
+disabled:
+  id: "usr-disabled-0001"
+  email: "disabled@example.com"
+  email_verified: false
+  name: "Disabled User"
+  plan: "free"
+  subscription_status: "inactive"
+  is_admin: false
+  disabled: true
+  created_at: <%= 10.days.ago.iso8601 %>
+  updated_at: <%= 10.days.ago.iso8601 %>

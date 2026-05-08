@@ -1,0 +1,126 @@
+---
+title: OAuth Setup
+description: Configure Google and GitHub OAuth providers for your MaddieHQ application.
+---
+
+MaddieHQ includes Google and GitHub OAuth via Better Auth, with support for additional providers.
+
+## Features
+
+- Email/password authentication
+- Google OAuth ("Continue with Google")
+- GitHub OAuth ("Continue with GitHub")
+- Automatic account linking (same email = linked accounts)
+- Automatic user creation on first OAuth sign-in
+- Session management via Better Auth (httpOnly cookies)
+- Two-factor authentication (TOTP + backup codes)
+- Proxy-safe (works behind Caddy/Nginx)
+
+## Google OAuth
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
+2. Create OAuth client ID (Web application)
+3. Add redirect URI: `https://yourdomain.com/api/auth/callback/google`
+4. Copy Client ID and Client Secret
+5. Add to your `.env.local`:
+
+```bash
+GOOGLE_CLIENT_ID=your-client-id
+GOOGLE_CLIENT_SECRET=your-client-secret
+```
+
+## GitHub OAuth
+
+1. Go to [GitHub Developer Settings](https://github.com/settings/developers)
+2. Create new OAuth App
+3. Homepage URL: `https://yourdomain.com`
+4. Authorization callback URL: `https://yourdomain.com/api/auth/callback/github`
+5. Copy Client ID and Client Secret
+6. Add to your `.env.local`:
+
+```bash
+GITHUB_CLIENT_ID=your-client-id
+GITHUB_CLIENT_SECRET=your-client-secret
+```
+
+## Required URLs
+
+Make sure these are set correctly:
+
+```bash
+APP_URL=https://yourdomain.com
+BETTER_AUTH_URL=https://yourdomain.com
+```
+
+## How the auth flow works
+
+1. User clicks "Continue with Google" or "Continue with GitHub"
+2. Better Auth redirects to the OAuth provider
+3. User authorizes the app
+4. Provider redirects back to `/api/auth/callback/{provider}`
+5. Better Auth checks if the user exists (by email), creates or links the account, and creates a session
+6. User is redirected to `/app`
+
+## Database tables
+
+Better Auth manages these tables:
+
+| Table | Purpose |
+|-------|---------|
+| `user` | User profiles with custom fields (plan, stripeCustomerId, etc.) |
+| `account` | OAuth provider accounts linked to users |
+| `session` | Active sessions |
+| `verification` | Email verification and password reset tokens |
+| `twoFactor` | TOTP secrets and backup codes |
+
+## Adding more providers
+
+Better Auth supports many OAuth providers. To add one:
+
+1. Add the provider to `socialProviders` in `lib/auth.ts`:
+
+```typescript
+socialProviders: {
+  // ... existing providers
+  microsoft: {
+    clientId: process.env.MICROSOFT_CLIENT_ID || "",
+    clientSecret: process.env.MICROSOFT_CLIENT_SECRET || "",
+  },
+}
+```
+
+2. Add a button to `app/auth/page.tsx`:
+
+```typescript
+await authClient.signIn.social({ provider: "microsoft", callbackURL: "/app" });
+```
+
+3. Set up the OAuth app with the provider and add credentials to `.env.local`
+
+## Troubleshooting
+
+### redirect_uri_mismatch
+
+The redirect URI in your OAuth app settings must exactly match:
+
+```
+https://yourdomain.com/api/auth/callback/{provider}
+```
+
+No trailing slashes.
+
+### Session not persisting
+
+Check that `BETTER_AUTH_URL` and `APP_URL` environment variables are set correctly.
+
+### No email from GitHub
+
+Better Auth requests the `user:email` scope from GitHub automatically.
+
+## Security notes
+
+- Never commit OAuth credentials to git
+- Use environment variables for all secrets
+- `BETTER_AUTH_SECRET` should be a random 32+ character string
+- In production, cookies are automatically set to `secure: true`
+- Security headers are configured in `next.config.ts`

@@ -1,0 +1,80 @@
+# docker-compose.lightsail.yml — AppSeed on AWS Lightsail
+#
+# Usage:
+#   1. Copy this file + your project to the Lightsail instance
+#   2. Create .env with required variables (see docs/deploy/lightsail.md)
+#   3. docker compose -f docker-compose.lightsail.yml up -d
+#
+# This compose file runs:
+#   - The Next.js app (production build)
+#   - Caddy reverse proxy (automatic HTTPS via Let's Encrypt)
+#   - Litestream sidecar (continuous SQLite backup to S3)
+
+services:
+  # ── Next.js App ──────────────────────────────────────────────────────
+  app:
+    build:
+      context: ../../node
+      dockerfile: Dockerfile
+    container_name: appseed-app
+    restart: unless-stopped
+    expose:
+      - "3013"
+    volumes:
+      - app_data:/data
+    environment:
+      NODE_ENV: production
+      DATABASE_PATH: /data/appseed.db
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
+      BETTER_AUTH_URL: https://${DOMAIN}
+      APP_URL: https://${DOMAIN}
+      APP_NAME: ${APP_NAME:-AppSeed}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID:-}
+      GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET:-}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
+      STRIPE_PRICE_ID: ${STRIPE_PRICE_ID:-}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
+
+  # ── Caddy — Automatic HTTPS ─────────────────────────────────────────
+  caddy:
+    image: caddy:2-alpine
+    container_name: appseed-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - app
+
+  # ── Litestream — SQLite Backup to S3 ────────────────────────────────
+  litestream:
+    image: litestream/litestream:latest
+    container_name: appseed-litestream
+    restart: unless-stopped
+    command: replicate
+    volumes:
+      - app_data:/data
+      - ../../node/litestream.yml:/etc/litestream.yml:ro
+    environment:
+      DATABASE_PATH: /data/appseed.db
+      LITESTREAM_ACCESS_KEY_ID: ${LITESTREAM_ACCESS_KEY_ID}
+      LITESTREAM_SECRET_ACCESS_KEY: ${LITESTREAM_SECRET_ACCESS_KEY}
+      LITESTREAM_REPLICA_BUCKET: ${LITESTREAM_REPLICA_BUCKET}
+      LITESTREAM_REPLICA_PATH: ${LITESTREAM_REPLICA_PATH:-db}
+      LITESTREAM_REPLICA_ENDPOINT: ${LITESTREAM_REPLICA_ENDPOINT}
+      LITESTREAM_REPLICA_REGION: ${LITESTREAM_REPLICA_REGION:-us-east-1}
+    depends_on:
+      - app
+
+volumes:
+  app_data:
+  caddy_data:
+  caddy_config:

@@ -1,0 +1,107 @@
+<% content_for(:title) { "AI Chat" } %>
+
+<div class="flex h-screen bg-muted" data-controller="chat">
+  <!-- Sidebar -->
+  <div data-chat-target="sidebar" class="w-64 border-r border-border bg-card flex flex-col">
+    <div class="p-3 border-b border-border flex items-center justify-between">
+      <h2 class="text-sm font-semibold text-foreground">Conversations</h2>
+      <button type="button" data-action="click->chat#newConversation" class="p-1 text-muted-foreground hover:text-primary transition-colors" aria-label="New chat">
+        <svg class="w-4 h-4" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </button>
+    </div>
+    <div class="flex-1 overflow-y-auto" data-chat-target="conversationList">
+      <p class="px-3 py-8 text-xs text-muted-foreground text-center">No conversations yet</p>
+    </div>
+  </div>
+
+  <!-- Main chat area -->
+  <div class="flex-1 flex flex-col">
+    <!-- Header -->
+    <header class="bg-card border-b border-border px-4 py-2 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <button type="button" data-action="click->chat#toggleSidebar" class="p-1 text-muted-foreground hover:text-foreground" aria-label="Toggle sidebar">
+          <svg class="w-4 h-4" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        </button>
+        <span class="text-sm font-medium text-foreground">AI Chat</span>
+        <span data-chat-target="voiceStatus" class="hidden text-xs animate-pulse"></span>
+      </div>
+      <div class="flex items-center gap-2">
+        <label class="flex items-center gap-1.5 text-xs text-muted-foreground cursor-pointer">
+          <input type="checkbox" data-chat-target="audioToggle" data-action="change->chat#toggleAudio" class="rounded border-input" />
+          Audio responses
+        </label>
+        <a href="/app" class="text-xs text-muted-foreground hover:text-foreground">Back to app</a>
+      </div>
+    </header>
+
+    <!-- Messages -->
+    <div class="flex-1 overflow-y-auto px-4 py-6" data-chat-target="messagesContainer">
+      <div class="max-w-2xl mx-auto space-y-4" data-chat-target="messagesList">
+        <!-- Empty state -->
+        <div data-chat-target="emptyState" class="text-center py-20">
+          <svg class="w-10 h-10 text-muted-foreground mx-auto mb-3" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+          <p class="text-foreground font-medium">Start a conversation</p>
+          <p class="text-muted-foreground text-xs mt-1">Type a message or tap the mic to speak</p>
+        </div>
+      </div>
+      <div data-chat-target="scrollAnchor"></div>
+    </div>
+
+    <!-- Audio playback bar -->
+    <div data-chat-target="playbackBar" class="hidden mx-4 mb-2 max-w-2xl self-center w-full">
+      <div class="rounded-xl border border-border bg-accent text-accent-foreground p-3">
+        <div class="flex items-center gap-3">
+          <button type="button" data-action="click->chat#togglePlayback" class="p-1.5 text-primary hover:text-primary/90" aria-label="Toggle playback">
+            <svg data-chat-target="playIcon" class="w-4 h-4" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            <svg data-chat-target="pauseIcon" class="hidden w-4 h-4" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+          </button>
+          <div class="flex-1">
+            <input type="range" min="0" max="0" value="0" data-chat-target="seekBar" data-action="input->chat#seekAudio" aria-label="Seek" class="w-full h-1 accent-primary" />
+            <div class="flex justify-between text-[10px] text-muted-foreground mt-0.5">
+              <span data-chat-target="currentTime">0:00</span>
+              <span data-chat-target="duration">0:00</span>
+            </div>
+          </div>
+          <select data-chat-target="playbackRate" data-action="change->chat#changePlaybackRate" aria-label="Playback speed" class="text-xs border border-input rounded px-1 py-0.5 bg-transparent text-muted-foreground">
+            <option value="1">1x</option>
+            <option value="1.25">1.25x</option>
+            <option value="1.5">1.5x</option>
+            <option value="2">2x</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hidden audio element for TTS -->
+    <audio data-chat-target="audioElement" class="hidden"></audio>
+
+    <!-- Pending files -->
+    <div data-chat-target="pendingFilesBar" class="hidden px-4 pb-2 max-w-2xl mx-auto w-full">
+      <div class="flex flex-wrap gap-1.5" data-chat-target="pendingFilesList"></div>
+    </div>
+
+    <!-- Input area -->
+    <div class="border-t border-border bg-card px-4 py-3">
+      <form data-action="submit->chat#send" class="max-w-2xl mx-auto flex items-end gap-2">
+        <input type="file" data-chat-target="fileInput" data-action="change->chat#handleFileSelect" accept=".pdf,.csv,.txt,.png,.jpg,.jpeg,.gif,.webp,.docx,.doc,.xlsx,.xls,.pptx,.ppt" multiple class="hidden" />
+        <button type="button" data-action="click->chat#openFileDialog" class="p-2 text-muted-foreground hover:text-foreground disabled:opacity-50" aria-label="Attach file">
+          <svg class="w-4 h-4" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>
+        </button>
+
+        <button type="button" data-chat-target="micButton" data-action="click->chat#toggleVoice" class="p-2 rounded-lg transition-colors text-muted-foreground hover:text-primary hover:bg-accent" aria-label="Toggle voice input">
+          <svg data-chat-target="micIcon" class="w-4 h-4" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+          <svg data-chat-target="micOffIcon" class="hidden w-4 h-4" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><line x1="1" y1="1" x2="23" y2="23"/><path d="M9 9v3a3 3 0 005.12 2.12M15 9.34V4a3 3 0 00-5.94-.6"/><path d="M17 16.95A7 7 0 015 12v-2m14 0v2c0 .76-.13 1.49-.36 2.18"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+        </button>
+
+        <textarea data-chat-target="input" data-action="keydown->chat#handleKeydown input->chat#autoResize"
+          placeholder="Type a message..." rows="1" aria-label="Message"
+          class="flex-1 resize-none border border-input bg-background text-foreground rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50 max-h-[150px]"></textarea>
+
+        <button type="submit" data-chat-target="sendButton"
+          class="p-2 text-primary-foreground bg-primary hover:bg-primary/90 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed" aria-label="Send message">
+          <svg class="w-4 h-4" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </form>
+    </div>
+  </div>
+</div>

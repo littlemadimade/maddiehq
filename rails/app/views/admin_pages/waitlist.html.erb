@@ -1,0 +1,69 @@
+<% content_for(:title) { "Waitlist" } %>
+
+<div data-controller="admin-waitlist">
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold text-foreground">Waitlist</h1>
+    <%= render UI::ButtonComponent.new(variant: :primary, size: :sm, class: "hidden", data: { action: "click->admin-waitlist#bulkInvite", "admin-waitlist-target": "bulkInviteBtn" }) { "Invite Selected" } %>
+  </div>
+
+  <!-- Stats -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+    <div class="bg-card text-card-foreground border border-border rounded-xl p-4">
+      <p class="text-xs text-muted-foreground uppercase font-medium">Total</p>
+      <p data-admin-waitlist-target="statTotal" class="text-2xl font-bold text-foreground mt-1">-</p>
+    </div>
+    <div class="bg-card text-card-foreground border border-border rounded-xl p-4">
+      <p class="text-xs text-muted-foreground uppercase font-medium">Waiting</p>
+      <p data-admin-waitlist-target="statWaiting" class="text-2xl font-bold text-warning mt-1">-</p>
+    </div>
+    <div class="bg-card text-card-foreground border border-border rounded-xl p-4">
+      <p class="text-xs text-muted-foreground uppercase font-medium">Invited</p>
+      <p data-admin-waitlist-target="statInvited" class="text-2xl font-bold text-info mt-1">-</p>
+    </div>
+    <div class="bg-card text-card-foreground border border-border rounded-xl p-4">
+      <p class="text-xs text-muted-foreground uppercase font-medium">Registered</p>
+      <p data-admin-waitlist-target="statRegistered" class="text-2xl font-bold text-primary mt-1">-</p>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="flex items-center gap-3 mb-4">
+    <input type="text" data-admin-waitlist-target="searchInput" data-action="input->admin-waitlist#applyFilters" placeholder="Search by email..." aria-label="Search by email" class="flex-1 border border-input bg-background text-foreground rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+    <select data-admin-waitlist-target="statusFilter" data-action="change->admin-waitlist#applyFilters" aria-label="Filter by status" class="border border-input bg-background text-foreground rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+      <option value="">All statuses</option>
+      <option value="waiting">Waiting</option>
+      <option value="invited">Invited</option>
+      <option value="registered">Registered</option>
+    </select>
+  </div>
+
+  <div class="bg-card text-card-foreground border border-border rounded-xl overflow-hidden">
+    <table class="w-full text-sm">
+      <thead class="bg-muted/60 border-b border-border">
+        <tr>
+          <th class="w-10 px-4 py-3">
+            <input type="checkbox" data-admin-waitlist-target="selectAll" data-action="change->admin-waitlist#toggleAll" aria-label="Select all" class="rounded border-input" />
+          </th>
+          <th class="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase">Email</th>
+          <th class="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase">Status</th>
+          <th class="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase">Referral Code</th>
+          <th class="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase">Referrals</th>
+          <th class="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase">Joined</th>
+          <th class="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase">Actions</th>
+        </tr>
+      </thead>
+      <tbody data-admin-waitlist-target="list" class="divide-y divide-border">
+        <tr><td colspan="7" class="px-4 py-8 text-center text-muted-foreground">Loading...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <div class="flex items-center justify-between mt-3">
+    <p data-admin-waitlist-target="count" class="text-xs text-muted-foreground"></p>
+    <div class="flex gap-2">
+      <%= render UI::ButtonComponent.new(variant: :secondary, size: :sm, class: "hidden", data: { "admin-waitlist-target": "prevBtn", action: "click->admin-waitlist#prevPage" }) { "← Previous" } %>
+      <%= render UI::ButtonComponent.new(variant: :secondary, size: :sm, class: "hidden", data: { "admin-waitlist-target": "nextBtn", action: "click->admin-waitlist#nextPage" }) { "Next →" } %>
+    </div>
+  </div>
+</div>

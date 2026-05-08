@@ -1,0 +1,23 @@
+<% content_for(:title) { "Analytics" } %>
+
+<div data-controller="admin-analytics">
+  <h1 class="text-2xl font-bold text-foreground mb-6">Analytics</h1>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <%
+      panels = [
+        ["Signups Over Time", "signups"],
+        ["Revenue", "revenue"],
+        ["Plan Distribution", "plans"],
+        ["Auth Providers", "providers"],
+      ]
+    %>
+    <% panels.each do |title, target| %>
+      <%= render UI::CardComponent.new(title: title) do %>
+        <div data-admin-analytics-target="<%= target %>">
+          <div class="h-64 flex items-center justify-center text-muted-foreground text-sm">Loading<%= target == "signups" || target == "revenue" ? " chart" : "" %>...</div>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+</div>

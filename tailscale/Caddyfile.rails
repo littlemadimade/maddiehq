@@ -1,0 +1,22 @@
+# Caddy + caddy-tailscale config for the Rails app's tailnet sidecar.
+# See Caddyfile.node for the pattern explanation.
+
+{
+	tailscale {
+		auth_key {env.TS_AUTHKEY}
+		ephemeral true
+		state_dir /config
+
+		app {
+			hostname {env.TS_HOSTNAME}
+		}
+	}
+}
+
+:443 {
+	bind tailscale/app
+	tls {
+		get_certificate tailscale
+	}
+	reverse_proxy http://127.0.0.1:3014
+}

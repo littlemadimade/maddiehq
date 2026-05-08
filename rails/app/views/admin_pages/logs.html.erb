@@ -1,0 +1,91 @@
+<% content_for(:title) { "Audit Logs" } %>
+
+<%
+  action_options = [
+    ["", "All actions"],
+    ["plan_override_grant", "Plan override grant"],
+    ["plan_override_remove", "Plan override remove"],
+    ["user_ban", "User ban"],
+    ["user_unban", "User unban"],
+    ["user_plan_change", "Plan change"],
+    ["user_email_change", "Email change"],
+    ["user_password_reset", "Password reset"],
+    ["role_create", "Role create"],
+    ["role_update", "Role update"],
+    ["role_delete", "Role delete"],
+    ["role_assign", "Role assign"],
+    ["role_unassign", "Role unassign"],
+    ["waitlist_invite", "Waitlist invite"],
+    ["blog_create", "Blog create"],
+    ["blog_update", "Blog update"],
+    ["blog_delete", "Blog delete"],
+  ]
+  target_options = [
+    ["", "All targets"],
+    ["user", "User"],
+    ["role", "Role"],
+    ["subscription", "Subscription"],
+    ["waitlist", "Waitlist"],
+    ["blog_post", "Blog post"],
+  ]
+  select_class = "w-full border border-input bg-background text-foreground rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+  input_class = "w-full border border-input bg-background text-foreground rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+%>
+
+<div data-controller="admin-logs">
+  <h1 class="text-2xl font-bold text-foreground mb-6">Audit Logs</h1>
+
+  <!-- Filters -->
+  <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-4">
+    <div>
+      <label class="block text-xs font-medium text-muted-foreground mb-1" for="logs-action">Action</label>
+      <select id="logs-action" data-admin-logs-target="actionFilter" data-action="change->admin-logs#applyFilters" class="<%= select_class %>">
+        <% action_options.each do |value, label| %><option value="<%= value %>"><%= label %></option><% end %>
+      </select>
+    </div>
+    <div>
+      <label class="block text-xs font-medium text-muted-foreground mb-1" for="logs-target">Target Type</label>
+      <select id="logs-target" data-admin-logs-target="targetFilter" data-action="change->admin-logs#applyFilters" class="<%= select_class %>">
+        <% target_options.each do |value, label| %><option value="<%= value %>"><%= label %></option><% end %>
+      </select>
+    </div>
+    <div>
+      <label class="block text-xs font-medium text-muted-foreground mb-1" for="logs-from">From</label>
+      <input id="logs-from" type="date" data-admin-logs-target="dateFrom" data-action="change->admin-logs#applyFilters" class="<%= input_class %>" />
+    </div>
+    <div>
+      <label class="block text-xs font-medium text-muted-foreground mb-1" for="logs-to">To</label>
+      <input id="logs-to" type="date" data-admin-logs-target="dateTo" data-action="change->admin-logs#applyFilters" class="<%= input_class %>" />
+    </div>
+    <div>
+      <label class="block text-xs font-medium text-muted-foreground mb-1" for="logs-search">Search</label>
+      <input id="logs-search" type="text" data-admin-logs-target="search" data-action="input->admin-logs#applyFilters" placeholder="Search logs..." class="<%= input_class %>" />
+    </div>
+  </div>
+
+  <!-- Pagination info -->
+  <div class="flex items-center justify-between mb-2">
+    <p data-admin-logs-target="count" class="text-xs text-muted-foreground"></p>
+    <div class="flex gap-2">
+      <%= render UI::ButtonComponent.new(variant: :secondary, size: :sm, class: "hidden", data: { "admin-logs-target": "prevBtn", action: "click->admin-logs#prevPage" }) { "← Previous" } %>
+      <%= render UI::ButtonComponent.new(variant: :secondary, size: :sm, class: "hidden", data: { "admin-logs-target": "nextBtn", action: "click->admin-logs#nextPage" }) { "Next →" } %>
+    </div>
+  </div>
+
+  <div class="bg-card text-card-foreground border border-border rounded-xl overflow-hidden">
+    <table class="w-full text-sm">
+      <thead class="bg-muted/60 border-b border-border">
+        <tr>
+          <th class="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase">Timestamp</th>
+          <th class="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase">Admin</th>
+          <th class="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase">Action</th>
+          <th class="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase">Target</th>
+          <th class="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase">Details</th>
+        </tr>
+      </thead>
+      <tbody data-admin-logs-target="logList" class="divide-y divide-border">
+        <tr><td colspan="5" class="px-4 py-8 text-center text-muted-foreground">Loading logs...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>

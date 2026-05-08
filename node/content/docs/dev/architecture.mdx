@@ -1,0 +1,78 @@
+---
+title: Architecture
+description: System architecture, tech stack, and how the major components connect.
+---
+
+## Tech stack
+
+| Layer | Technology |
+|-------|-----------|
+| Framework | Next.js 16 (App Router, Turbopack) |
+| Language | TypeScript 5 |
+| Database | SQLite via better-sqlite3 + Drizzle ORM |
+| Auth | Better Auth (email/password, OAuth, 2FA) |
+| Payments | Stripe (subscriptions, customer portal) |
+| Email | Resend (transactional) |
+| AI | Anthropic Claude (chat, voice) |
+| Styling | Tailwind CSS v4 |
+| Monitoring | Sentry (error tracking) |
+
+## Directory structure
+
+```
+app/                  # Next.js App Router
+  admin/              # Admin panel (auth-gated)
+  api/                # API route handlers
+  app/                # User dashboard
+  auth/               # Login/signup pages
+  blog/               # Blog pages
+  docs/               # Customer-facing documentation
+  api-docs/           # Interactive API reference (Scalar)
+components/           # React components
+  admin/              # Admin-specific components
+  landing/            # Landing page sections
+  ui/                 # Shared UI primitives
+content/              # MDX content
+  blog/               # Blog posts
+  changelog/          # Changelog entries
+  docs/guide/         # Customer documentation
+  docs/dev/           # This wiki
+lib/                  # Shared libraries
+  auth.ts             # Better Auth server config
+  auth-client.ts      # Better Auth client
+  db.ts               # Database connection (Drizzle)
+  schema.ts           # Database schema (all tables)
+  errors.ts           # Error classes and response helper
+  rate-limit.ts       # Rate limiter
+  chat-engine.ts      # AI chat streaming
+  stripe.ts           # Stripe client (lazy init)
+migrations/           # SQLite migration files
+```
+
+## Request flow
+
+1. Request hits Next.js middleware (`middleware.ts`) -- checks session cookie, redirects unauthenticated users from protected routes
+2. API routes check `auth.api.getSession()` server-side and throw `UnauthorizedError` if missing
+3. Admin routes additionally verify `isAdmin()` via RBAC
+4. Database queries use Drizzle ORM with typed schema from `lib/schema.ts`
+5. Errors are caught by `errorResponse()` which returns generic messages (no stack traces)
+
+## Database
+
+SQLite is the default. PostgreSQL is supported via `migrations-pg/` and the `pg` adapter.
+
+- Schema defined in `lib/schema.ts` (16 tables)
+- Migrations in `migrations/` (SQLite) and `migrations-pg/` (PostgreSQL)
+- `getDb()` returns a Drizzle instance for typed queries
+- `getRawDb()` returns the raw better-sqlite3 connection (for FTS5, PRAGMA, etc.)
+- All tables use `user(id)` as foreign key (singular, Better Auth convention)
+
+## Auth
+
+See [[conventions]] for auth patterns. Key points:
+
+- Better Auth manages all auth flows (login, signup, OAuth, 2FA, sessions)
+- Sessions stored in database, delivered via httpOnly cookies
+- Server: `auth.api.getSession({ headers: request.headers })`
+- Client: `authClient.getSession()`, `authClient.signIn.email()`, etc.
+- Rate limited: 5 requests/minute on POST to auth endpoints

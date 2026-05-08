@@ -1,0 +1,20 @@
+<div class="<%= container_classes %>">
+  <% if has_header? %>
+    <div class="flex items-start gap-3 px-5 py-4 border-b border-border">
+      <% if icon.present? %>
+        <span class="text-primary mt-0.5" aria-hidden="true"><%= icon.is_a?(String) ? icon.html_safe : icon %></span>
+      <% end %>
+      <div class="flex-1 min-w-0">
+        <% if title.present? %>
+          <h3 class="text-sm font-semibold text-foreground"><%= title %></h3>
+        <% end %>
+        <% if subtitle.present? %>
+          <p class="text-xs text-muted-foreground mt-0.5"><%= subtitle %></p>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+  <div class="p-5">
+    <%= content %>
+  </div>
+</div>

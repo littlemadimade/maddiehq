@@ -1,0 +1,82 @@
+---
+title: Getting Started
+description: Set up your MaddieHQ development environment and run the app locally.
+---
+
+## Prerequisites
+
+- **Node.js 22+**
+- **npm** (comes with Node.js)
+- **Git**
+
+## Setup
+
+### 1. Clone and install
+
+```bash
+git clone https://github.com/your-org/your-app.git
+cd your-app/node
+npm install
+```
+
+### 2. Configure environment
+
+Copy the example env file and fill in your values:
+
+```bash
+cp .env.example .env.local
+```
+
+Required variables:
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `BETTER_AUTH_SECRET` | Auth session signing key | *none* -- run `openssl rand -base64 32` |
+| `BETTER_AUTH_URL` | Your app's public URL | `http://localhost:3013` |
+| `APP_URL` | Same as `BETTER_AUTH_URL` | `http://localhost:3013` |
+| `APP_NAME` | Display name in emails/UI | `MaddieHQ` |
+| `DATABASE_PATH` | SQLite database file path | `./data/maddiehq.db` |
+
+### 3. Run database migrations
+
+```bash
+npm run db:migrate
+```
+
+### 4. Start the dev server
+
+```bash
+npm run dev
+```
+
+Your app is running at [http://localhost:3013](http://localhost:3013).
+
+## Project structure
+
+```
+node/
+  app/              # Next.js App Router pages and API routes
+  components/       # React components (admin/, landing/, ui/)
+  content/          # MDX content (blog/, changelog/, docs/)
+  lib/              # Shared libraries (auth, db, email, stripe)
+  migrations/       # SQLite migration files
+  scripts/          # CLI scripts (migrate, seed, rollback)
+  public/           # Static assets
+```
+
+## Common commands
+
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start development server |
+| `npm run build` | Production build |
+| `npm run db:migrate` | Run database migrations |
+| `npm run db:generate` | Generate Drizzle migrations from schema |
+| `npm run db:seed` | Seed database with sample data |
+| `npm test` | Run unit tests (Vitest) |
+| `npm run e2e` | Run E2E tests (Playwright) |
+
+## Next steps
+
+- [Configure OAuth providers](/docs/oauth-setup)
+- [Deploy to production](/docs/deployment)

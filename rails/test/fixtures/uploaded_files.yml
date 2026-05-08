@@ -1,0 +1,10 @@
+regular_file:
+  id: "file-0001"
+  user_id: "usr-regular-0001"
+  key: "abc12345.txt"
+  filename: "test.txt"
+  content_type: "text/plain"
+  size: 100
+  storage_backend: "local"
+  created_at: <%= 1.day.ago.iso8601 %>
+  updated_at: <%= 1.day.ago.iso8601 %>

@@ -1,0 +1,9 @@
+regular_webhook:
+  id: "wh-0001"
+  user_id: "usr-regular-0001"
+  url: "https://example.com/webhook"
+  secret: <%= SecureRandom.hex(32) %>
+  events: '["item.created","item.deleted"]'
+  active: true
+  created_at: <%= 1.day.ago.iso8601 %>
+  updated_at: <%= 1.day.ago.iso8601 %>

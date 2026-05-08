@@ -1,0 +1,29 @@
+regular_session:
+  id: "sess-regular-0001"
+  user_id: "usr-regular-0001"
+  token: "regular_session_token_abc123"
+  expires_at: <%= 7.days.from_now.iso8601 %>
+  ip_address: "127.0.0.1"
+  user_agent: "Minitest"
+  created_at: <%= 1.hour.ago.iso8601 %>
+  updated_at: <%= 1.hour.ago.iso8601 %>
+
+admin_session:
+  id: "sess-admin-0001"
+  user_id: "usr-admin-0001"
+  token: "admin_session_token_xyz789"
+  expires_at: <%= 7.days.from_now.iso8601 %>
+  ip_address: "127.0.0.1"
+  user_agent: "Minitest"
+  created_at: <%= 1.hour.ago.iso8601 %>
+  updated_at: <%= 1.hour.ago.iso8601 %>
+
+disabled_session:
+  id: "sess-disabled-0001"
+  user_id: "usr-disabled-0001"
+  token: "disabled_session_token_def456"
+  expires_at: <%= 7.days.from_now.iso8601 %>
+  ip_address: "127.0.0.1"
+  user_agent: "Minitest"
+  created_at: <%= 1.hour.ago.iso8601 %>
+  updated_at: <%= 1.hour.ago.iso8601 %>

@@ -1,0 +1,461 @@
+<% content_for(:title) { "Ship Your Next Idea Faster" } %>
+<% content_for(:description) { "#{app_name} is a production-ready starter with auth, database, payments, and email already wired up." } %>
+
+<% content_for(:head) do %>
+<script type="application/ld+json">
+<%= raw({
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "name": app_name,
+      "url": app_url,
+      "description": "Production-ready starter with auth, database, payments, and email."
+    },
+    {
+      "@type": "WebSite",
+      "name": app_name,
+      "url": app_url
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": app_name,
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Any",
+      "offers": [
+        { "@type": "Offer", "price": "0", "priceCurrency": "USD", "description": "Free plan with core features" },
+        { "@type": "Offer", "price": "49", "priceCurrency": "USD", "description": "Pro plan with premium features" }
+      ]
+    }
+  ]
+}.to_json) %>
+</script>
+<% end %>
+
+<%
+  nav_link = "px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground rounded-lg hover:bg-muted/50 transition-colors"
+  footer_link = "hover:text-foreground transition-colors"
+%>
+
+<div class="min-h-screen bg-background scroll-smooth">
+
+  <!-- ───── Header ───── -->
+  <header class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-transparent"
+          data-controller="mobile-menu"
+          data-mobile-menu-scrolled-class="bg-background/80 backdrop-blur-lg border-b border-border/50 shadow-sm">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <!-- Logo -->
+        <a href="/" class="flex items-center gap-2 group">
+          <svg class="w-6 h-6 text-primary group-hover:scale-110 transition-transform" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 2C12 2 8 6 8 10C8 12.21 9.79 14 12 14C14.21 14 16 12.21 16 10C16 6 12 2 12 2Z"/><path d="M12 14V22"/><path d="M8 18H16"/></svg>
+          <span class="text-lg font-bold text-foreground"><%= app_name %></span>
+        </a>
+
+        <!-- Desktop nav -->
+        <nav class="hidden md:flex items-center gap-1">
+          <a href="#features" class="<%= nav_link %>">Features</a>
+          <a href="#how-it-works" class="<%= nav_link %>">How It Works</a>
+          <a href="#pricing" class="<%= nav_link %>">Pricing</a>
+          <a href="#faq" class="<%= nav_link %>">FAQ</a>
+        </nav>
+
+        <!-- Right side -->
+        <div class="flex items-center gap-2">
+          <button data-controller="theme" data-action="click->theme#toggle" class="p-2 text-muted-foreground hover:text-foreground rounded-lg hover:bg-muted/50 transition-colors" aria-label="Toggle theme">
+            <svg class="w-4 h-4 hidden dark:block" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+            <svg class="w-4 h-4 block dark:hidden" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+          </button>
+
+          <a href="/auth?tab=login" class="hidden sm:inline-flex text-sm font-medium text-muted-foreground hover:text-foreground px-3 py-2 rounded-lg transition-colors">Sign In</a>
+          <%= render UI::ButtonComponent.new(as: :link, href: "/auth?tab=signup", variant: :primary, size: :sm, class: "hidden sm:inline-flex") { "Get Started" } %>
+
+          <!-- Mobile menu button -->
+          <button data-mobile-menu-target="trigger" data-action="click->mobile-menu#toggle" class="md:hidden p-2 text-muted-foreground hover:text-foreground rounded-lg" aria-label="Toggle menu">
+            <svg data-mobile-menu-target="openIcon" class="w-5 h-5" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+            <svg data-mobile-menu-target="closeIcon" class="w-5 h-5 hidden" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Mobile menu -->
+      <div data-mobile-menu-target="menu" class="md:hidden hidden pb-4 border-t border-border/50 mt-2 pt-4">
+        <nav class="flex flex-col gap-1">
+          <a href="#features" data-action="click->mobile-menu#close" class="<%= nav_link %>">Features</a>
+          <a href="#how-it-works" data-action="click->mobile-menu#close" class="<%= nav_link %>">How It Works</a>
+          <a href="#pricing" data-action="click->mobile-menu#close" class="<%= nav_link %>">Pricing</a>
+          <a href="#faq" data-action="click->mobile-menu#close" class="<%= nav_link %>">FAQ</a>
+          <div class="flex gap-2 mt-3 px-3">
+            <%= render UI::ButtonComponent.new(as: :link, href: "/auth?tab=login", variant: :outline, class: "flex-1") { "Sign In" } %>
+            <%= render UI::ButtonComponent.new(as: :link, href: "/auth?tab=signup", variant: :primary, class: "flex-1") { "Get Started" } %>
+          </div>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <!-- ───── Hero ───── -->
+  <section class="relative pt-32 pb-20 sm:pt-40 sm:pb-28 overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-b from-accent/50 via-background to-background dark:from-accent/20"></div>
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-primary/10 rounded-full blur-3xl"></div>
+
+    <div class="relative max-w-4xl mx-auto px-4 sm:px-6 text-center">
+      <!-- Badge -->
+      <div class="inline-flex items-center gap-2 bg-accent text-accent-foreground text-xs font-medium px-3 py-1.5 rounded-full mb-8">
+        <svg class="w-3.5 h-3.5" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 2C12 2 8 6 8 10C8 12.21 9.79 14 12 14C14.21 14 16 12.21 16 10C16 6 12 2 12 2Z"/><path d="M12 14V22"/><path d="M8 18H16"/></svg>
+        The production-ready starter for builders
+      </div>
+
+      <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-foreground tracking-tight leading-[1.1] mb-6">
+        Ship your next idea
+        <br />
+        <span class="text-primary">in days, not months.</span>
+      </h1>
+
+      <p class="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
+        <%= app_name %> is a production-ready starter with auth, database, payments, and email already wired up. Stop rebuilding the same infrastructure &mdash; start building your product.
+      </p>
+
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+        <% if ENV.fetch("WAITLIST_MODE", "false") == "true" %>
+          <%= render UI::ButtonComponent.new(as: :link, href: "#waitlist", variant: :primary, size: :lg, class: "shadow-lg shadow-primary/20") do %>
+            <span class="inline-flex items-center gap-2">
+              Join the Waitlist
+              <svg class="w-4 h-4" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </span>
+          <% end %>
+        <% else %>
+          <%= render UI::ButtonComponent.new(as: :link, href: "/auth?tab=signup", variant: :primary, size: :lg, class: "shadow-lg shadow-primary/20") do %>
+            <span class="inline-flex items-center gap-2">
+              Get Started Free
+              <svg class="w-4 h-4" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </span>
+          <% end %>
+        <% end %>
+        <%= render UI::ButtonComponent.new(as: :link, href: "https://github.com", variant: :outline, size: :lg, target: "_blank", rel: "noopener noreferrer") do %>
+          <span class="inline-flex items-center gap-2">
+            <svg class="w-4 h-4" aria-hidden="true" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+            View on GitHub
+          </span>
+        <% end %>
+      </div>
+
+      <!-- Social proof -->
+      <div class="mt-14 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 text-sm text-muted-foreground">
+        <div class="flex items-center gap-1" aria-label="5 out of 5 stars">
+          <% 5.times do %>
+            <svg class="w-4 h-4 fill-amber-400 text-amber-400" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <% end %>
+          <span class="ml-1.5">5.0 from 200+ developers</span>
+        </div>
+        <span class="hidden sm:block" aria-hidden="true">&middot;</span>
+        <span>Used by 1,000+ projects worldwide</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───── Features ───── -->
+  <section id="features" class="py-20 sm:py-28">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl sm:text-4xl font-bold text-foreground tracking-tight">Everything you need to launch</h2>
+        <p class="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">Stop wiring up auth, payments, and infrastructure from scratch. <%= app_name %> gives you a head start with production-ready features.</p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <% [
+          { icon: "shield", title: "Authentication", desc: "Email/password, Google & GitHub OAuth, two-factor auth, email verification, and password reset — all pre-built." },
+          { icon: "database", title: "Database Ready", desc: "SQLite via ActiveRecord for instant local dev. Migration scripts included. Swap to Postgres when you scale." },
+          { icon: "credit-card", title: "Stripe Payments", desc: "Checkout sessions, webhooks, billing portal, and subscription management wired up end-to-end." },
+          { icon: "mail", title: "Transactional Email", desc: "Email integration for verification emails, password resets, and any transactional messages you need." },
+          { icon: "palette", title: "Component Library", desc: "Buttons, modals, cards, tables, badges, alerts, tabs — a complete dark-mode-ready UI kit." },
+          { icon: "terminal", title: "Developer Experience", desc: "Ruby on Rails, Tailwind CSS, Hotwire, Stimulus — modern tooling out of the box." },
+          { icon: "zap", title: "Deploy Anywhere", desc: "Dockerfile, docker-compose, and deployment config included. Push, build, and go live in minutes." },
+          { icon: "sprout", title: "Open & Extensible", desc: "No vendor lock-in. You own the code. Extend, customize, or rip out whatever you don't need." },
+        ].each do |feature| %>
+          <div class="group p-6 rounded-2xl border border-border bg-card hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300">
+            <div class="w-10 h-10 rounded-xl bg-accent flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+              <% case feature[:icon] %>
+              <% when "shield" %>
+                <svg class="w-5 h-5 text-primary" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              <% when "database" %>
+                <svg class="w-5 h-5 text-primary" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+              <% when "credit-card" %>
+                <svg class="w-5 h-5 text-primary" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+              <% when "mail" %>
+                <svg class="w-5 h-5 text-primary" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              <% when "palette" %>
+                <svg class="w-5 h-5 text-primary" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="13.5" cy="6.5" r="0.5" fill="currentColor"/><circle cx="17.5" cy="10.5" r="0.5" fill="currentColor"/><circle cx="8.5" cy="7.5" r="0.5" fill="currentColor"/><circle cx="6.5" cy="12.5" r="0.5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 011.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.555C21.965 6.012 17.461 2 12 2z"/></svg>
+              <% when "terminal" %>
+                <svg class="w-5 h-5 text-primary" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+              <% when "zap" %>
+                <svg class="w-5 h-5 text-primary" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              <% when "sprout" %>
+                <svg class="w-5 h-5 text-primary" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 2C12 2 8 6 8 10C8 12.21 9.79 14 12 14C14.21 14 16 12.21 16 10C16 6 12 2 12 2Z"/><path d="M12 14V22"/><path d="M8 18H16"/></svg>
+              <% end %>
+            </div>
+            <h3 class="font-semibold text-foreground mb-2"><%= feature[:title] %></h3>
+            <p class="text-sm text-muted-foreground leading-relaxed"><%= feature[:desc] %></p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───── How It Works ───── -->
+  <section id="how-it-works" class="py-20 sm:py-28 bg-muted">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl sm:text-4xl font-bold text-foreground tracking-tight">Up and running in 3 steps</h2>
+        <p class="mt-4 text-lg text-muted-foreground max-w-xl mx-auto">From clone to production in minutes, not weeks.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
+        <% [
+          { step: "01", title: "Clone & Configure", desc: "Clone the repo, add your environment variables, and run the dev server. You're up in under 2 minutes." },
+          { step: "02", title: "Customize & Build", desc: "Swap in your brand, add your features, and build on top of the pre-configured auth, database, and payments." },
+          { step: "03", title: "Deploy & Launch", desc: "Push to GitHub, build the Docker image, and deploy to any cloud. Your app is live and ready for users." },
+        ].each do |s| %>
+          <div class="relative text-center md:text-left">
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-accent mb-5">
+              <span class="text-2xl font-bold text-primary"><%= s[:step] %></span>
+            </div>
+            <h3 class="text-lg font-semibold text-foreground mb-2"><%= s[:title] %></h3>
+            <p class="text-sm text-muted-foreground leading-relaxed"><%= s[:desc] %></p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───── Pricing ───── -->
+  <section id="pricing" class="py-20 sm:py-28">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl sm:text-4xl font-bold text-foreground tracking-tight">Simple, transparent pricing</h2>
+        <p class="mt-4 text-lg text-muted-foreground max-w-xl mx-auto">Start free, upgrade when you need premium features.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto">
+        <!-- Free plan -->
+        <div class="relative rounded-2xl p-8 bg-card text-card-foreground border border-border">
+          <h3 class="text-lg font-semibold mb-1 text-foreground">Free</h3>
+          <p class="text-sm mb-5 text-muted-foreground">Everything you need to start building.</p>
+          <div class="flex items-baseline gap-1 mb-6">
+            <span class="text-4xl font-extrabold text-foreground">$0</span>
+            <span class="text-sm text-muted-foreground">/forever</span>
+          </div>
+          <ul class="space-y-3 mb-8">
+            <% ["Authentication (email, OAuth, 2FA)", "SQLite database with migrations", "Stripe payment integration", "Transactional email", "Component library", "Dark mode support", "Docker deployment config", "Community support"].each do |feature| %>
+              <li class="flex items-start gap-2.5 text-sm">
+                <svg class="w-4 h-4 mt-0.5 shrink-0 text-primary" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                <span class="text-foreground"><%= feature %></span>
+              </li>
+            <% end %>
+          </ul>
+          <%= render UI::ButtonComponent.new(as: :link, href: "/auth?tab=signup", variant: :primary, class: "w-full") { "Get Started Free" } %>
+        </div>
+
+        <!-- Pro plan (highlighted) -->
+        <div class="relative rounded-2xl p-8 bg-primary text-primary-foreground ring-4 ring-ring/20 shadow-xl shadow-primary/20">
+          <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-amber-400 text-amber-900 text-xs font-bold px-3 py-1 rounded-full">MOST POPULAR</div>
+          <h3 class="text-lg font-semibold mb-1">Pro</h3>
+          <p class="text-sm mb-5 opacity-90">All Pro features, forever. One payment, lifetime access.</p>
+          <div class="flex items-baseline gap-1 mb-6">
+            <span class="text-4xl font-extrabold">$49</span>
+            <span class="text-sm opacity-75">/one-time</span>
+          </div>
+          <ul class="space-y-3 mb-8">
+            <% ["Everything in Free, plus:", "Premium UI components", "Advanced analytics dashboard", "Priority email support", "Early access to new features", "Blog & changelog with MDX", "SEO infrastructure", "Lifetime updates"].each do |feature| %>
+              <li class="flex items-start gap-2.5 text-sm">
+                <svg class="w-4 h-4 mt-0.5 shrink-0" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                <span><%= feature %></span>
+              </li>
+            <% end %>
+          </ul>
+          <a href="/auth?tab=signup" class="block w-full text-center py-3 px-6 rounded-xl font-semibold text-sm transition-colors bg-primary-foreground text-primary hover:bg-primary-foreground/90">Upgrade to Pro</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───── Testimonials ───── -->
+  <section class="py-20 sm:py-28 bg-muted">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl sm:text-4xl font-bold text-foreground tracking-tight">Loved by developers</h2>
+        <p class="mt-4 text-lg text-muted-foreground">Hear from the builders shipping with <%= app_name %>.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <% [
+          { quote: "#{app_name} saved me weeks of boilerplate setup. I had auth, payments, and email working in an afternoon.", author: "Sarah Chen", role: "Indie Developer", avatar: "SC" },
+          { quote: "The code quality is excellent. It's exactly how I would structure a project, just already done for me.", author: "Marcus Johnson", role: "Senior Engineer at Startup", avatar: "MJ" },
+          { quote: "I've tried a dozen starters. #{app_name} is the first one that actually felt production-ready out of the box.", author: "Priya Patel", role: "Freelance Developer", avatar: "PP" },
+        ].each do |t| %>
+          <div class="bg-card text-card-foreground rounded-2xl p-6 border border-border shadow-sm">
+            <div class="flex items-center gap-1 mb-4" aria-label="5 out of 5 stars">
+              <% 5.times do %>
+                <svg class="w-4 h-4 fill-amber-400 text-amber-400" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+              <% end %>
+            </div>
+            <blockquote class="text-sm text-muted-foreground leading-relaxed mb-5">&ldquo;<%= t[:quote] %>&rdquo;</blockquote>
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 rounded-full bg-accent flex items-center justify-center text-xs font-bold text-accent-foreground"><%= t[:avatar] %></div>
+              <div>
+                <p class="text-sm font-medium text-foreground"><%= t[:author] %></p>
+                <p class="text-xs text-muted-foreground"><%= t[:role] %></p>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───── FAQ ───── -->
+  <section id="faq" class="py-20 sm:py-28">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl sm:text-4xl font-bold text-foreground tracking-tight">Frequently asked questions</h2>
+        <p class="mt-4 text-lg text-muted-foreground">Everything you need to know about <%= app_name %>.</p>
+      </div>
+
+      <div class="max-w-2xl mx-auto divide-y divide-border" data-controller="faq">
+        <% [
+          { q: "What exactly do I get with #{app_name}?", a: "You get a production-ready application with authentication (email/password, OAuth, 2FA), SQLite database, Stripe subscription billing, transactional email, a full component library, dark mode, and deployment configuration — all wired up and ready to customize." },
+          { q: "Is #{app_name} a SaaS or a template?", a: "#{app_name} is a template you own entirely. Clone the repository, customize it, and deploy it anywhere. There are no ongoing fees for the code itself — you only pay for the Pro plan if you want premium features and priority support." },
+          { q: "What databases are supported?", a: "#{app_name} ships with SQLite via ActiveRecord for zero-config local development. The data layer is designed to be swappable — you can migrate to PostgreSQL, MySQL, or any other database when you're ready to scale." },
+          { q: "Can I use #{app_name} for commercial projects?", a: "Absolutely. #{app_name} is licensed for both personal and commercial use. Build your startup, client project, or side hustle — there are no restrictions on what you build with it." },
+          { q: "How does authentication work?", a: "#{app_name} uses a session-based authentication system. It supports email/password login, Google and GitHub OAuth, two-factor authentication (TOTP), email verification, and password reset flows — all pre-configured and ready to go." },
+          { q: "Do I need to set up Stripe separately?", a: "Yes, you'll need your own Stripe account (free to create). #{app_name} provides the complete integration — checkout sessions, webhooks, billing portal, and subscription management. Just add your Stripe API keys and price IDs." },
+          { q: "How do I deploy #{app_name}?", a: "#{app_name} includes a Dockerfile, docker-compose configuration, and deployment scripts. Push to GitHub, build the Docker image, and deploy to any VPS, cloud provider, or container platform." },
+          { q: "Is there a free plan?", a: "Yes! The free plan gives you access to core features including authentication, database, and basic deployment configuration. Upgrade to Pro for premium components, priority support, and early access to new features." },
+        ].each_with_index do |faq, i| %>
+          <div class="py-5" data-faq-target="item">
+            <button type="button" data-action="click->faq#toggle" data-faq-index-param="<%= i %>" class="flex items-center justify-between w-full text-left gap-4 group" aria-expanded="false">
+              <span class="text-base font-medium text-foreground group-hover:text-primary transition-colors"><%= faq[:q] %></span>
+              <svg class="w-5 h-5 text-muted-foreground shrink-0 transition-transform duration-200" data-faq-target="chevron" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="grid grid-rows-[0fr] opacity-0 transition-all duration-200 ease-out" data-faq-target="answer">
+              <div class="overflow-hidden">
+                <p class="text-sm text-muted-foreground leading-relaxed mt-3"><%= faq[:a] %></p>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </section>
+
+  <% if ENV.fetch("WAITLIST_MODE", "false") == "true" %>
+  <!-- ───── Waitlist ───── -->
+  <section id="waitlist" class="py-20 sm:py-28 bg-accent" data-controller="waitlist">
+    <div class="max-w-xl mx-auto px-4 sm:px-6 text-center">
+      <div class="inline-flex items-center gap-2 bg-warning/15 border border-warning/30 text-warning text-xs font-medium px-3 py-1.5 rounded-full mb-6">
+        <svg class="w-3.5 h-3.5" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+        Early Access
+      </div>
+
+      <h2 class="text-3xl sm:text-4xl font-bold text-foreground tracking-tight mb-3">Join the waitlist</h2>
+      <p class="text-lg text-muted-foreground mb-8">We're launching soon. Sign up to get early access and be the first to know when we go live.</p>
+
+      <div data-waitlist-target="successMessage" class="hidden text-primary font-medium text-lg"></div>
+
+      <!-- Referral section (shown after signup) -->
+      <div data-waitlist-target="referralSection" class="hidden mt-4 bg-card border border-border rounded-xl p-4 text-left max-w-md mx-auto">
+        <p class="text-sm font-medium text-foreground mb-2">Share your referral link to move up the list:</p>
+        <div class="flex items-center gap-2">
+          <input type="text" readonly data-waitlist-target="referralLink" aria-label="Referral link" class="flex-1 border border-input rounded-lg px-3 py-2 text-xs text-foreground bg-muted truncate" />
+          <%= render UI::ButtonComponent.new(variant: :outline, size: :sm, data: { action: "click->waitlist#copyReferral", "waitlist-target": "copyButton" }) { "Copy" } %>
+        </div>
+      </div>
+
+      <form data-waitlist-target="form" data-action="submit->waitlist#join" class="flex flex-col sm:flex-row gap-3 justify-center max-w-md mx-auto">
+        <input type="email" data-waitlist-target="emailInput" placeholder="you@example.com" required aria-label="Email" class="flex-1 border border-input rounded-xl px-4 py-3 text-sm text-foreground bg-background focus:outline-none focus:ring-2 focus:ring-ring placeholder:text-muted-foreground" />
+        <%= render UI::ButtonComponent.new(type: "submit", variant: :primary, size: :lg, class: "shadow-lg shadow-primary/20", data: { "waitlist-target": "submitButton" }) { "Join Waitlist" } %>
+      </form>
+
+      <p data-waitlist-target="errorMessage" class="hidden mt-3 text-sm text-destructive"></p>
+    </div>
+  </section>
+  <% else %>
+  <!-- ───── Newsletter ───── -->
+  <section class="py-20 sm:py-28 bg-accent" data-controller="newsletter">
+    <div class="max-w-xl mx-auto px-4 sm:px-6 text-center">
+      <h2 class="text-3xl sm:text-4xl font-bold text-foreground tracking-tight mb-3">Stay in the loop</h2>
+      <p class="text-lg text-muted-foreground mb-8">Get the latest updates, tips, and new features delivered straight to your inbox. No spam, ever.</p>
+
+      <div data-newsletter-target="successMessage" class="hidden text-primary font-medium text-lg"></div>
+
+      <form data-newsletter-target="form" data-action="submit->newsletter#subscribe" class="flex flex-col sm:flex-row gap-3 justify-center max-w-md mx-auto">
+        <input type="email" data-newsletter-target="emailInput" placeholder="you@example.com" required aria-label="Email" class="flex-1 border border-input rounded-xl px-4 py-3 text-sm text-foreground bg-background focus:outline-none focus:ring-2 focus:ring-ring placeholder:text-muted-foreground" />
+        <%= render UI::ButtonComponent.new(type: "submit", variant: :primary, size: :lg, class: "shadow-lg shadow-primary/20", data: { "newsletter-target": "submitButton" }) { "Subscribe" } %>
+      </form>
+
+      <p data-newsletter-target="errorMessage" class="hidden mt-3 text-sm text-destructive"></p>
+    </div>
+  </section>
+  <% end %>
+
+  <!-- ───── CTA Footer ───── -->
+  <section class="py-20 sm:py-28 bg-gradient-to-br from-primary to-primary/90">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 text-center">
+      <svg class="w-10 h-10 text-primary-foreground mx-auto mb-6" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 2C12 2 8 6 8 10C8 12.21 9.79 14 12 14C14.21 14 16 12.21 16 10C16 6 12 2 12 2Z"/><path d="M12 14V22"/><path d="M8 18H16"/></svg>
+      <h2 class="text-3xl sm:text-4xl font-bold text-primary-foreground tracking-tight mb-4">Ready to build something great?</h2>
+      <p class="text-lg text-primary-foreground/90 mb-8 max-w-lg mx-auto">Join thousands of developers shipping faster with <%= app_name %>. Your next idea is just a clone away.</p>
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+        <a href="/auth?tab=signup" class="inline-flex items-center gap-2 bg-primary-foreground text-primary px-7 py-3.5 rounded-xl font-semibold hover:bg-primary-foreground/90 transition-colors text-base">
+          Get Started Free
+          <svg class="w-4 h-4" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───── Footer ───── -->
+  <footer class="bg-muted border-t border-border">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+        <div class="col-span-2 md:col-span-1">
+          <div class="flex items-center gap-2 mb-4">
+            <svg class="w-5 h-5 text-primary" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 2C12 2 8 6 8 10C8 12.21 9.79 14 12 14C14.21 14 16 12.21 16 10C16 6 12 2 12 2Z"/><path d="M12 14V22"/><path d="M8 18H16"/></svg>
+            <span class="font-bold text-foreground"><%= app_name %></span>
+          </div>
+          <p class="text-sm text-muted-foreground">The production-ready starter for modern web apps.</p>
+        </div>
+
+        <div>
+          <h4 class="text-sm font-semibold text-foreground mb-3">Product</h4>
+          <ul class="space-y-2 text-sm text-muted-foreground">
+            <li><a href="#features" class="<%= footer_link %>">Features</a></li>
+            <li><a href="#pricing" class="<%= footer_link %>">Pricing</a></li>
+            <li><a href="/blog" class="<%= footer_link %>">Blog</a></li>
+            <li><a href="/changelog" class="<%= footer_link %>">Changelog</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="text-sm font-semibold text-foreground mb-3">Legal</h4>
+          <ul class="space-y-2 text-sm text-muted-foreground">
+            <li><a href="/privacy-policy" class="<%= footer_link %>">Privacy Policy</a></li>
+            <li><a href="/terms" class="<%= footer_link %>">Terms of Service</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="text-sm font-semibold text-foreground mb-3">Connect</h4>
+          <ul class="space-y-2 text-sm text-muted-foreground">
+            <li><a href="https://github.com" target="_blank" rel="noopener noreferrer" class="<%= footer_link %>">GitHub</a></li>
+            <li><a href="https://twitter.com" target="_blank" rel="noopener noreferrer" class="<%= footer_link %>">Twitter</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="mt-10 pt-6 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4">
+        <p class="text-sm text-muted-foreground">&copy; <%= current_year %> <%= app_name %>. All rights reserved.</p>
+        <p class="text-xs text-muted-foreground">Built with Ruby on Rails, Tailwind CSS, and a lot of coffee.</p>
+      </div>
+    </div>
+  </footer>
+
+</div>

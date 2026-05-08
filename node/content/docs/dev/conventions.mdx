@@ -1,0 +1,111 @@
+---
+title: Conventions
+description: Coding conventions, patterns, and rules to follow when working on this codebase.
+---
+
+## API routes
+
+Every API route must include:
+
+```ts
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+```
+
+Use the standard error handling pattern:
+
+```ts
+import { auth } from "@/lib/auth";
+import { UnauthorizedError, BadRequestError, errorResponse } from "@/lib/errors";
+
+export async function GET(request: Request) {
+  try {
+    const session = await auth.api.getSession({ headers: request.headers });
+    if (!session) throw new UnauthorizedError();
+    // ... handle request
+    return NextResponse.json({ data });
+  } catch (error) {
+    return errorResponse(error);
+  }
+}
+```
+
+## Auth patterns
+
+### Server-side (API routes, server components)
+
+```ts
+import { auth } from "@/lib/auth";
+
+const session = await auth.api.getSession({ headers: request.headers });
+```
+
+### Client-side (React components)
+
+```ts
+import { authClient } from "@/lib/auth-client";
+
+const { data: session } = await authClient.getSession();
+```
+
+### Admin check
+
+```ts
+import { isAdmin } from "@/lib/admin";
+
+if (!(await isAdmin(session.user.id))) {
+  throw new UnauthorizedError();
+}
+```
+
+## Database
+
+- Use `getDb()` for all typed queries (Drizzle ORM)
+- Use `getRawDb()` only for FTS5 queries or raw SQL that Drizzle can't express
+- Foreign keys reference `user(id)` -- singular table name (Better Auth convention)
+- Custom user fields are camelCase: `stripeCustomerId`, `subscriptionStatus`
+- SQLite queries are synchronous (no `await` needed for better-sqlite3)
+
+## Lazy initialization
+
+Services that depend on env vars use lazy init to avoid startup crashes:
+
+```ts
+let _client: StripeClient | null = null;
+
+function getStripe(): StripeClient {
+  if (!_client) {
+    _client = new Stripe(process.env.STRIPE_SECRET_KEY!);
+  }
+  return _client;
+}
+```
+
+**Exception**: Better Auth handles its own initialization -- do not wrap it.
+
+## Imports
+
+See [[architecture]] for the full directory structure. Key import paths:
+
+```ts
+import { auth } from "@/lib/auth";                    // server only
+import { authClient } from "@/lib/auth-client";        // client + server
+import { getDb } from "@/lib/db";                     // Drizzle ORM
+import { getRawDb } from "@/lib/db";                  // raw better-sqlite3
+import { Button, Input } from "@/components/ui";      // UI components
+import { useToast } from "@/lib/use-toast";           // toast notifications
+import { useTheme } from "@/lib/theme";               // theme toggle
+```
+
+## Things to never do
+
+- Import `lib/auth.ts` in client components (server-only module)
+- Use module-level `new ServiceClient()` -- use lazy init pattern
+- Forget `export const dynamic = "force-dynamic"` on API routes
+- Use `docker buildx` -- use `DOCKER_BUILDKIT=0 docker build`
+- Use Tailwind `<input>` without `text-gray-900 dark:text-gray-100`
+- Use `useSearchParams()` without a `<Suspense>` boundary
+
+## Documentation
+
+When adding or changing features, update the relevant wiki page. Documentation is a requirement alongside tests -- not optional. If a wiki page doesn't exist for the area you're working in, create one.
