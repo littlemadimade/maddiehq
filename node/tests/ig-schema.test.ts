@@ -92,19 +92,19 @@ describe("Instagram Analysis Schema (#114)", () => {
   describe("Type exports compile", () => {
     it("NewPlatform / NewPost / NewPostInsight types accept required fields", () => {
       const _p: NewPlatform = {
-        userId: "u1",
+        user_id: "u1",
         platform: "instagram",
-        accountId: "ig-account-1",
+        account_id: "ig-account-1",
       };
       const _post: NewPost = {
-        userId: "u1",
-        platformPostId: "ig-post-123",
+        user_id: "u1",
+        platform_post_id: "ig-post-123",
         platform: "instagram",
       };
       const _insight: NewPostInsight = {
-        postId: 1,
-        userId: "u1",
-        snapshotDate: "2026-05-10",
+        post_id: 1,
+        user_id: "u1",
+        snapshot_date: "2026-05-10",
       };
       void _p;
       void _post;
