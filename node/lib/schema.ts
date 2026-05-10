@@ -41,3 +41,27 @@ export const inviteCodes = mod.inviteCodes;
 export const emailEvents = mod.emailEvents;
 export const emailCampaigns = mod.emailCampaigns;
 export const _migrations = mod._migrations;
+export const platforms = mod.platforms;
+export const posts = mod.posts;
+export const postAnalysis = mod.postAnalysis;
+export const postInsights = mod.postInsights;
+export const accountSnapshots = mod.accountSnapshots;
+export const demographics = mod.demographics;
+export const contentInsights = mod.contentInsights;
+
+export type {
+  Platform,
+  NewPlatform,
+  Post,
+  NewPost,
+  PostAnalysis,
+  NewPostAnalysis,
+  PostInsight,
+  NewPostInsight,
+  AccountSnapshot,
+  NewAccountSnapshot,
+  Demographic,
+  NewDemographic,
+  ContentInsight,
+  NewContentInsight,
+} from "./schema.sqlite";
