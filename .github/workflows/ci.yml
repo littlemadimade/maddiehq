@@ -131,27 +131,3 @@ jobs:
           path: node/playwright-report/
           retention-days: 7
 
-  test-rails:
-    name: Rails Tests
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: rails
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: "3.2"
-          bundler-cache: true
-          working-directory: rails
-
-      - name: Setup test database
-        run: bin/rails db:schema:load
-        env:
-          RAILS_ENV: test
-
-      - name: Run tests
-        run: bin/rails test
-        env:
-          RAILS_ENV: test

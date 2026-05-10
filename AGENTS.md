@@ -929,25 +929,6 @@ Step 4: Create a branch + PR, implement the ports one at a time
 
 ---
 
-## Rails Port
-
-A Rails implementation of MaddieHQ lives under `rails/` and mirrors the Node.js feature set.
-
-| Layer | Choice |
-|---|---|
-| Framework | Rails 7.1 (will be upgraded to 8) |
-| Language | Ruby 3.3 |
-| Styling | Tailwind CSS (via tailwindcss-rails) |
-| Database | SQLite via ActiveRecord |
-| Frontend | Hotwire (Turbo + Stimulus) |
-| Auth | bcrypt + has_secure_password |
-| Email | (planned — Resend integration) |
-| Payments | (planned — Stripe integration) |
-
-The Rails app runs on port **3014** and uses its own Docker setup (`rails/Dockerfile`, `rails/Dockerfile.dev`). It follows standard Rails conventions (plural table names, snake_case columns, MVC architecture) rather than the Node.js patterns documented above.
-
----
-
 ### What to check in MaddieHQ
 
 - **`AGENTS.md`** (this file) — authoritative list of what's been built

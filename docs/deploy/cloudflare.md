@@ -393,8 +393,7 @@ DNS setup:
 Use subdomains with a single tunnel:
 
 ```
-app.yourdomain.com   -> localhost:3013 (Node.js app)
-admin.yourdomain.com -> localhost:3014 (Rails app)
+app.yourdomain.com   -> localhost:3005 (Next.js dev)
 ```
 
 ```bash

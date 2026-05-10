@@ -132,77 +132,6 @@ Same three skills, same workflows — adapted for OpenClaw's tool names (`read`/
 
 ---
 
-## Rails Port
-
-The Rails version of MaddieHQ lives under `rails/` and runs on port **3014**. It mirrors the Node.js feature set using Rails conventions.
-
-### Key Conventions (Rails)
-
-- **Tables are plural, snake_case** — `users`, `sessions`, `accounts` (Rails convention, unlike Better Auth's singular `user`)
-- **Columns are snake_case** — `stripe_customer_id`, `subscription_status` (not camelCase)
-- **Database:** SQLite via ActiveRecord (Rails default)
-- **Auth:** Devise or custom (not Better Auth)
-- **Env vars:** `SECRET_KEY_BASE` (not `BETTER_AUTH_SECRET`), `DATABASE_PATH`
-
-### Rails Import Paths
-
-```ruby
-# Controllers
-class Api::ItemsController < ApplicationController
-
-# Models
-class User < ApplicationRecord
-
-# Mailers
-class UserMailer < ApplicationMailer
-
-# Auth check (in controllers)
-before_action :authenticate_user!
-```
-
-### Rails API Route Template
-
-```ruby
-class Api::ItemsController < ApplicationController
-  before_action :authenticate_user!
-
-  def index
-    items = current_user.items
-    render json: { data: items }
-  rescue => e
-    render json: { error: e.message }, status: :internal_server_error
-  end
-end
-```
-
-### Rails Database
-
-- Migrations live in `rails/db/migrate/` — run with `bin/rails db:migrate`
-- Foreign keys reference `users` (plural, Rails convention)
-- Schema file: `rails/db/schema.rb`
-
-### Rails Docker
-
-```bash
-# Development
-docker compose --profile dev up rails-dev
-
-# Production
-docker compose --profile prod up rails-prod
-```
-
-### Rails Environment Variables
-
-```env
-SECRET_KEY_BASE=          # bin/rails secret
-DATABASE_PATH=            # /data/maddiehq-rails.db (production)
-RAILS_ENV=                # development | production
-APP_URL=                  # https://yourdomain.com
-APP_NAME=                 # MaddieHQ
-```
-
----
-
 ## AI Chatbot
 
 Built-in AI chat with Anthropic Claude, voice I/O, file attachments, and conversation persistence.
@@ -269,7 +198,7 @@ All significant changes to the template are recorded in `changelogs/` as individ
 ```markdown
 ---
 date: 2026-03-25
-scope: [node, rails]        # which stacks affected
+scope: [node]                # stack(s) affected
 category: feature            # feature | fix | security | breaking
 files_changed: [...]         # key files to diff
 requires_migration: false

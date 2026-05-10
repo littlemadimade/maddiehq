@@ -1,210 +1,52 @@
 services:
-  # ── Caddy + Tailscale sidecar — Node ────────────────────────────────────
-  # Each app has a Caddy sidecar that joins the tailnet as its own node,
-  # gets a real HTTPS cert from Tailscale, and reverse-proxies to the app
-  # on the shared network namespace. This gives us clean subdomain URLs
-  # (https://maddiehq-node.<tailnet>.ts.net) with valid certs so iOS Safari
-  # accepts them — Apple HSTS-preloads *.ts.net, so plain HTTP doesn't work
-  # in Safari even though Chrome allows it.
-  #
-  # Runs in full Next dev mode (hot reload, HMR, error overlay) thanks to
-  # the allowedDevOrigins + trustedOrigins config gates we opened earlier
-  # (see next.config.ts and lib/auth.ts in node/). Without those, the HMR
-  # websocket handshake gets rejected on non-localhost hostnames and
-  # hydration silently fails.
-  caddy-node-dev:
-    profiles: [dev]
+  # ── Caddy + Tailscale sidecar ───────────────────────────────────────────
+  # Joins the tailnet as ${TS_HOSTNAME}, gets a real HTTPS cert from
+  # Tailscale, and reverse-proxies to next dev on the shared network
+  # namespace. Apple HSTS-preloads *.ts.net so iOS Safari requires real
+  # HTTPS — this is the only path that works for phone QA.
+  caddy-dev:
     image: ghcr.io/tailscale/caddy-tailscale:main
-    container_name: maddiehq-caddy-node-dev
-    hostname: ${TS_HOSTNAME_NODE:-maddiehq-node}
+    container_name: maddiehq-caddy-dev
+    hostname: ${TS_HOSTNAME:-maddiehq}
     environment:
       TS_AUTHKEY: ${TS_AUTHKEY:-}
-      TS_HOSTNAME: ${TS_HOSTNAME_NODE:-maddiehq-node}
+      TS_HOSTNAME: ${TS_HOSTNAME:-maddiehq}
     volumes:
-      - ./tailscale/Caddyfile.node:/etc/caddy/Caddyfile:ro
-      - caddy_node_state:/config
+      - ./tailscale/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_state:/config
     ports:
       - "${DEV_PORT:-3005}:3000"
     restart: unless-stopped
 
-  # ── Node.js (Next.js) — Development ──────────────────────────────────────
-  # Shares caddy-node-dev's network namespace. localhost:3013 hits next dev
-  # via the sidecar's host port mapping; the tailnet URL hits next dev via
-  # Caddy's HTTPS reverse proxy on the tailnet interface. Same container
-  # serves both. Full dev mode (hot reload, HMR) on both paths.
-  node-dev:
-    profiles: [dev]
+  # ── Next.js dev ─────────────────────────────────────────────────────────
+  # Shares caddy-dev's network namespace. localhost:${DEV_PORT} hits next
+  # dev via the sidecar's host port mapping; the tailnet URL hits next dev
+  # via Caddy's HTTPS reverse proxy on the tailnet interface. Same
+  # container serves both. Full dev mode (hot reload, HMR) on both paths.
+  app-dev:
     build:
       context: ./node
       dockerfile: Dockerfile.dev
-    container_name: maddiehq-node-dev
-    network_mode: service:caddy-node-dev
+    container_name: maddiehq-dev
+    network_mode: service:caddy-dev
     depends_on:
-      - caddy-node-dev
+      - caddy-dev
     volumes:
       - ./node:/app
       # Named volume so npm-installed deps survive `docker compose down/up`.
       # Populated from the image on first create. To refresh after a
-      # package.json change: `docker compose run --rm node-dev npm install`.
+      # package.json change: `docker compose run --rm app-dev npm install`.
       - node_modules:/app/node_modules
       - ./node/data:/app/data
-    env_file: ./node/.env
+    env_file: ./node/.env.local
     environment:
       NODE_ENV: development
       DATABASE_PATH: /app/data/maddiehq.db
       BETTER_AUTH_URL: ${BETTER_AUTH_URL:-http://localhost:3005}
       APP_URL: ${APP_URL:-http://localhost:3005}
       WATCHPACK_POLLING: "true"
-
-  # ── Node.js (Next.js) — Production ──────────────────────────────────────
-  node-prod:
-    profiles: [prod]
-    build:
-      context: ./node
-      dockerfile: Dockerfile
-    container_name: maddiehq-node
-    restart: unless-stopped
-    ports:
-      - "3006:3006"
-    volumes:
-      - maddiehq_node_data:/data
-    environment:
-      NODE_ENV: production
-      # REQUIRED — path to the SQLite database file
-      DATABASE_PATH: /data/maddiehq.db
-      # REQUIRED — at least 32 characters; generate with: openssl rand -base64 32
-      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-}
-      # REQUIRED — public URL of the app (used by Better Auth for callbacks)
-      BETTER_AUTH_URL: ${APP_URL:-http://localhost:3005}
-      # REQUIRED — public-facing URL of the application
-      APP_URL: ${APP_URL:-http://localhost:3005}
-      # Optional — display name shown in the UI and emails
-      APP_NAME: ${APP_NAME:-MaddieHQ}
-      # Optional — OAuth provider credentials
-      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
-      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
-      GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID:-}
-      GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET:-}
-      # Email
-      RESEND_API_KEY: ${RESEND_API_KEY:-}
-      # Stripe
-      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
-      STRIPE_PRICE_ID: ${STRIPE_PRICE_ID:-}
-      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
-
-  # ── Caddy + Tailscale sidecar — Rails ───────────────────────────────────
-  # Same pattern as caddy-node-dev — each app gets its own tailnet node
-  # and HTTPS termination so iOS Safari accepts the URL.
-  caddy-rails-dev:
-    profiles: [dev]
-    image: ghcr.io/tailscale/caddy-tailscale:main
-    container_name: maddiehq-caddy-rails-dev
-    hostname: ${TS_HOSTNAME_RAILS:-maddiehq-rails}
-    environment:
-      TS_AUTHKEY: ${TS_AUTHKEY:-}
-      TS_HOSTNAME: ${TS_HOSTNAME_RAILS:-maddiehq-rails}
-    volumes:
-      - ./tailscale/Caddyfile.rails:/etc/caddy/Caddyfile:ro
-      - caddy_rails_state:/config
-    ports:
-      - "${RAILS_DEV_PORT:-3025}:3014"
-    restart: unless-stopped
-
-  # ── Rails — Development ───────────────────────────────────────────────
-  # Shares caddy-rails-dev's network namespace.
-  rails-dev:
-    profiles: [dev]
-    build:
-      context: ./rails
-      dockerfile: Dockerfile.dev
-    container_name: maddiehq-rails-dev
-    network_mode: service:caddy-rails-dev
-    depends_on:
-      - caddy-rails-dev
-    volumes:
-      - ./rails:/app
-      # Named volume mounted at the default GEM_HOME (where the Dockerfile
-      # actually installs gems). Survives `docker compose down/up`. Populated
-      # from the image on first create. To refresh after a Gemfile change:
-      # `docker compose run --rm --no-deps --entrypoint "" rails-dev bundle install`.
-      - rails_bundle:/usr/local/bundle
-      - ./rails/db:/app/db
-    env_file: ./rails/.env
-    environment:
-      RAILS_ENV: development
-      DATABASE_PATH: /app/db/development.sqlite3
-
-  # ── Rails — Production ────────────────────────────────────────────────
-  rails-prod:
-    profiles: [prod]
-    build:
-      context: ./rails
-      dockerfile: Dockerfile
-    container_name: maddiehq-rails
-    restart: unless-stopped
-    ports:
-      - "3014:3014"
-    volumes:
-      - maddiehq_rails_data:/data
-    environment:
-      RAILS_ENV: production
-      SECRET_KEY_BASE: ${SECRET_KEY_BASE:-}
-      DATABASE_PATH: /data/maddiehq-rails.db
-      APP_URL: ${RAILS_APP_URL:-http://localhost:3014}
-      APP_NAME: ${APP_NAME:-MaddieHQ}
-      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
-      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
-      GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID:-}
-      GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET:-}
-      RESEND_API_KEY: ${RESEND_API_KEY:-}
-      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
-      STRIPE_PRICE_ID: ${STRIPE_PRICE_ID:-}
-      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
-
-  # ── Litestream — Rails (SQLite replication) ────────────────────────────
-  litestream-rails:
-    profiles: [prod]
-    image: litestream/litestream:latest
-    command: replicate
-    volumes:
-      - maddiehq_rails_data:/data
-      - ./rails/litestream.yml:/etc/litestream.yml
-    environment:
-      - DATABASE_PATH=/data/maddiehq-rails.db
-      - LITESTREAM_ACCESS_KEY_ID=${LITESTREAM_ACCESS_KEY_ID}
-      - LITESTREAM_SECRET_ACCESS_KEY=${LITESTREAM_SECRET_ACCESS_KEY}
-      - LITESTREAM_REPLICA_BUCKET=${LITESTREAM_REPLICA_BUCKET}
-      - LITESTREAM_REPLICA_PATH=${LITESTREAM_REPLICA_PATH:-maddiehq-rails}
-      - LITESTREAM_REPLICA_ENDPOINT=${LITESTREAM_REPLICA_ENDPOINT}
-      - LITESTREAM_REPLICA_REGION=${LITESTREAM_REPLICA_REGION:-us-east-1}
-    depends_on:
-      - rails-prod
-    restart: unless-stopped
-
-  # ── Litestream — Node (SQLite replication) ────────────────────────────
-  litestream:
-    profiles: [prod]
-    image: litestream/litestream:latest
-    command: replicate
-    volumes:
-      - maddiehq_node_data:/data
-      - ./node/litestream.yml:/etc/litestream.yml
-    environment:
-      - DATABASE_PATH=/data/maddiehq.db
-      - LITESTREAM_ACCESS_KEY_ID=${LITESTREAM_ACCESS_KEY_ID}
-      - LITESTREAM_SECRET_ACCESS_KEY=${LITESTREAM_SECRET_ACCESS_KEY}
-      - LITESTREAM_REPLICA_BUCKET=${LITESTREAM_REPLICA_BUCKET}
-      - LITESTREAM_REPLICA_PATH=${LITESTREAM_REPLICA_PATH:-maddiehq}
-      - LITESTREAM_REPLICA_ENDPOINT=${LITESTREAM_REPLICA_ENDPOINT}
-      - LITESTREAM_REPLICA_REGION=${LITESTREAM_REPLICA_REGION:-us-east-1}
-    depends_on:
-      - node-prod
     restart: unless-stopped
 
 volumes:
-  maddiehq_node_data:
-  maddiehq_rails_data:
   node_modules:
-  rails_bundle:
-  caddy_node_state:
-  caddy_rails_state:
+  caddy_state:

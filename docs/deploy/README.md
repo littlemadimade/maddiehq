@@ -10,4 +10,4 @@ Step-by-step guides for deploying AppSeed to various platforms.
 | [AWS EC2](https://aws.amazon.com/ec2/) | _coming soon_ | varies |
 | [Cloudflare](https://www.cloudflare.com/) | _coming soon_ | varies |
 
-All guides assume you have already cloned the AppSeed repo and can run `npm run build` (Node.js) or `bin/rails server` (Rails) locally.
+All guides assume you have already cloned the repo and can run `npm run build` locally.
