@@ -10,7 +10,7 @@
  * Column names match the existing DB exactly (mixed snake_case/camelCase).
  */
 
-import { pgTable, text, integer, boolean, serial, index, uniqueIndex } from "drizzle-orm/pg-core";
+import { pgTable, text, integer, boolean, real, serial, index, uniqueIndex } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 
 // ─── Better Auth Tables (reference-only, not managed by drizzle-kit) ─────────
@@ -303,3 +303,126 @@ export const _migrations = pgTable("_migrations", {
   name: text("name").notNull().unique(),
   applied_at: text("applied_at").default(sql`now()::text`),
 });
+
+// ─── Instagram / Multi-Platform Analysis Tables ──────────────────────────────
+
+export const platforms = pgTable("platforms", {
+  id: serial("id").primaryKey(),
+  user_id: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
+  platform: text("platform").notNull(),
+  account_id: text("account_id").notNull(),
+  username: text("username"),
+  access_token: text("access_token"),
+  refresh_token: text("refresh_token"),
+  token_expires_at: text("token_expires_at"),
+  created_at: text("created_at").default(sql`now()::text`),
+  updated_at: text("updated_at").default(sql`now()::text`),
+}, (table) => [
+  uniqueIndex("platforms_user_platform_unique").on(table.user_id, table.platform),
+  index("idx_platforms_user_id").on(table.user_id),
+]);
+
+export const posts = pgTable("posts", {
+  id: serial("id").primaryKey(),
+  user_id: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
+  platform_post_id: text("platform_post_id").notNull(),
+  platform: text("platform").notNull(),
+  caption: text("caption"),
+  media_type: text("media_type"),
+  media_url: text("media_url"),
+  thumbnail_url: text("thumbnail_url"),
+  permalink: text("permalink"),
+  published_at: text("published_at"),
+  created_at: text("created_at").default(sql`now()::text`),
+}, (table) => [
+  uniqueIndex("posts_user_platform_post_unique").on(table.user_id, table.platform, table.platform_post_id),
+  index("idx_posts_user_id").on(table.user_id),
+  index("idx_posts_user_published").on(table.user_id, table.published_at),
+]);
+
+export const postAnalysis = pgTable("post_analysis", {
+  id: serial("id").primaryKey(),
+  post_id: integer("post_id").notNull().references(() => posts.id, { onDelete: "cascade" }),
+  user_id: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
+  setting: text("setting"),
+  lighting: text("lighting"),
+  face_visible: boolean("face_visible"),
+  text_overlay: boolean("text_overlay"),
+  visual_style: text("visual_style"),
+  caption_length: integer("caption_length"),
+  hook_type: text("hook_type"),
+  cta_present: boolean("cta_present"),
+  cta_type: text("cta_type"),
+  caption_tone: text("caption_tone"),
+  emoji_count: integer("emoji_count"),
+  hashtag_count: integer("hashtag_count"),
+  transcript: text("transcript"),
+  spoken_hook: text("spoken_hook"),
+  key_frame_analysis: text("key_frame_analysis"),
+  raw_analysis: text("raw_analysis"),
+  analyzed_at: text("analyzed_at").default(sql`now()::text`),
+}, (table) => [
+  uniqueIndex("post_analysis_post_unique").on(table.post_id),
+  index("idx_post_analysis_user_id").on(table.user_id),
+]);
+
+export const postInsights = pgTable("post_insights", {
+  id: serial("id").primaryKey(),
+  post_id: integer("post_id").notNull().references(() => posts.id, { onDelete: "cascade" }),
+  user_id: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
+  snapshot_date: text("snapshot_date").notNull(),
+  impressions: integer("impressions"),
+  reach: integer("reach"),
+  engagement: integer("engagement"),
+  saves: integer("saves"),
+  likes: integer("likes"),
+  comments: integer("comments"),
+  shares: integer("shares"),
+  score: integer("score"),
+  upvote_ratio: real("upvote_ratio"),
+  created_at: text("created_at").default(sql`now()::text`),
+}, (table) => [
+  uniqueIndex("post_insights_post_date_unique").on(table.post_id, table.snapshot_date),
+  index("idx_post_insights_user_id").on(table.user_id),
+]);
+
+export const accountSnapshots = pgTable("account_snapshots", {
+  id: serial("id").primaryKey(),
+  user_id: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
+  platform: text("platform").notNull(),
+  snapshot_date: text("snapshot_date").notNull(),
+  follower_count: integer("follower_count"),
+  media_count: integer("media_count"),
+  reach: integer("reach"),
+  impressions: integer("impressions"),
+  profile_views: integer("profile_views"),
+  created_at: text("created_at").default(sql`now()::text`),
+}, (table) => [
+  uniqueIndex("account_snapshots_user_platform_date_unique").on(table.user_id, table.platform, table.snapshot_date),
+  index("idx_account_snapshots_user_id").on(table.user_id),
+]);
+
+export const demographics = pgTable("demographics", {
+  id: serial("id").primaryKey(),
+  user_id: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
+  platform: text("platform").notNull(),
+  snapshot_date: text("snapshot_date").notNull(),
+  metric: text("metric").notNull(),
+  key: text("key").notNull(),
+  value: real("value").notNull(),
+  created_at: text("created_at").default(sql`now()::text`),
+}, (table) => [
+  uniqueIndex("demographics_unique").on(table.user_id, table.platform, table.snapshot_date, table.metric, table.key),
+  index("idx_demographics_user_id").on(table.user_id),
+]);
+
+export const contentInsights = pgTable("content_insights", {
+  id: serial("id").primaryKey(),
+  user_id: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
+  platform: text("platform").notNull(),
+  report_json: text("report_json").notNull(),
+  posts_analyzed: integer("posts_analyzed").notNull(),
+  created_at: text("created_at").default(sql`now()::text`),
+}, (table) => [
+  index("idx_content_insights_user_id").on(table.user_id),
+]);
