@@ -99,7 +99,8 @@ DROP TABLE foo;`;
 
   describe("runMigrations with real files", () => {
     it("should run the actual migration files from migrations/ dir", () => {
-      // First, create the user table that items references (normally Better Auth does this)
+      // Better Auth creates the user table at runtime; tests need it up front
+      // because some migrations reference user(id) via FK.
       db.exec(`
         CREATE TABLE IF NOT EXISTS user (
           id TEXT PRIMARY KEY,
@@ -108,18 +109,18 @@ DROP TABLE foo;`;
       `);
 
       const applied = runMigrations(db);
-      expect(applied).toContain("001_create_items.sql");
+      expect(applied).toContain("002_add_admin.sql");
 
-      // Verify items table was created
+      // Verify a table from one of the applied migrations was created
       const tables = db
-        .prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='items'")
+        .prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='admin_logs'")
         .all();
       expect(tables).toHaveLength(1);
 
       // Verify migration was recorded
       const records = getAppliedMigrations(db);
       expect(records.length).toBeGreaterThanOrEqual(1);
-      expect(records.some((r) => r.name === "001_create_items.sql")).toBe(true);
+      expect(records.some((r) => r.name === "002_add_admin.sql")).toBe(true);
     });
 
     it("should be idempotent — running twice applies nothing the second time", () => {
