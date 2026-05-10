@@ -11,6 +11,15 @@ services:
     environment:
       TS_AUTHKEY: ${TS_AUTHKEY:-}
       TS_HOSTNAME: ${TS_HOSTNAME:-maddiehq}
+      # Bypass OrbStack's HTTP proxy for tsnet → controlplane traffic.
+      # Without this, the proxy can re-emit the registration CONNECT and
+      # tsnet creates a duplicate device (one canonical + one `-N` orphan).
+      HTTP_PROXY: ""
+      HTTPS_PROXY: ""
+      NO_PROXY: "*"
+      http_proxy: ""
+      https_proxy: ""
+      no_proxy: "*"
     volumes:
       - ./tailscale/Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_state:/config
