@@ -1,0 +1,29 @@
+# Caddy + caddy-tailscale config for the Node app's tailnet sidecar.
+# Each project gets its own Caddyfile with TS_HOSTNAME set in the env.
+# Caddy joins the tailnet as ${TS_HOSTNAME}, requests an HTTPS cert via the
+# Tailscale ACME flow, and reverse-proxies to next dev on the shared netns.
+#
+# We use `:443` + explicit `tls { get_certificate tailscale }` instead of
+# `https://<hostname>` because Caddy's site-address parsing doesn't expand
+# {env.X} placeholders. The tailscale cert manager fetches the FQDN from
+# tailscaled at runtime, so this Caddyfile is portable across tailnets.
+
+{
+	tailscale {
+		auth_key {env.TS_AUTHKEY}
+		ephemeral true
+		state_dir /config
+
+		app {
+			hostname {env.TS_HOSTNAME}
+		}
+	}
+}
+
+:443 {
+	bind tailscale/app
+	tls {
+		get_certificate tailscale
+	}
+	reverse_proxy http://127.0.0.1:3000
+}

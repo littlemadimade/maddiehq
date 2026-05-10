@@ -1,213 +1,180 @@
-# Maddie HQ
+# MaddieHQ
 
-Maddie HQ is a growing web app for organizing the moving parts of Maddie's creator workflow.
+Maddie's HQ — a Next.js app deployed on Cloudflare Workers + D1 + R2.
 
-Right now, the app includes:
-- a home page that acts like the front door to the product
-- an Instagram Insights room for reviewing Instagram performance
-- a Post Progress Tracker room for keeping up with day-to-day content tasks
+Production: <https://maddiehq.oqodo.com>
+Dev (tailnet): <https://maddiehq.gate-cardassian.ts.net>
+Dev (local):   <http://localhost:3005>
 
-Over time, this project is meant to grow into a more complete operations app for Maddie's business, including better planning, insight review, and decision support.
-
-## What Maddie Is Building
-
-This is not just a website with a few pretty screens.
-
-It is becoming a creator control center: one place where Maddie can:
-- understand what content is working
-- keep track of what needs to get done
-- organize ideas and posting workflow
-- eventually make smarter decisions using data instead of memory alone
-
-In plain English:
-- the `Insights` page is the results room
-- the `Tracker` page is the workflow room
-- the `Home` page is the front lobby that helps organize the tools
-
-## Current App Structure
-
-This app uses Next.js, which means each major page usually has its own route.
-
-Current routes:
-- `/` -> Home page
-- `/insights` -> Social Insights dashboard
-- `/tracker` -> Post Progress Tracker
-
-Important files:
-- `app/layout.tsx` -> shared app shell and top navigation
-- `app/page.tsx` -> homepage
-- `app/insights/page.tsx` -> social insights room
-- `app/tracker/page.tsx` -> post progress tracker room
-- `app/globals.css` -> shared styling across the app
-- `AGENTS.md` -> instructions for how the AI agent should collaborate on this project
-
-## Critical Reminders For Maddie
-
-These are the important things to remember when working on this app with AI.
-
-### 1. Ask For Explanations First
-
-If Maddie wants a change, the AI should explain the idea in plain English before building it.
-
-That explanation should help Maddie understand:
-- what is changing
-- which page or file it probably affects
-- whether the change is mostly visual, behavioral, or structural
-- what tradeoffs matter
-
-This matters because the goal is not just to ship features. The goal is also to help Maddie learn how the app fits together.
-
-### 2. Give A Clear Go-Ahead Before Code Changes
-
-The AI should not just charge ahead when Maddie is still thinking out loud.
-
-Once Maddie says to proceed, the AI can build the change.
-
-This keeps brainstorming separate from implementation and helps avoid accidental work in the wrong direction.
-
-### 3. Bigger Work Should Be Tracked On GitHub
-
-When the work is significant, use this flow:
-1. Create a GitHub issue that explains the work.
-2. Create a branch for that issue.
-3. Do the work on that branch.
-4. Open a pull request.
-5. Merge the PR into `main`.
-6. Let the issue close when the PR is merged.
-
-Why this matters:
-- Maddie can see what is being worked on
-- Mark can review or comment more easily
-- the team gets a cleaner project history
-- this will make future hosting and deployment workflows easier
-
-### 4. Every Meaningful Change Should Be Saved Cleanly
-
-Git is the project history system.
-
-That means:
-- commits should describe real chunks of work
-- the history should stay easy to understand
-- it should be possible to roll back to older versions if needed
-
-Think of commits like labeled save points.
-
-### 5. `main` Should Stay Stable
-
-The `main` branch is the official latest version of the app.
-
-Later, when the app is hosted publicly, `main` may become the branch that automatically deploys to the live web app. That means changes merged into `main` should be reasonably safe and intentional.
-
-### 6. This App Should Stay Beginner-Friendly
-
-The code should grow in a way that Maddie can gradually understand.
-
-That means:
-- avoid unnecessary complexity
-- prefer clear structure over hacks
-- keep naming readable
-- explain the real terminology as it comes up
-
-## Working With The AI
-
-The AI is expected to help in two ways:
-- build features and make changes
-- teach Maddie the plumbing as the app grows
-
-That means the AI should:
-- explain things in plain English first
-- use real developer terms without hiding them
-- offer small crash courses when useful
-- keep track of what Maddie has already been taught in `AGENTS.md`
-
-Examples of topics Maddie may learn over time:
-- route
-- component
-- layout
-- state
-- commit
-- pull request
-
-## How To Run The App
-
-If the app is not already running:
-
-1. Install dependencies:
+## Quick start
 
 ```bash
+cd node
+cp .env.example .env.local      # fill in BETTER_AUTH_SECRET, etc.
 npm install
+npm run db:migrate              # local SQLite at node/data/maddiehq.db
+npm run dev                     # http://localhost:3005
 ```
 
-2. Start the development server:
+## Docker (local dev)
+
+Single dev mode — Caddy + Tailscale sidecar fronts Next dev on the tailnet so the iPhone can hit a real HTTPS URL.
 
 ```bash
-npm run dev
+docker compose build
+docker compose up -d
+docker compose logs -f
+docker compose down
 ```
 
-3. Open:
+The sidecar joins the tailnet as `${TS_HOSTNAME}` (default `maddiehq`) and serves HTTPS at `https://maddiehq.<your-tailnet>.ts.net`. Same `next dev` process is reachable via `localhost:3005` on the Mac.
 
-```text
-http://localhost:3000
+### Refreshing dev container dependencies
+
+After a `package.json` change:
+
+```bash
+docker compose run --rm app-dev npm install
 ```
 
-If the app is already running in another terminal, Next.js will usually auto-refresh when files change.
+If `node_modules` gets fully wedged:
 
-## How To Think About The Current Rooms
+```bash
+docker compose down
+docker volume rm maddiehq_node_modules
+docker compose up
+```
 
-### Home
+### Resetting a dev password
 
-The home page is the front door. It should help Maddie quickly understand what tools exist and where to go next.
+Better Auth stores password hashes — there's no default admin account. To set a known password on any user:
 
-### Insights
+```bash
+docker compose exec app-dev \
+  node scripts/reset-password.mjs <email> <new-password>
+```
 
-This room is for understanding performance.
+The script uses Better Auth's own `hashPassword` so the stored hash is compatible. Dev only — never run against production.
 
-It should eventually help answer questions like:
-- What is working on Instagram?
-- Which reels, carousels, or stories are worth repeating?
-- What patterns are helping saves, replies, and profile visits?
-- What should Maddie do more of next?
+## Remote dev (phone QA via Tailscale)
 
-### Tracker
+Access the dev container from your phone (or any tailnet device) over real HTTPS. No public exposure, no port forwarding, no ngrok. Apple HSTS-preloads `*.ts.net`, so plain HTTP is rejected by iOS Safari — the Tailscale ACME cert is the only path that works.
 
-This room is for managing execution.
+### One-time setup
 
-It should eventually help answer questions like:
-- What content is being planned?
-- What is in progress?
-- What is ready to post?
-- What keeps getting stuck?
+1. Install [Tailscale](https://tailscale.com) on the Mac and on your phone; sign in to the same account.
+2. Get a reusable auth key at <https://login.tailscale.com/admin/settings/keys>.
+3. Create `.env` at the project root:
+   ```
+   TS_AUTHKEY=tskey-auth-...
+   TS_HOSTNAME=maddiehq
+   DEV_PORT=3005
+   APP_URL=https://maddiehq.gate-cardassian.ts.net
+   ```
+4. `docker compose up -d`
 
-## Future Direction
+The sidecar registers as an ephemeral tailnet node, provisions a real TLS cert, and reverse-proxies `:443` → Next dev on `127.0.0.1:3000`.
 
-This project will likely keep expanding.
+### iOS DNS gotcha
 
-Likely future additions:
-- a content planner
-- better suggestions and recommendations
-- more detailed analytics input or account integrations
-- public hosting and automatic deployment from GitHub
+If the tailnet hostname doesn't resolve on iPhone: open the Tailscale iOS app → profile avatar → Settings → toggle **Use Tailscale DNS Settings** on. Also disable iCloud Private Relay (Settings → Apple ID → iCloud → Private Relay) — it routes DNS through Apple's proxy and breaks tailnet resolution. Quit Safari fully (swipe away in app switcher) after toggling to drop stale cached failures.
 
-The key rule is to keep building in a way that makes future growth easier, not messier.
+### OAuth callback URLs
 
-## If Something Feels Broken
+OAuth providers (Google, GitHub, Microsoft) need both URLs allow-listed:
 
-Start with the simple checks:
-- Is the app running on `localhost:3000`?
-- Is the change on the right page or route?
-- Did the browser refresh?
-- Is there an error in the dev server terminal?
-- Did the change get committed to the correct branch?
+- `https://maddiehq.oqodo.com/api/auth/callback/<provider>` — production
+- `https://maddiehq.gate-cardassian.ts.net/api/auth/callback/<provider>` — tailnet dev
 
-If Maddie is unsure, she should ask the AI what changed, where it lives, and how to verify it.
+Set up via `/configure-sso` — it knows about both.
 
-## Final Note For Maddie
+## Environment variables
 
-You do not need to become a full-time developer to use this project well.
+| Variable | Required | Description |
+|---|---|---|
+| `BETTER_AUTH_SECRET` | Yes | ≥32 chars; `openssl rand -base64 32`. Set on CF via `wrangler secret put`. |
+| `BETTER_AUTH_URL` | Yes | Public URL of the app (Better Auth uses for callbacks). |
+| `APP_URL` | Yes | Same as above; used in emails and Stripe redirects. |
+| `APP_NAME` | No | Display name; defaults to `MaddieHQ`. |
+| `DATABASE_PATH` | Local dev only | SQLite file path; defaults to `./data/maddiehq.db`. Ignored on CF (D1 binding takes over). |
+| `RESEND_API_KEY` | If using email | Transactional email via Resend. |
+| `STRIPE_SECRET_KEY` | If using payments | Stripe API key. |
+| `STRIPE_PRICE_ID` | If using payments | Subscription price ID. |
+| `STRIPE_WEBHOOK_SECRET` | If using payments | Webhook signature verification. |
+| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | If using Google SSO | OAuth credentials. |
+| `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` | If using GitHub SSO | OAuth credentials. |
+| `ANTHROPIC_API_KEY` | If using AI chat | Claude API for the chat surface. |
+| `ELEVENLABS_API_KEY` | If using voice | ElevenLabs TTS (optional — chat falls back to text). |
 
-The real goal is:
-- learn enough to direct the product confidently
-- understand the major moving parts
-- build useful things quickly with AI support
+Local: put these in `node/.env.local` (gitignored). Production: `npx wrangler secret put VAR_NAME`.
 
-That is a very realistic goal, and this repo should keep getting better at supporting it.
+## Project structure
+
+```
+maddiehq/
+├── node/                  # Next.js app (the only stack)
+│   ├── app/               # App Router pages + API routes
+│   ├── components/        # React components
+│   ├── lib/               # Auth, DB, email, Stripe, errors
+│   ├── content/           # Blog/docs (MDX)
+│   ├── migrations/        # SQLite/D1 schema migrations
+│   └── wrangler.toml      # Cloudflare Workers config
+├── tailscale/Caddyfile    # Caddy + tsnet config for the dev sidecar
+├── docker-compose.yml     # Local dev (single profile-less stack)
+├── legacy/                # Pre-AppSeed maddiehq, archived
+├── CLAUDE.md              # AI assistant instructions
+└── AGENTS.md              # Feature documentation
+```
+
+## Cloudflare Workers deploy
+
+The Node app deploys to Cloudflare Workers + D1 + R2 via `@opennextjs/cloudflare`.
+
+### Routine deploy
+
+```bash
+cd node
+npm run build:cf
+npm run deploy:cf
+```
+
+~20s end-to-end. Bindings (`DB`, `STORAGE`, `ASSETS`) wire automatically via `getCloudflareContext()` — no `instrumentation.ts` needed.
+
+### When to do what
+
+| Change | Run |
+|---|---|
+| Code only | `npm run build:cf && npm run deploy:cf` |
+| New SQL migration | `npx wrangler d1 migrations apply maddiehq-db --remote`, then deploy |
+| New secret | `npx wrangler secret put VAR_NAME` (no redeploy needed; secrets hot-reload) |
+| New non-secret env var | Edit `wrangler.toml [vars]`, then deploy |
+| New D1/R2/KV binding | Edit `wrangler.toml`, deploy |
+| Promote a user to admin | `npx wrangler d1 execute maddiehq-db --remote --command "UPDATE user SET isAdmin = 1 WHERE email = 'you@example.com'"` |
+
+### Sanity checks
+
+```bash
+curl -sS https://maddiehq.oqodo.com/api/health
+# Expected: {"ok":true,"db":true,"auth":true,"timestamp":"..."}
+
+npx wrangler tail --format=pretty
+```
+
+### Local Workers preview
+
+To repro Workers-specific bugs that don't surface in `next dev`:
+
+```bash
+npm run build:cf
+npm run preview:cf      # local D1 emulator on 127.0.0.1:8787
+npx wrangler d1 migrations apply maddiehq-db --local   # one-time
+```
+
+## Where each piece lives
+
+- `node/wrangler.toml` — bindings, vars, compatibility flags
+- `node/open-next.config.ts` — OpenNext adapter config
+- `node/lib/db.ts` — D1 / SQLite driver resolver
+- `node/lib/storage.ts` — R2 / S3 / local-fs storage resolver
+- `node/migrations/*.sql` — schema migrations (lexical order; `000_better_auth_init.sql` creates auth tables)
+- `node/content/docs/dev/cloudflare-workers-compat.mdx` — Workers compatibility audit

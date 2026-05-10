@@ -1,0 +1,13 @@
+{
+  "title": "Guide",
+  "pages": [
+    "index",
+    "getting-started",
+    "---Configuration---",
+    "oauth-setup",
+    "---Operations---",
+    "deployment",
+    "---",
+    "[API Reference](/api-docs)"
+  ]
+}

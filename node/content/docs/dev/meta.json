@@ -1,0 +1,14 @@
+{
+  "title": "Dev Wiki",
+  "pages": [
+    "index",
+    "---Architecture---",
+    "architecture",
+    "---Conventions---",
+    "conventions",
+    "---UI---",
+    "theming",
+    "---Deployment---",
+    "cloudflare-workers-compat"
+  ]
+}

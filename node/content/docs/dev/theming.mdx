@@ -1,0 +1,207 @@
+---
+title: Theming
+description: How MaddieHQ's semantic token system works, how to swap brand colors, and how to add your own theme.
+---
+
+MaddieHQ uses a **semantic token system** built on Tailwind v4 and CSS variables. You style components with intent-based classes (`bg-primary`, `text-muted-foreground`, `border-border`) rather than hardcoded color scales (`bg-emerald-600`, `text-gray-500`). That gives you three things for free:
+
+1. **Brand swap in one line** — change `--primary` in one CSS block and the whole app recolors.
+2. **Light/dark parity** — every token has a paired value for light and dark mode, wired automatically.
+3. **Shadcn compatibility** — the token names match the shadcn/ui convention exactly, so dropping in shadcn components later is zero friction.
+
+## The token set
+
+All tokens live in `app/globals.css`. The same name is used in both light (`:root`) and dark (`.dark`) modes — only the underlying HSL value differs.
+
+### Surface colors
+
+| Token | Tailwind class | Purpose |
+|---|---|---|
+| `--background` | `bg-background` | Page background (body) |
+| `--foreground` | `text-foreground` | Default body text |
+| `--card` | `bg-card` | Card / panel backgrounds |
+| `--card-foreground` | `text-card-foreground` | Text on cards |
+| `--popover` | `bg-popover` | Popover / menu backgrounds |
+| `--popover-foreground` | `text-popover-foreground` | Text on popovers |
+
+### Brand + interactive
+
+| Token | Tailwind class | Purpose |
+|---|---|---|
+| `--primary` | `bg-primary`, `text-primary` | Primary brand action color — buttons, links, active states |
+| `--primary-foreground` | `text-primary-foreground` | Text that sits on top of `--primary` |
+| `--secondary` | `bg-secondary` | Secondary surfaces — less emphasis than primary |
+| `--secondary-foreground` | `text-secondary-foreground` | Text on secondary surfaces |
+| `--accent` | `bg-accent` | Brand-tinted subtle surfaces — hover backgrounds, selected rows |
+| `--accent-foreground` | `text-accent-foreground` | Text on accent surfaces |
+| `--muted` | `bg-muted` | Subtle neutral surfaces — disabled states, low-emphasis chrome |
+| `--muted-foreground` | `text-muted-foreground` | Secondary text, labels, captions |
+
+### Status colors
+
+| Token | Tailwind class | Purpose |
+|---|---|---|
+| `--destructive` | `bg-destructive`, `text-destructive` | Errors, delete actions, destructive confirmations |
+| `--destructive-foreground` | `text-destructive-foreground` | Text on destructive surfaces |
+| `--success` | `bg-success`, `text-success` | Success banners, confirmed states |
+| `--warning` | `bg-warning`, `text-warning` | Warning banners, caution states |
+| `--info` | `bg-info`, `text-info` | Informational banners |
+
+### Borders, inputs, focus
+
+| Token | Tailwind class | Purpose |
+|---|---|---|
+| `--border` | `border-border` | Default border color for separators and card edges |
+| `--input` | `border-input` | Form input border color |
+| `--ring` | `ring-ring` | Focus ring color |
+
+### Radius
+
+| Token | Tailwind class | Value |
+|---|---|---|
+| `--radius-sm` | `rounded-sm` | `radius - 4px` |
+| `--radius-md` | `rounded-md` | `radius - 2px` |
+| `--radius-lg` | `rounded-lg` | `radius` (0.5rem by default) |
+| `--radius-xl` | `rounded-xl` | `radius + 4px` |
+
+## How light and dark mode work
+
+The existing `useTheme()` hook in `lib/theme.tsx` adds a `dark` class to the `<html>` element. The `@custom-variant dark (&:where(.dark, .dark *))` rule at the top of `globals.css` tells Tailwind to scope dark-mode utilities to that class. The `:root` block defines the light-mode values; the `.dark` block overrides them.
+
+You never need to write `dark:` variants when using semantic tokens — the swap is automatic. Only use `dark:` when you have a one-off case that legitimately needs to diverge from the token system.
+
+## How to swap the brand color
+
+MaddieHQ ships with three reference themes: `emerald` (default), `indigo`, and `rose`. To try one, open devtools and set the `data-theme` attribute on `<html>`:
+
+```html
+<html data-theme="indigo">
+```
+
+Or temporarily from the console:
+```js
+document.documentElement.setAttribute("data-theme", "indigo");
+```
+
+The entire app will recolor — buttons, links, focus rings, accent surfaces — with no hardcoded color left behind.
+
+### Adding a new brand theme
+
+To add your own brand theme, append a new block to `app/globals.css`:
+
+```css
+[data-theme="your-brand"] {
+  --primary: hsl(280 90% 55%);              /* your brand color */
+  --accent: hsl(280 100% 97%);              /* a very light tint */
+  --accent-foreground: hsl(280 80% 20%);    /* a very dark tint */
+  --ring: hsl(280 90% 55%);
+}
+
+[data-theme="your-brand"].dark {
+  --primary: hsl(280 85% 70%);              /* brighter for dark bg */
+  --primary-foreground: hsl(224 71% 4%);
+  --ring: hsl(280 85% 70%);
+}
+```
+
+You only need to override the brand-specific tokens (`--primary`, `--accent`, `--ring`). Neutrals (`--background`, `--muted`, `--border`) stay the same across themes by design — that keeps the chrome consistent regardless of brand color.
+
+### Making the theme switch persistent
+
+Today the `data-theme` attribute is a manual toggle for verification. To let users pick a brand theme persistently, extend `lib/theme.tsx`:
+
+1. Add `brandTheme` state alongside `theme` / `resolvedTheme`
+2. Persist to `localStorage` under a new key
+3. In `applyTheme()`, set `document.documentElement.dataset.theme = brandTheme`
+4. Expose `setBrandTheme` from the hook
+
+This is intentionally **not** wired up in the template — most downstream projects pick one brand color and stick with it. If you need a user-facing theme picker, the hook is a small addition.
+
+## Downstream customization
+
+If you're using MaddieHQ as a template for your own product:
+
+1. **The lazy path** — change the `--primary`, `--accent`, `--accent-foreground`, and `--ring` values in `:root` and `.dark` inside `globals.css`. That's it. Everywhere in the app that uses `bg-primary`, `text-primary`, etc. will update.
+2. **The thorough path** — also update `--success`, `--warning`, `--info` if your brand has specific semantic color values, and review `--secondary` / `--muted` if you want warmer or cooler neutrals.
+3. **Do not** re-introduce hardcoded Tailwind color classes like `bg-emerald-600`. The whole point of the token system is that you change colors in one place. If you find yourself writing `bg-blue-500` directly, ask whether it should become a new semantic token instead.
+
+## Shadcn primitives
+
+The token system was introduced alongside a migration to **Radix-backed shadcn/ui primitives** (issue #238). All existing components keep their old prop-based APIs as wrappers, so consumer code didn't change — but new code should prefer the compound primitive API.
+
+### Available primitives
+
+Importing from `@/components/ui`:
+
+| Compound primitive | Backed by | Notes |
+|---|---|---|
+| `Dialog` (+ `DialogContent`, `DialogHeader`, `DialogTitle`, `DialogFooter`, `DialogDescription`) | Radix Dialog | Focus trap, scroll lock, inert background, Esc to close |
+| `TabsRoot` (+ `TabsList`, `TabsTrigger`, `TabsContent`) | Radix Tabs | Roving tabindex, arrow key nav |
+| `DropdownMenuRoot` (+ `DropdownMenuTrigger`, `DropdownMenuContent`, `DropdownMenuItem`, etc.) | Radix DropdownMenu | Keyboard nav, collision-aware positioning, submenu support |
+| `Toaster` | Sonner | Swipe to dismiss, stacking, region landmark |
+| `Command` (+ `CommandDialog`, `CommandInput`, `CommandList`, `CommandGroup`, `CommandItem`) | cmdk | Used by `CommandPaletteProvider` |
+| **`Popover`** (+ `PopoverTrigger`, `PopoverContent`) | Radix Popover | Click-triggered overlay |
+| **`Tooltip`** (+ `TooltipTrigger`, `TooltipContent`, `TooltipProvider`) | Radix Tooltip | Delayed-open hint |
+| **`Select`** (+ `SelectTrigger`, `SelectValue`, `SelectContent`, `SelectItem`) | Radix Select | Native-feel select with typeahead |
+| **`AlertDialog`** (+ `AlertDialogTrigger`, `AlertDialogContent`, `AlertDialogAction`, `AlertDialogCancel`) | Radix AlertDialog | Destructive confirmation with `alertdialog` ARIA role |
+
+The four primitives in **bold** are net-new capability — they didn't exist before #238.
+
+### Live examples
+
+See `app/admin/ui-showcase/page.tsx` (route: `/admin/ui-showcase`) for working examples of each new primitive (Tooltip, Popover, Select, AlertDialog) with realistic usage patterns. Use it as the canonical reference when wiring new components.
+
+### Class composition: `cn()`
+
+Use `cn()` from `@/lib/utils` (which uses `clsx` + `tailwind-merge`) when composing className strings. It correctly resolves conflicting Tailwind utilities so the *last* declared one wins:
+
+```tsx
+import { cn } from "@/lib/utils";
+
+<button className={cn(
+  "px-4 py-2 bg-primary text-primary-foreground",
+  isActive && "ring-2 ring-ring",
+  className,  // user-provided override
+)}>
+```
+
+The legacy `@/lib/cn` import path still works (it re-exports from `@/lib/utils`).
+
+## How to migrate to shadcn primitives (downstream guide)
+
+If you're maintaining a downstream project created from MaddieHQ *before* April 2026 and you want to adopt the shadcn primitives:
+
+1. **Pull the new deps.** 15 packages: `class-variance-authority`, `clsx`, `tailwind-merge`, `tw-animate-css`, `sonner`, `cmdk`, plus `@radix-ui/react-dialog`, `react-dropdown-menu`, `react-tabs`, `react-popover`, `react-tooltip`, `react-select`, `react-alert-dialog`, `react-slot`. Pin all of them to exact versions per the dependency rules.
+2. **Pull the new files.** Copy `lib/utils.ts`, `components.json`, and all the new primitive files in `components/ui/` (`dialog.tsx`, `sonner.tsx`, `command.tsx`, `popover.tsx`, `tooltip.tsx`, `select.tsx`, `alert-dialog.tsx`). Also copy the *refactored* versions of `modal.tsx`, `dropdown-menu.tsx`, `tabs.tsx`, `command-palette.tsx`, `toast.tsx`, and `lib/use-toast.ts` — they're now wrappers around the new primitives.
+3. **Add `@import "tw-animate-css";`** to the top of `globals.css` (right after the Tailwind import).
+4. **Update `lib/cn.ts`** to re-export from `lib/utils.ts` (one-liner: `export { cn } from "./utils";`).
+5. **Verify.** Build, run, click around. The legacy APIs should keep working unchanged. New code can use the compound primitives.
+
+If you only want the **token system** (no Radix), you can stop after step 1's *globals.css* port and the find-and-replace step described in the "Mapping from old hardcoded classes" section above. Tokens work standalone — Radix is optional.
+
+## Why these token names?
+
+The tokens follow **shadcn/ui's convention** exactly (`primary`, `secondary`, `muted`, `accent`, `destructive`, `border`, `input`, `ring`, etc.). This is deliberate: it means when you later install shadcn components via `npx shadcn@latest add button`, they work out of the box against MaddieHQ's tokens with zero remapping.
+
+MaddieHQ adds three extra semantic tokens that shadcn doesn't ship by default: `success`, `warning`, and `info`. These cover the common "status banner" use case that most apps need.
+
+## Mapping from old hardcoded classes
+
+If you're migrating existing code (or a downstream project) from hardcoded `emerald-*` / `gray-*` classes to semantic tokens, here's the mapping table:
+
+| Old class | New class | Why |
+|---|---|---|
+| `bg-emerald-600`, `bg-emerald-500` | `bg-primary` | Main brand color |
+| `bg-emerald-700` (hover) | `bg-primary/90` (hover) | Shadcn hover convention — 90% opacity |
+| `bg-emerald-50`, `bg-emerald-100` | `bg-accent` | Subtle brand tint |
+| `text-emerald-600`, `text-emerald-700` | `text-primary` | Brand-colored text |
+| `text-emerald-900` (on accent bg) | `text-accent-foreground` | Text on accent surfaces |
+| `border-emerald-500`, `border-emerald-600` | `border-primary` or `ring-ring` | Brand borders / focus rings |
+| `bg-gray-100` | `bg-muted` | Subtle neutral surface |
+| `text-gray-500`, `text-gray-600` | `text-muted-foreground` | Labels, captions, secondary text |
+| `text-gray-900` | `text-foreground` | Default body text |
+| `bg-white` (card) | `bg-card` | Card surfaces (darks in dark mode) |
+| `border-gray-200`, `border-gray-300` | `border-border` | Default borders |
+| `bg-red-600`, `text-red-600` | `bg-destructive`, `text-destructive` | Destructive actions |
+
+When in doubt, prefer the semantic token over the raw color. The only legitimate reason to keep a raw Tailwind color is for decorative branding that truly should never theme-swap (like a logo background you explicitly want to stay blue).

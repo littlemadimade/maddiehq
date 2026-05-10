@@ -1,0 +1,52 @@
+services:
+  # ── Caddy + Tailscale sidecar ───────────────────────────────────────────
+  # Joins the tailnet as ${TS_HOSTNAME}, gets a real HTTPS cert from
+  # Tailscale, and reverse-proxies to next dev on the shared network
+  # namespace. Apple HSTS-preloads *.ts.net so iOS Safari requires real
+  # HTTPS — this is the only path that works for phone QA.
+  caddy-dev:
+    image: ghcr.io/tailscale/caddy-tailscale:main
+    container_name: maddiehq-caddy-dev
+    hostname: ${TS_HOSTNAME:-maddiehq}
+    environment:
+      TS_AUTHKEY: ${TS_AUTHKEY:-}
+      TS_HOSTNAME: ${TS_HOSTNAME:-maddiehq}
+    volumes:
+      - ./tailscale/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_state:/config
+    ports:
+      - "${DEV_PORT:-3005}:3000"
+    restart: unless-stopped
+
+  # ── Next.js dev ─────────────────────────────────────────────────────────
+  # Shares caddy-dev's network namespace. localhost:${DEV_PORT} hits next
+  # dev via the sidecar's host port mapping; the tailnet URL hits next dev
+  # via Caddy's HTTPS reverse proxy on the tailnet interface. Same
+  # container serves both. Full dev mode (hot reload, HMR) on both paths.
+  app-dev:
+    build:
+      context: ./node
+      dockerfile: Dockerfile.dev
+    container_name: maddiehq-dev
+    network_mode: service:caddy-dev
+    depends_on:
+      - caddy-dev
+    volumes:
+      - ./node:/app
+      # Named volume so npm-installed deps survive `docker compose down/up`.
+      # Populated from the image on first create. To refresh after a
+      # package.json change: `docker compose run --rm app-dev npm install`.
+      - node_modules:/app/node_modules
+      - ./node/data:/app/data
+    env_file: ./node/.env.local
+    environment:
+      NODE_ENV: development
+      DATABASE_PATH: /app/data/maddiehq.db
+      BETTER_AUTH_URL: ${BETTER_AUTH_URL:-http://localhost:3005}
+      APP_URL: ${APP_URL:-http://localhost:3005}
+      WATCHPACK_POLLING: "true"
+    restart: unless-stopped
+
+volumes:
+  node_modules:
+  caddy_state:

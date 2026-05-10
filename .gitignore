@@ -1,11 +1,56 @@
-.next
-node_modules
-dist
-coverage
-.DS_Store
-*.db
-*.db-journal
-*.db-wal
-data/
-.env
+# Dependencies
+node_modules/
+
+# Next.js
+.next/
+out/
+
+# OpenNext / Cloudflare Workers build output
+.open-next/
+.wrangler/
+
+# Production build
+build/
+
+# Environment variables
 .env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.env
+
+# Database
+data/
+*.db
+*.db-shm
+*.db-wal
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test coverage
+coverage/
+
+# Playwright test artifacts
+test-results/
+playwright-report/
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+.claude/worktrees/
+
+# Fumadocs generated source
+.source/
+
+# Claude Code per-user settings
+.claude/settings.local.json
+
+# OpenClaw external tool state
+.openclaw/

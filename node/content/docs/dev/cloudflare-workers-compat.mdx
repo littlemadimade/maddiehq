@@ -1,0 +1,134 @@
+---
+title: Cloudflare Workers Compatibility Audit
+description: What works on Workers, what needs nodejs_compat, and what needs to be rewritten before deploying MaddieHQ to Cloudflare D1 + Workers.
+---
+
+This document is the audit deliverable for [#287](https://github.com/marknutter/maddiehq/issues/287) (Step 6 of the Cloudflare migration tracked in [#275](https://github.com/marknutter/maddiehq/issues/275)).
+
+It records every server-side code path in the Node.js stack and the verdict on whether it survives running inside a Cloudflare Worker.
+
+**Reading the verdicts:**
+- ✅ **Works** — runs unchanged on Workers (with `nodejs_compat` flag where noted).
+- ⚠️ **Needs config** — works but requires environment variables to point at a Workers-compatible backend (e.g. R2 instead of local filesystem).
+- 🔧 **Needs rewrite** — requires code changes before Workers can load or serve a request.
+- 🚫 **Hard incompatible** — cannot work on Workers; must be replaced.
+
+## TL;DR
+
+The blocker is `lib/auth.ts` and the static-import chain rooted at `lib/db.ts`. Both load `better-sqlite3` at module-load time, which fails before any Worker request handler runs. Until those are fixed, the Worker bundle won't even start.
+
+Once those are addressed, the rest of the surface is in good shape — every external SDK is `fetch`-based, `crypto` works under `nodejs_compat`, and most file-IO callers (mdx, sitemap) are reached only at build time.
+
+## Module-load side effects (the actual blockers)
+
+Code that runs at import time, before any handler executes. These fail the entire Worker bundle if any node-only API is touched.
+
+### 🔧 `lib/auth.ts` — `new Database()` at module load
+
+[**File**](/dev/architecture#auth) — runs at module top level inside an `if (isPg()) … else …` block:
+
+- SQLite branch (lines 27–45): `path.dirname`, `fs.existsSync`, `fs.mkdirSync`, `new Database(dbPath)`, `bootstrapAuthSchema(sqliteDb)`. All sync, all touching the filesystem and the native module.
+- PG branch (lines 17–26): `new Pool(...)`, fire-and-forget async `bootstrapAuthSchemaPg`. Module-load side effect, but at least no native binding.
+
+There's no D1 branch. On Workers with `DATABASE_DRIVER=d1`, `isPg()` returns false → the SQLite branch runs → module load fails before any request handler attaches.
+
+**Remediation** — issue #289 (Lazy-init Better Auth instance for D1):
+1. Add an `isD1()` branch that uses `drizzleAdapter(getDb(), { provider: "sqlite" })`. Better Auth's Drizzle adapter is dialect-agnostic — the same call works for sqlite, pg, and D1 since `getDb()` returns the right Drizzle instance.
+2. The D1 binding is request-scoped, so `auth` cannot be eagerly constructed at module load. Wrap it in a lazy getter or a Proxy that initializes on first access. The OpenNext entry point (Step 7) calls `setD1Binding(env.DB)` per request, then any subsequent `auth.api.X()` call resolves correctly.
+3. Remove the `databaseHooks.user.create.after` use of `getRawDb().prepare(...).run(...)` — replace with a Drizzle update so it works on all three dialects.
+
+### 🔧 `lib/db.ts` — top-level `import Database from "better-sqlite3"`
+
+[**File**](/dev/architecture#db) — line 1. The class is only *used* at runtime inside `initSqliteDb()` (which the D1 path never calls), but the static `import` statement triggers the package entry point on every module load. `better-sqlite3`'s entry loads its native `.node` binary, which Workers can't resolve.
+
+The PG branch already correctly uses dynamic `require("pg")` inside `initPgDb()` for exactly this reason.
+
+**Remediation** — issue #290 (Make better-sqlite3 imports dynamic):
+- Replace `import Database from "better-sqlite3"` with `import type { Database } from "better-sqlite3"` (type-only — erased at compile time).
+- Move runtime usage to `const Database = require("better-sqlite3")` inside `initSqliteDb()`.
+- Same treatment for `import { runMigrations } from "./migrate"` and `import { bootstrapAuthSchema } from "./auth-schema"` — both load through better-sqlite3 transitively.
+
+### 🔧 `lib/migrate.ts` — top-level `import Database from "better-sqlite3"`
+
+[**File**](/dev/architecture#migrations) — line 25. Same reason as `lib/db.ts`. Even though `lib/db.ts`'s D1 path never calls `runMigrations()`, the static import in `lib/migrate.ts` runs the moment `lib/db.ts` is loaded.
+
+**Remediation** — same issue #289. Convert `import Database from "better-sqlite3"` to `import type`. Drop runtime usages or guard them behind a dialect check.
+
+## File system access
+
+### ✅ `lib/db.ts` — `fs.existsSync` / `fs.mkdirSync`
+
+Inside `initSqliteDb()` only. D1 path doesn't call it. Once #289 lands, the `fs` import itself stays at module level (it's used only inside the SQLite-init function), but it doesn't trigger any side effect on Workers — `fs` from `node:fs` works under `nodejs_compat`; the calls just never fire on the D1 path.
+
+### ⚠️ `lib/storage.ts` — local filesystem upload backend
+
+Lines 30–53. The S3 backend (lines 55–135) is `fetch`-based via `@aws-sdk/client-s3` and works on Workers. The local backend uses `fs.writeFileSync` / `fs.readFileSync` and is the fallback when no S3 env vars are set.
+
+For Workers + R2: the existing S3 backend works as-is — R2 is S3-API-compatible. Just point `S3_ENDPOINT` and friends at the R2 bucket.
+
+**Remediation** — issue #291 (R2 storage configuration for Workers):
+- Document R2 setup in the README (S3_ENDPOINT, S3_BUCKET, S3_ACCESS_KEY, S3_SECRET_KEY).
+- Optionally: throw a clearer error in `getBackend()` if the local backend is selected on `isD1()` so misconfigs surface fast.
+- No code rewrite needed if S3 env vars are configured correctly.
+
+### ✅ `lib/mdx.ts` — fs.readFileSync / fs.readdirSync
+
+Used by `app/blog/page.tsx`, `app/blog/[slug]/page.tsx`, `app/changelog/page.tsx`, `app/feed.xml/route.ts`, `app/sitemap.ts`. Build output (verified):
+
+```
+○ /blog            (Static)
+● /blog/[slug]     (SSG with generateStaticParams)
+○ /changelog       (Static)
+○ /feed.xml        (Static)
+ƒ /sitemap.xml     (Dynamic)
+```
+
+The Static and SSG routes pre-render at build time — `getAllPosts()` runs during `next build`, never at request time on Workers. The dynamic `sitemap.xml` does run at request time, but with `nodejs_compat`, `fs.existsSync` for non-existent paths just returns `false` and `getAllPosts()` returns `[]` — sitemap will lack blog entries on Workers but won't crash.
+
+**Remediation** — none required for Step 8. If a richer sitemap is desired, switch sitemap to SSG (it doesn't actually need to be dynamic for typical use).
+
+## SDK compatibility
+
+All HTTP-based SDKs work on Workers under `nodejs_compat`. The codebase uses:
+
+| SDK | Used in | Verdict |
+| --- | --- | --- |
+| `@anthropic-ai/sdk` | `lib/chat-engine.ts` | ✅ — fetch-based, supports Workers |
+| `resend` | `lib/email.ts` | ✅ — fetch-based |
+| `elevenlabs` | (chat voice path) | ✅ — fetch-based |
+| `stripe` | `lib/stripe.ts`, `app/api/stripe/webhook/route.ts` | ✅ — Stripe SDK supports Workers explicitly via `httpClient: Stripe.createFetchHttpClient()` if needed; default works under `nodejs_compat` |
+| `svix` | (webhook signature verification) | ✅ — fetch-based |
+| `@aws-sdk/client-s3` | `lib/storage.ts` | ✅ — works on Workers, used to talk to R2 |
+| `better-auth` | `lib/auth.ts`, route handlers | ✅ at runtime; module-load currently blocked by the underlying `lib/db.ts` chain |
+| `drizzle-orm` | everywhere DB access happens | ✅ — `drizzle-orm/d1` is the canonical Workers driver |
+| `posthog-node` | telemetry (if enabled) | ⚠️ — historically had Workers issues; verify or use `posthog-js` browser-only |
+
+## Crypto
+
+Every `import crypto from "crypto"` (or `import { randomUUID } from "crypto"`) site:
+
+- `lib/db.ts`, `lib/jobs.ts`, `lib/notifications.ts`, `lib/rbac.ts`, `lib/storage.ts`, `lib/webhooks.ts`
+- API routes: campaigns, conversations, files, subscribe, waitlist, admin/users/[id]/reset-pw, admin/waitlist/invite
+
+All usages are `randomUUID`, `randomBytes`, `scryptSync`, or `createHmac` — all of which work under Workers' `nodejs_compat` flag. Web Crypto (`globalThis.crypto`) covers `randomUUID` natively, but the Node `crypto` import works and avoids touching every call site.
+
+**Verdict** — ✅ works, requires `compatibility_flags = ["nodejs_compat"]` in `wrangler.toml` (Step 7).
+
+## child_process
+
+No imports found. ✅
+
+## Native Node modules
+
+| Module | Status |
+| --- | --- |
+| `better-sqlite3` | 🚫 — native binding, doesn't work on Workers; static imports must be removed (#289). The D1 path doesn't need it at runtime. |
+| `pg` | ⚠️ — `pg.Pool` won't work on Workers (needs Node net stack). For PG-on-Workers, `@neondatabase/serverless` is the typical drop-in. Out of scope for this audit; PG path can keep targeting Railway/Fly. |
+
+## Summary of follow-up issues
+
+- **#289** — Lazy-init Better Auth instance for D1 (covers `lib/auth.ts` rewrite + Drizzle adapter switch + admin-promotion hook fix). **Blocker for Step 8.**
+- **#290** — Make `better-sqlite3` imports dynamic in `lib/db.ts` and `lib/migrate.ts`. **Blocker for Step 8.**
+- **#291** — R2 storage configuration documentation + dialect guard in `lib/storage.ts`. **Required for any feature that uploads files.**
+
+The code changes happen in those PRs. Step 7 (`@opennextjs/cloudflare` config) and Step 8 (first deploy) depend on #289 and #290 landing first.

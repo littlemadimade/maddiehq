@@ -1,0 +1,62 @@
+{
+  "configPath": "/Users/marknutter/Code/maddiehq/node/openapi-gen.config.json",
+  "outputFile": "/Users/marknutter/Code/maddiehq/node/public/openapi.json",
+  "diagnostics": [
+    {
+      "code": "response-inference-unresolved",
+      "severity": "warning",
+      "message": "Could not fully infer a response schema from a return statement. Add an explicit @response tag to make the output deterministic.",
+      "filePath": "/Users/marknutter/Code/maddiehq/node/app/api/waitlist/join/route.ts",
+      "routePath": "/waitlist/join"
+    },
+    {
+      "code": "response-inference-unresolved",
+      "severity": "warning",
+      "message": "Could not fully infer a response schema from a return statement. Add an explicit @response tag to make the output deterministic.",
+      "filePath": "/Users/marknutter/Code/maddiehq/node/app/api/waitlist/join/route.ts",
+      "routePath": "/waitlist/join"
+    },
+    {
+      "code": "response-inference-unresolved",
+      "severity": "warning",
+      "message": "Could not fully infer a response schema from a return statement. Add an explicit @response tag to make the output deterministic.",
+      "filePath": "/Users/marknutter/Code/maddiehq/node/app/api/waitlist/join/route.ts",
+      "routePath": "/waitlist/join"
+    },
+    {
+      "code": "response-inference-unresolved",
+      "severity": "warning",
+      "message": "Could not fully infer a response schema from a return statement. Add an explicit @response tag to make the output deterministic.",
+      "filePath": "/Users/marknutter/Code/maddiehq/node/app/api/wiki-search/route.ts",
+      "routePath": "/wiki-search"
+    }
+  ],
+  "performance": {
+    "prepareTemplateMs": 0.10658399999999801,
+    "loadCustomFragmentsMs": 0.0003749999999627107,
+    "prepareDocumentMs": 0.10695899999996072,
+    "scanRouteFilesMs": 1.3265830000000278,
+    "deriveRoutePathMs": 0.1822099999988609,
+    "filterRouteCandidatesMs": 0.2569149999974343,
+    "sourcePrecheckMs": 0.4368750000003274,
+    "readRouteFilesMs": 0.19233400000052825,
+    "parseRouteFilesMs": 9.695790999999303,
+    "analyzeRouteFilesMs": 7.785498999999902,
+    "typescriptResponseInferenceMs": 4065.42425,
+    "processRouteFilesMs": 4083.0620839999997,
+    "registerRouteMs": 0.9127899999994042,
+    "getSchemaContentMs": 0,
+    "createRequestParamsMs": 0,
+    "createRequestBodyMs": 0,
+    "processResponsesMs": 0.287625000000844,
+    "createResponseSchemaMs": 0,
+    "buildOperationsMs": 0.929416000000856,
+    "sortAndMergePathsMs": 0.6367920000002414,
+    "buildPathsMs": 0.6367920000002414,
+    "defaultComponentsAndErrorsMs": 0.1162079999994603,
+    "mergeSchemasMs": 0.03754099999969185,
+    "finalizeDocumentMs": 0.8659590000006574,
+    "totalMs": 4088.22575,
+    "scanRoutesMs": 4085.3180830000006
+  }
+}
