@@ -193,6 +193,236 @@
         }
       }
     },
+    "/platforms/instagram/account": {
+      "get": {
+        "operationId": "get-platforms-instagram-account",
+        "summary": "",
+        "description": "",
+        "tags": [
+          "Platforms"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
+      }
+    },
+    "/platforms/instagram/demographics": {
+      "get": {
+        "operationId": "get-platforms-instagram-demographics",
+        "summary": "",
+        "description": "",
+        "tags": [
+          "Platforms"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
+      }
+    },
+    "/platforms/instagram/insights": {
+      "get": {
+        "operationId": "get-platforms-instagram-insights",
+        "summary": "",
+        "description": "",
+        "tags": [
+          "Platforms"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
+      }
+    },
+    "/platforms/instagram/posts": {
+      "get": {
+        "operationId": "get-platforms-instagram-posts",
+        "summary": "",
+        "description": "",
+        "tags": [
+          "Platforms"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "example"
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "example"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
+      }
+    },
+    "/platforms/instagram/sync": {
+      "post": {
+        "operationId": "post-platforms-instagram-sync",
+        "summary": "",
+        "description": "",
+        "tags": [
+          "Platforms"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
+      }
+    },
+    "/platforms/instagram/oauth/callback": {
+      "get": {
+        "operationId": "get-platforms-instagram-oauth-callback",
+        "summary": "",
+        "description": "",
+        "tags": [
+          "Platforms"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "code",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "example"
+          },
+          {
+            "in": "query",
+            "name": "state",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "example"
+          },
+          {
+            "in": "query",
+            "name": "error",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "example"
+          }
+        ],
+        "responses": {
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
+      }
+    },
+    "/platforms/instagram/oauth/start": {
+      "get": {
+        "operationId": "get-platforms-instagram-oauth-start",
+        "summary": "",
+        "description": "",
+        "tags": [
+          "Platforms"
+        ],
+        "parameters": [],
+        "responses": {
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
+      }
+    },
     "/unsubscribe": {
       "get": {
         "operationId": "get-unsubscribe",
@@ -426,6 +656,9 @@
   "tags": [
     {
       "name": "Health"
+    },
+    {
+      "name": "Platforms"
     },
     {
       "name": "Unsubscribe"
