@@ -9,7 +9,7 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: process.env.CI ? "github" : "html",
   use: {
-    baseURL: "http://localhost:3000",
+    baseURL: "http://localhost:3010",
     trace: "on-first-retry",
     screenshot: "only-on-failure",
   },
@@ -20,16 +20,19 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: "npm run dev",
-    url: "http://localhost:3000",
+    // Port 3010 to avoid collisions with sibling dev servers on 3000/3001/3005.
+    command: "npm run dev -- -p 3010",
+    url: "http://localhost:3010",
     reuseExistingServer: !process.env.CI,
-    timeout: 30_000,
+    timeout: 60_000,
     env: {
       BETTER_AUTH_SECRET: "test-secret-do-not-use-in-production",
-      BETTER_AUTH_URL: "http://localhost:3000",
+      BETTER_AUTH_URL: "http://localhost:3010",
       DATABASE_PATH: "./data/test-e2e.db",
       ADMIN_EMAILS: "e2e-admin@test.local",
       RATE_LIMIT_AUTH: "100",  // High limit for e2e tests (default: 5/min)
+      INSTAGRAM_CLIENT_ID: "test-ig-client-id",
+      INSTAGRAM_CLIENT_SECRET: "test-ig-client-secret",
     },
   },
 });
