@@ -248,6 +248,35 @@
         }
       }
     },
+    "/analyze/instagram/video": {
+      "post": {
+        "operationId": "post-analyze-instagram-video",
+        "summary": "",
+        "description": "",
+        "tags": [
+          "Analyze"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
+      }
+    },
     "/health": {
       "get": {
         "operationId": "get-health",
