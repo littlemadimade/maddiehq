@@ -57,9 +57,15 @@ export async function GET(request: Request) {
           });
         }
 
+        const videoStep =
+          "Video processing complete: " +
+          videoResult.transcribed +
+          " transcribed, " +
+          videoResult.framesAnalyzed +
+          " frames analyzed";
         send({
           phase: "video",
-          step: `Video processing complete: ${videoResult.transcribed} transcribed, ${videoResult.framesAnalyzed} frames analyzed`,
+          step: videoStep,
           current: videoResult.transcribed,
           total: videoResult.transcribed,
           done: true,

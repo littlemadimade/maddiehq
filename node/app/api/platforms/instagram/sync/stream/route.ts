@@ -35,9 +35,15 @@ export async function GET(request: Request) {
 
       try {
         const result = await syncAllInstagram(userId);
+        const completeStep =
+          "Sync complete: " +
+          result.posts.postsUpserted + " posts, " +
+          result.posts.insightsUpserted + " insights, " +
+          result.account.snapshotsUpserted + " account snapshots, " +
+          result.demographics.entriesUpserted + " demographic entries";
         send({
           phase: "sync",
-          step: `Sync complete: ${result.posts.postsUpserted} posts, ${result.posts.insightsUpserted} insights, ${result.account.snapshotsUpserted} account snapshots, ${result.demographics.entriesUpserted} demographic entries`,
+          step: completeStep,
           current: 3,
           total: 3,
           done: true,
