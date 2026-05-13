@@ -3,7 +3,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
-import { Sprout, LogOut, Star, ExternalLink, Lock, Settings, Sun, Moon, Monitor, MessageSquare } from "lucide-react";
+import Link from "next/link";
+import { Sprout, LogOut, Star, ExternalLink, Lock, Settings, Sun, Moon, Monitor, MessageSquare, Sparkles, ArrowRight } from "lucide-react";
 import { NotificationBell } from "@/components/notification-bell";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -15,6 +16,116 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { toast } from "@/lib/use-toast";
 import { commandRegistry } from "@/lib/commands";
 import { Onboarding } from "@/components/onboarding";
+
+// ─── Insights Card ────────────────────────────────────────────────────────────
+function InsightsCard({ state }: { state: InsightsState }) {
+  if (state.kind === "loading") {
+    return (
+      <Card title="Insights" headerAction={<Sparkles className="w-4 h-4 text-primary" />}>
+        <Skeleton className="h-12 w-full" />
+      </Card>
+    );
+  }
+
+  if (state.kind === "no-connection") {
+    return (
+      <Card title="Insights" headerAction={<Sparkles className="w-4 h-4 text-primary" />}>
+        <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
+          MaddieHQ analyzes your Instagram posts with Claude vision and Whisper, then
+          surfaces the non-obvious patterns driving your engagement — visual style,
+          hook type, on-camera energy, and audience demographics, all cross-referenced
+          against your reach and saves.
+        </p>
+        <Link
+          href="/app/insights"
+          className="inline-flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-primary/90 transition-colors"
+        >
+          Connect Instagram
+          <ArrowRight className="w-4 h-4" />
+        </Link>
+      </Card>
+    );
+  }
+
+  if (state.kind === "connected-no-report") {
+    return (
+      <Card title="Insights" headerAction={<Sparkles className="w-4 h-4 text-primary" />}>
+        <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
+          Instagram is connected
+          {state.postCount != null ? ` (${state.postCount} posts` : ""}
+          {state.followerCount != null ? `, ${formatCount(state.followerCount)} followers)` : state.postCount != null ? ")" : ""}.
+        </p>
+        <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
+          You haven&apos;t run an analysis yet. Head to insights to generate your first
+          report — patterns, recommendations, and per-post breakdowns.
+        </p>
+        <Link
+          href="/app/insights"
+          className="inline-flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-primary/90 transition-colors"
+        >
+          Open insights
+          <ArrowRight className="w-4 h-4" />
+        </Link>
+      </Card>
+    );
+  }
+
+  return (
+    <Card title="Insights" headerAction={<Sparkles className="w-4 h-4 text-primary" />}>
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+        <SummaryStat label="Followers" value={formatCount(state.followerCount)} />
+        <SummaryStat label="Posts synced" value={formatCount(state.postCount)} />
+        <SummaryStat label="Posts analyzed" value={String(state.postsAnalyzed)} />
+        <SummaryStat label="Last run" value={formatRelative(state.generatedAt)} />
+      </div>
+      {state.topPattern ? (
+        <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
+          <span className="text-gray-500 dark:text-gray-400">Top pattern:</span>{" "}
+          <span className="font-medium text-gray-900 dark:text-gray-100">
+            {state.topPattern}
+          </span>
+        </p>
+      ) : null}
+      <Link
+        href="/app/insights"
+        className="inline-flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-primary/90 transition-colors"
+      >
+        Open insights
+        <ArrowRight className="w-4 h-4" />
+      </Link>
+    </Card>
+  );
+}
+
+function SummaryStat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-md border border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800/50 px-3 py-2">
+      <div className="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400">{label}</div>
+      <div className="mt-0.5 text-lg font-semibold text-gray-900 dark:text-gray-100">{value}</div>
+    </div>
+  );
+}
+
+function formatCount(n: number | null | undefined): string {
+  if (n == null) return "—";
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
+  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
+  return String(n);
+}
+
+function formatRelative(iso: string): string {
+  const then = new Date(iso).getTime();
+  if (!Number.isFinite(then)) return "—";
+  const diffMs = Date.now() - then;
+  const sec = Math.floor(diffMs / 1000);
+  if (sec < 60) return "just now";
+  const min = Math.floor(sec / 60);
+  if (min < 60) return `${min}m ago`;
+  const hr = Math.floor(min / 60);
+  if (hr < 24) return `${hr}h ago`;
+  const days = Math.floor(hr / 24);
+  return `${days}d ago`;
+}
 
 // ─── Upgrade Modal ────────────────────────────────────────────────────────────
 function UpgradeModalContent({ onDismiss }: { onDismiss: () => void }) {
@@ -73,6 +184,19 @@ function UpgradeModalContent({ onDismiss }: { onDismiss: () => void }) {
 }
 
 // ─── Main page ───────────────────────────────────────────────────────────────
+type InsightsState =
+  | { kind: "loading" }
+  | { kind: "no-connection" }
+  | { kind: "connected-no-report"; followerCount: number | null; postCount: number | null }
+  | {
+      kind: "report";
+      followerCount: number | null;
+      postCount: number | null;
+      postsAnalyzed: number;
+      generatedAt: string;
+      topPattern: string | null;
+    };
+
 export default function AppPage() {
   const router = useRouter();
   const [userEmail, setUserEmail] = useState<string | null>(null);
@@ -82,6 +206,7 @@ export default function AppPage() {
   const [portalLoading, setPortalLoading] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
   const [verifiedBanner, setVerifiedBanner] = useState(false);
+  const [insightsState, setInsightsState] = useState<InsightsState>({ kind: "loading" });
 
   const isPro = plan === "pro";
 
@@ -90,6 +215,41 @@ export default function AppPage() {
     if (res.ok) {
       const data = await res.json();
       setPlan(data.plan ?? "free");
+    }
+  }, []);
+
+  const loadInsightsSummary = useCallback(async () => {
+    try {
+      const [accountRes, reportRes] = await Promise.all([
+        fetch("/api/platforms/instagram/account"),
+        fetch("/api/analyze/instagram"),
+      ]);
+
+      const account = accountRes.ok ? await accountRes.json() : null;
+      const report = reportRes.ok ? await reportRes.json() : null;
+
+      if (!account || !account.connected) {
+        setInsightsState({ kind: "no-connection" });
+        return;
+      }
+
+      const followerCount = account.snapshot?.follower_count ?? null;
+      const postCount = account.snapshot?.media_count ?? null;
+
+      if (report?.report) {
+        setInsightsState({
+          kind: "report",
+          followerCount,
+          postCount,
+          postsAnalyzed: report.report.postsAnalyzed,
+          generatedAt: report.report.generatedAt,
+          topPattern: report.report.patterns?.[0]?.title ?? null,
+        });
+      } else {
+        setInsightsState({ kind: "connected-no-report", followerCount, postCount });
+      }
+    } catch {
+      setInsightsState({ kind: "no-connection" });
     }
   }, []);
 
@@ -103,6 +263,7 @@ export default function AppPage() {
         }
         setUserEmail(session.user.email);
         await loadPlanStatus();
+        loadInsightsSummary();
       } catch {
         router.push("/auth");
       } finally {
@@ -110,7 +271,7 @@ export default function AppPage() {
       }
     }
     init();
-  }, [router, loadPlanStatus]);
+  }, [router, loadPlanStatus, loadInsightsSummary]);
 
   // Register commands
   useEffect(() => {
@@ -370,16 +531,8 @@ export default function AppPage() {
           )}
         </Card>
 
-        {/* Free feature placeholder */}
-        <Card title="Dashboard Content">
-          <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-12 text-center border border-dashed border-gray-200 dark:border-gray-600">
-            <Sprout className="w-8 h-8 text-primary mx-auto mb-3" />
-            <p className="text-gray-500 dark:text-gray-400 font-medium text-sm">Your app goes here.</p>
-            <p className="text-gray-400 dark:text-gray-500 text-xs mt-1">
-              Replace this placeholder with your actual UI. Auth, DB, Stripe, and email are all wired up.
-            </p>
-          </div>
-        </Card>
+        {/* Insights card */}
+        <InsightsCard state={insightsState} />
 
         {/* Bottom padding */}
         <div className="pb-8" />

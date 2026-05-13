@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Sprout, Menu, X, Sun, Moon } from "lucide-react";
+import { authClient } from "@/lib/auth-client";
 import { useTheme } from "@/lib/theme";
 import { cn } from "@/lib/cn";
 
@@ -23,9 +24,27 @@ export function LandingHeader() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [authed, setAuthed] = useState<boolean | null>(null);
   const { resolvedTheme, setTheme } = useTheme();
 
   useEffect(() => setMounted(true), []);
+
+  useEffect(() => {
+    let cancelled = false;
+    authClient
+      .getSession()
+      .then((res) => {
+        if (cancelled) return;
+        setAuthed(!!res?.data);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setAuthed(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -84,18 +103,29 @@ export function LandingHeader() {
               )}
             </button>
 
-            <Link
-              href="/auth?tab=login"
-              className="hidden sm:inline-flex text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 px-3 py-2 rounded-lg transition-colors"
-            >
-              Sign In
-            </Link>
-            <Link
-              href="/auth?tab=signup"
-              className="hidden sm:inline-flex text-sm font-semibold bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors"
-            >
-              Get Started
-            </Link>
+            {authed ? (
+              <Link
+                href="/app"
+                className="hidden sm:inline-flex text-sm font-semibold bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors"
+              >
+                Open app
+              </Link>
+            ) : (
+              <>
+                <Link
+                  href="/auth?tab=login"
+                  className="hidden sm:inline-flex text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 px-3 py-2 rounded-lg transition-colors"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  href="/auth?tab=signup"
+                  className="hidden sm:inline-flex text-sm font-semibold bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors"
+                >
+                  Get Started
+                </Link>
+              </>
+            )}
 
             {/* Mobile menu button */}
             <button
@@ -123,18 +153,29 @@ export function LandingHeader() {
                 </a>
               ))}
               <div className="flex gap-2 mt-3 px-3">
-                <Link
-                  href="/auth?tab=login"
-                  className="flex-1 text-center text-sm font-medium border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-                >
-                  Sign In
-                </Link>
-                <Link
-                  href="/auth?tab=signup"
-                  className="flex-1 text-center text-sm font-semibold bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors"
-                >
-                  Get Started
-                </Link>
+                {authed ? (
+                  <Link
+                    href="/app"
+                    className="flex-1 text-center text-sm font-semibold bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors"
+                  >
+                    Open app
+                  </Link>
+                ) : (
+                  <>
+                    <Link
+                      href="/auth?tab=login"
+                      className="flex-1 text-center text-sm font-medium border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                    >
+                      Sign In
+                    </Link>
+                    <Link
+                      href="/auth?tab=signup"
+                      className="flex-1 text-center text-sm font-semibold bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors"
+                    >
+                      Get Started
+                    </Link>
+                  </>
+                )}
               </div>
             </nav>
           </div>

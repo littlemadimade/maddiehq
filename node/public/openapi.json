@@ -556,6 +556,25 @@
         }
       }
     },
+    "/platforms/instagram/sync/stream": {
+      "get": {
+        "operationId": "get-platforms-instagram-sync-stream",
+        "summary": "keeps the browser connection alive until the work is done.",
+        "description": "",
+        "tags": [
+          "Platforms"
+        ],
+        "parameters": [],
+        "responses": {
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
+      }
+    },
     "/unsubscribe": {
       "get": {
         "operationId": "get-unsubscribe",
