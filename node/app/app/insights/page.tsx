@@ -197,6 +197,7 @@ function InsightsContent() {
   const [report, setReport] = useState<ContentReport | null>(null);
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
+  const [syncStep, setSyncStep] = useState<string>("");
   const [analyzing, setAnalyzing] = useState(false);
   const [analyzeStep, setAnalyzeStep] = useState<string>("");
   const [elaborate, setElaborate] = useState<{ pattern: Pattern; text: string | null; loading: boolean } | null>(null);
@@ -254,20 +255,57 @@ function InsightsContent() {
 
   const handleSync = async () => {
     setSyncing(true);
+    setSyncStep("Starting...");
     try {
-      const res = await fetch("/api/platforms/instagram/sync", { method: "POST" });
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        toast.error(body.error || "Sync failed");
-      } else {
+      const res = await fetch("/api/platforms/instagram/sync/stream");
+      if (!res.ok || !res.body) {
+        toast.error("Could not start sync");
+        return;
+      }
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let succeeded = false;
+      let errorMessage: string | null = null;
+
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const chunks = buffer.split("\n\n");
+        buffer = chunks.pop() ?? "";
+        for (const chunk of chunks) {
+          const line = chunk.split("\n").find((l) => l.startsWith("data: "));
+          if (!line) continue;
+          try {
+            const event = JSON.parse(line.slice(6)) as {
+              phase?: string;
+              step?: string;
+              error?: string;
+            };
+            if (event.step) setSyncStep(event.step);
+            if (event.phase === "complete") succeeded = true;
+            if (event.phase === "error") errorMessage = event.error ?? "Sync failed";
+          } catch {
+            // ignore parse errors
+          }
+        }
+      }
+
+      if (errorMessage) {
+        toast.error(errorMessage);
+      } else if (succeeded) {
         toast.success("Sync complete");
         await loadAll();
+      } else {
+        toast.error("Sync ended unexpectedly");
       }
     } catch (err) {
       console.error("[insights] sync failed", err);
       toast.error("Sync failed");
     } finally {
       setSyncing(false);
+      setSyncStep("");
     }
   };
 
@@ -381,9 +419,14 @@ function InsightsContent() {
                 {formatNumber(account.snapshot?.follower_count)} followers
               </div>
             </div>
-            <Button onClick={handleSync} loading={syncing} variant="primary">
-              Sync now
-            </Button>
+            <div className="flex flex-col items-end gap-1">
+              <Button onClick={handleSync} loading={syncing} variant="primary">
+                Sync now
+              </Button>
+              {syncing && syncStep ? (
+                <div className="text-xs text-gray-500 dark:text-gray-400">{syncStep}</div>
+              ) : null}
+            </div>
           </div>
         ) : (
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
