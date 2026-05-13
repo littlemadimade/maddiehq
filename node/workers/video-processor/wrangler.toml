@@ -1,0 +1,32 @@
+# Standalone Cloudflare Worker that owns the VideoProcessor Container.
+# Deployed independently of the main maddiehq Worker:
+#
+#   cd node/workers/video-processor
+#   wrangler containers build
+#   wrangler containers push
+#   wrangler deploy
+#
+# The main maddiehq Worker reaches this service via the `VIDEO_PROCESSOR`
+# service binding declared in node/wrangler.toml.
+
+name = "maddiehq-video-processor"
+main = "src/index.ts"
+compatibility_date = "2025-04-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Container Class — declares the image and runtime caps.
+# Class name matches `export class VideoProcessor extends Container` in src/index.ts.
+[[containers]]
+class_name = "VideoProcessor"
+image = "./container/Dockerfile"
+max_instances = 5
+instance_type = "basic"
+
+# Durable Object binding for the Container Class.
+[[durable_objects.bindings]]
+name = "VIDEO_PROCESSOR"
+class_name = "VideoProcessor"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["VideoProcessor"]

@@ -47,6 +47,16 @@ migrations_dir = "migrations"
 binding = "STORAGE"
 bucket_name = "maddiehq-storage"
 
+# ── Video processor (Cloudflare Containers via separate Worker) ────────
+# Lives in node/workers/video-processor and owns the VideoProcessor
+# Container Class (ffmpeg + Whisper + Claude vision). Deployed
+# independently — see that directory's README. The shared secret used to
+# auth the call is stored as the VIDEO_PROCESSOR_SECRET Worker secret on
+# this side and SHARED_SECRET on the video processor side.
+[[services]]
+binding = "VIDEO_PROCESSOR"
+service = "maddiehq-video-processor"
+
 # ── Environment-specific overrides ─────────────────────────────────────
 # Production deploy will use `wrangler deploy --env production` and override
 # the placeholder IDs above. Keeping the top-level entries valid so local
