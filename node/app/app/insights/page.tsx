@@ -3,6 +3,7 @@
 import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -672,6 +673,13 @@ function InsightsContent() {
 export default function InsightsPage() {
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
+      <Link
+        href="/app"
+        className="inline-flex items-center gap-1 mb-4 text-sm text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 transition-colors"
+      >
+        <ArrowLeft className="w-3.5 h-3.5" />
+        Back to dashboard
+      </Link>
       <header className="mb-6">
         <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">Insights</h1>
         <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">

@@ -11,44 +11,44 @@ interface FaqItem {
 
 const faqs: FaqItem[] = [
   {
-    question: "What exactly do I get with MaddieHQ?",
+    question: "What does MaddieHQ actually do?",
     answer:
-      "You get a production-ready Next.js application with authentication (email/password, OAuth, 2FA), SQLite database, Stripe subscription billing, transactional email via Resend, a full component library, dark mode, and deployment configuration — all wired up and ready to customize.",
+      "MaddieHQ pulls your Instagram posts and audience data, runs each post through Claude vision and caption parsing, transcribes your reels (Pro), and then joins it all to your performance data to surface the patterns that actually predict engagement — with strategist-grade explanations you can act on.",
   },
   {
-    question: "Is MaddieHQ a SaaS or a template?",
+    question: "Is my Instagram data safe?",
     answer:
-      "MaddieHQ is a template you own entirely. Clone the repository, customize it, and deploy it anywhere. There are no ongoing fees for the code itself — you only pay for the Pro plan if you want premium features and priority support.",
+      "MaddieHQ connects with read-only OAuth permissions — it can see your posts, audience demographics, and Instagram-provided insights, but it can't post, message, or change anything. Your data is stored per-user in our database and never used to train any model.",
   },
   {
-    question: "What databases are supported?",
+    question: "Which Instagram accounts work?",
     answer:
-      "MaddieHQ ships with SQLite via better-sqlite3 for zero-config local development. The data layer is designed to be swappable — you can migrate to PostgreSQL, MySQL, or any other database when you're ready to scale.",
+      "Instagram Business or Creator accounts connected to a Facebook Page. Personal accounts can't expose the Insights API that powers the reach / saves / shares / demographics data, so they're not supported. Switching to a Creator account is free and takes about a minute in the IG app.",
   },
   {
-    question: "Can I use MaddieHQ for commercial projects?",
+    question: "How is this different from Instagram's own analytics?",
     answer:
-      "Absolutely. MaddieHQ is licensed for both personal and commercial use. Build your startup, client project, or side hustle — there are no restrictions on what you build with it.",
+      "Instagram tells you the numbers. MaddieHQ tells you why. The native dashboard shows reach and impressions in isolation — MaddieHQ cross-references visual style, hook type, caption tone, on-camera energy, and audience demographics to show you the combinations that actually drive saves and shares.",
   },
   {
-    question: "How does authentication work?",
+    question: "What's the difference between Free and Pro?",
     answer:
-      "MaddieHQ uses Better Auth, a modern authentication library. It supports email/password login, Google and GitHub OAuth, two-factor authentication (TOTP), email verification, and password reset flows — all pre-configured and ready to go.",
+      "Free covers image + caption analysis end-to-end, including pattern reports, recommendations, and the pattern deep-dive elaborations. Pro adds reel transcription via OpenAI Whisper, spoken-hook extraction, key-frame visual analysis (5 frames per video sent to Claude as a sequence), unlimited re-runs, and priority support.",
   },
   {
-    question: "Do I need to set up Stripe separately?",
+    question: "How often does it sync?",
     answer:
-      "Yes, you'll need your own Stripe account (free to create). MaddieHQ provides the complete integration — checkout sessions, webhooks, billing portal, and subscription management. Just add your Stripe API keys and price IDs.",
+      "You can sync any time from the dashboard, and the sync runs in the background so you can keep using the app. Insights snapshots are stored historically per day so you can look at trends, not just the current numbers.",
   },
   {
-    question: "How do I deploy MaddieHQ?",
+    question: "Will you support other platforms?",
     answer:
-      "MaddieHQ includes a Dockerfile, docker-compose configuration, and Caddy server config. Push to GitHub, build the Docker image, and deploy to any VPS, cloud provider, or container platform. You can also deploy to Vercel or similar platforms.",
+      "Yes — TikTok and Reddit are on the roadmap. Pro subscribers get early access. We're building MaddieHQ one platform at a time so each integration is actually deep instead of broadly shallow.",
   },
   {
-    question: "Is there a free plan?",
+    question: "Can I cancel any time?",
     answer:
-      "Yes! The free plan gives you access to core features including authentication, database, and basic deployment configuration. Upgrade to Pro for premium components, priority support, and early access to new features.",
+      "Yes. Pro is month-to-month, cancel any time from the billing portal. Your Free plan stays usable, and all your data and past reports remain accessible.",
   },
 ];
 

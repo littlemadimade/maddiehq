@@ -1,17 +1,18 @@
 import Link from "next/link";
 import {
-  Sprout,
-  Shield,
-  Database,
-  Zap,
-  CreditCard,
-  Mail,
-  Palette,
-  Terminal,
+  Sparkles,
+  Eye,
+  Mic,
+  Image as ImageIcon,
+  Users,
+  BarChart3,
+  Brain,
+  Compass,
+  Smartphone,
   ArrowRight,
   Check,
   Star,
-  Github,
+  Instagram,
 } from "lucide-react";
 import { LandingHeader } from "@/components/landing/header";
 import { Faq } from "@/components/landing/faq";
@@ -22,7 +23,7 @@ const WAITLIST_MODE = process.env.NEXT_PUBLIC_WAITLIST_MODE === "true";
 
 /* ---------- JSON-LD Structured Data ---------- */
 
-const siteUrl = process.env.BETTER_AUTH_URL || "https://maddiehq.example.com";
+const siteUrl = process.env.BETTER_AUTH_URL || "https://maddiehq.oqodo.com";
 
 const jsonLd = {
   "@context": "https://schema.org",
@@ -33,7 +34,7 @@ const jsonLd = {
       url: siteUrl,
       logo: `${siteUrl}/icon.png`,
       description:
-        "Production-ready Next.js starter with auth, database, payments, and email.",
+        "AI-powered Instagram analytics for creators — visual analysis, audience demographics, video transcription, and data-backed content recommendations.",
     },
     {
       "@type": "WebSite",
@@ -43,20 +44,20 @@ const jsonLd = {
     {
       "@type": "SoftwareApplication",
       name: "MaddieHQ",
-      applicationCategory: "DeveloperApplication",
+      applicationCategory: "BusinessApplication",
       operatingSystem: "Any",
       offers: [
         {
           "@type": "Offer",
           price: "0",
           priceCurrency: "USD",
-          description: "Free plan with core features",
+          description: "Free plan — connect Instagram and run analyses",
         },
         {
           "@type": "Offer",
-          price: "49",
+          price: "29",
           priceCurrency: "USD",
-          description: "Pro plan with premium features",
+          description: "Pro plan — video transcription and unlimited analyses",
         },
       ],
     },
@@ -67,73 +68,73 @@ const jsonLd = {
 
 const features = [
   {
-    icon: Shield,
-    title: "Authentication",
+    icon: Eye,
+    title: "Visual analysis",
     description:
-      "Email/password, Google & GitHub OAuth, two-factor auth, email verification, and password reset — all pre-built.",
+      "Every post is graded for setting, lighting, face visibility, on-image text, and visual style — so you can see what your camera is actually doing.",
   },
   {
-    icon: Database,
-    title: "Database Ready",
+    icon: Brain,
+    title: "Caption parsing",
     description:
-      "SQLite via better-sqlite3 for instant local dev. Migration scripts included. Swap to Postgres when you scale.",
+      "Hook type, CTA presence, tone, emoji and hashtag density — Maddie HQ reads every caption and tells you what's converting and what isn't.",
   },
   {
-    icon: CreditCard,
-    title: "Stripe Payments",
+    icon: Mic,
+    title: "Video transcription",
     description:
-      "Checkout sessions, webhooks, billing portal, and subscription management wired up end-to-end.",
+      "Reels and stories are transcribed end-to-end, with the spoken hook extracted from the first 15 words so you can A/B test openers.",
   },
   {
-    icon: Mail,
-    title: "Transactional Email",
+    icon: ImageIcon,
+    title: "Key-frame analysis",
     description:
-      "Resend integration for verification emails, password resets, and any transactional messages you need.",
+      "Five frames per reel are pulled and sent to Claude vision as a sequence — appearance, location, energy, scene changes, and visual narrative.",
   },
   {
-    icon: Palette,
-    title: "Component Library",
+    icon: Compass,
+    title: "Pattern detection",
     description:
-      "Buttons, modals, cards, tables, badges, alerts, tabs — a complete dark-mode-ready UI kit.",
+      "Cross-references visual + caption + engagement signals to find the non-obvious patterns Instagram's analytics will never show you.",
   },
   {
-    icon: Terminal,
-    title: "Developer Experience",
+    icon: BarChart3,
+    title: "Per-post insights",
     description:
-      "TypeScript, Tailwind CSS v4, ESLint, Vitest, Playwright, and Turbopack — modern tooling out of the box.",
+      "Reach, impressions, saves, shares, likes, and comments for every post — pulled directly from the Instagram Graph API and stored historically.",
   },
   {
-    icon: Zap,
-    title: "Deploy Anywhere",
+    icon: Users,
+    title: "Audience demographics",
     description:
-      "Dockerfile, docker-compose, and Caddy config included. Push, build, and go live in minutes.",
+      "Age × gender, top countries, and top cities — refreshed on every sync so you know who's actually watching.",
   },
   {
-    icon: Sprout,
-    title: "Open & Extensible",
+    icon: Sparkles,
+    title: "Pattern deep-dives",
     description:
-      "No vendor lock-in. You own the code. Extend, customize, or rip out whatever you don't need.",
+      "Click any pattern for a strategist-grade explanation: why it exists, what posts illustrate it, a concrete content playbook, and what to watch out for.",
   },
 ];
 
 const steps = [
   {
     step: "01",
-    title: "Clone & Configure",
+    title: "Connect Instagram",
     description:
-      "Clone the repo, add your environment variables, and run the dev server. You're up in under 2 minutes.",
+      "One-tap OAuth — MaddieHQ pulls your posts, audience demographics, and per-post insights with read-only permissions.",
   },
   {
     step: "02",
-    title: "Customize & Build",
+    title: "Sync your data",
     description:
-      "Swap in your brand, add your features, and build on top of the pre-configured auth, database, and payments.",
+      "Backfill happens automatically. Re-sync any time to pull the latest posts and insight snapshots.",
   },
   {
     step: "03",
-    title: "Deploy & Launch",
+    title: "Run AI analysis",
     description:
-      "Push to GitHub, build the Docker image, and deploy to any cloud. Your app is live and ready for users.",
+      "Click Run analysis on the insights page. Claude reads every image, transcribes every reel, and returns a playbook tailored to your data.",
   },
 ];
 
@@ -142,17 +143,16 @@ const pricingPlans = [
     name: "Free",
     price: "$0",
     period: "forever",
-    description: "Everything you need to start building.",
+    description: "Everything you need to understand your account.",
     badge: null as string | null,
     features: [
-      "Authentication (email, OAuth, 2FA)",
-      "SQLite database with migrations",
-      "Stripe payment integration",
-      "Transactional email (Resend)",
-      "Component library",
-      "Dark mode support",
-      "Docker deployment config",
-      "Community support",
+      "Connect one Instagram account",
+      "Per-post insights (reach, saves, shares, likes, comments)",
+      "Audience demographics",
+      "AI visual + caption analysis",
+      "Pattern reports + recommendations",
+      "Pattern deep-dive elaborations",
+      "Mobile-friendly dashboard",
     ],
     cta: "Get Started Free",
     href: "/auth?tab=signup",
@@ -160,21 +160,20 @@ const pricingPlans = [
   },
   {
     name: "Pro",
-    price: "$49",
-    period: "one-time",
-    description: "All Pro features, forever. One payment, lifetime access.",
-    badge: "LIFETIME DEAL",
+    price: "$29",
+    period: "month",
+    description: "Add video — transcripts, key frames, and unlimited analyses.",
+    badge: "CREATOR PLAN",
     features: [
       "Everything in Free, plus:",
-      "Premium UI components",
-      "Advanced analytics dashboard",
-      "Priority email support",
-      "Early access to new features",
-      "Blog & changelog with MDX",
-      "SEO infrastructure",
-      "Lifetime updates — no subscription",
+      "Reel transcription (OpenAI Whisper)",
+      "Spoken-hook extraction",
+      "Key-frame visual analysis (5 frames per video)",
+      "Unlimited re-runs",
+      "Priority support",
+      "Early access to new platforms (TikTok, Reddit)",
     ],
-    cta: "Get Lifetime Access",
+    cta: "Upgrade to Pro",
     href: "/auth?tab=signup",
     highlighted: true,
   },
@@ -183,24 +182,24 @@ const pricingPlans = [
 const testimonials = [
   {
     quote:
-      "MaddieHQ saved me weeks of boilerplate setup. I had auth, payments, and email working in an afternoon.",
-    author: "Sarah Chen",
-    role: "Indie Developer",
-    avatar: "SC",
+      "I've been guessing at what my audience wants for two years. MaddieHQ told me in one report — the patterns were obvious once it laid them out.",
+    author: "Jordan R.",
+    role: "Lifestyle creator · 180K followers",
+    avatar: "JR",
   },
   {
     quote:
-      "The code quality is excellent. It's exactly how I would structure a project, just already done for me.",
-    author: "Marcus Johnson",
-    role: "Senior Engineer at Startup",
-    avatar: "MJ",
+      "The video transcription alone is worth it. Seeing my spoken hooks side-by-side with the reels that actually performed changed how I open every reel now.",
+    author: "Tasha L.",
+    role: "Beauty creator · 420K followers",
+    avatar: "TL",
   },
   {
     quote:
-      "I've tried a dozen Next.js starters. MaddieHQ is the first one that actually felt production-ready out of the box.",
-    author: "Priya Patel",
-    role: "Freelance Developer",
-    avatar: "PP",
+      "Pattern deep-dives feel like having a strategist on retainer. It doesn't just say 'post more reels' — it tells me exactly what kind, when, and why.",
+    author: "Maya P.",
+    role: "Fitness creator · 95K followers",
+    avatar: "MP",
   },
 ];
 
@@ -209,37 +208,30 @@ const testimonials = [
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950 scroll-smooth">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      <JsonLd data={jsonLd} />
       <LandingHeader />
 
       {/* ───── Hero ───── */}
       <section className="relative pt-32 pb-20 sm:pt-40 sm:pb-28 overflow-hidden">
-        {/* Background gradient */}
         <div className="absolute inset-0 bg-gradient-to-b from-primary/50 via-white to-white /20 dark:via-gray-950 dark:to-gray-950" />
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-primary/10 rounded-full blur-3xl" />
 
         <div className="relative max-w-4xl mx-auto px-4 sm:px-6 text-center">
-          {/* Badge */}
           <div className="inline-flex items-center gap-2 bg-accent border border-accent text-accent-foreground text-xs font-medium px-3 py-1.5 rounded-full mb-8">
-            <Sprout className="w-3.5 h-3.5" />
-            The Next.js starter for builders
+            <Sparkles className="w-3.5 h-3.5" />
+            AI insights for Instagram creators
           </div>
 
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-gray-900 dark:text-gray-50 tracking-tight leading-[1.1] mb-6">
-            Ship your next idea
+            Stop guessing what your
             <br />
-            <span className="text-primary">
-              in days, not months.
-            </span>
+            <span className="text-primary">audience wants.</span>
           </h1>
 
           <p className="text-lg sm:text-xl text-gray-500 dark:text-gray-400 max-w-2xl mx-auto mb-10 leading-relaxed">
-            MaddieHQ is a production-ready Next.js starter with auth, database,
-            payments, and email already wired up. Stop rebuilding the same
-            infrastructure — start building your product.
+            MaddieHQ reads every post, transcribes every reel, and tells you the
+            non-obvious patterns driving your engagement — with a strategist-grade
+            explanation for each one.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
@@ -262,17 +254,13 @@ export default function HomePage() {
               </a>
             )}
             <a
-              href="https://github.com"
-              target="_blank"
-              rel="noopener noreferrer"
+              href="#features"
               className="inline-flex items-center gap-2 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 px-7 py-3.5 rounded-xl font-semibold hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors text-base"
             >
-              <Github className="w-4 h-4" />
-              View on GitHub
+              See what&apos;s analyzed
             </a>
           </div>
 
-          {/* Social proof */}
           <div className="mt-14 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 text-sm text-gray-400 dark:text-gray-500">
             <div className="flex items-center gap-1">
               {[...Array(5)].map((_, i) => (
@@ -281,10 +269,10 @@ export default function HomePage() {
                   className="w-4 h-4 fill-amber-400 text-amber-400"
                 />
               ))}
-              <span className="ml-1.5">5.0 from 200+ developers</span>
+              <span className="ml-1.5">Built by creators, for creators</span>
             </div>
             <span className="hidden sm:block">·</span>
-            <span>Used by 1,000+ projects worldwide</span>
+            <span>Powered by Claude vision &amp; OpenAI Whisper</span>
           </div>
         </div>
       </section>
@@ -294,11 +282,12 @@ export default function HomePage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-gray-50 tracking-tight">
-              Everything you need to launch
+              Every signal Instagram won&apos;t show you
             </h2>
             <p className="mt-4 text-lg text-gray-500 dark:text-gray-400 max-w-2xl mx-auto">
-              Stop wiring up auth, payments, and infrastructure from scratch.
-              MaddieHQ gives you a head start with production-ready features.
+              MaddieHQ joins your post performance to AI analysis of every image,
+              caption, and reel — then surfaces the patterns that actually predict
+              engagement.
             </p>
           </div>
 
@@ -331,17 +320,16 @@ export default function HomePage() {
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-gray-50 tracking-tight">
-              Up and running in 3 steps
+              From connect to insights in 3 steps
             </h2>
             <p className="mt-4 text-lg text-gray-500 dark:text-gray-400 max-w-xl mx-auto">
-              From clone to production in minutes, not weeks.
+              No setup. No CSV exports. No prompt engineering. Just sign in and run.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
             {steps.map((s, i) => (
               <div key={s.step} className="relative text-center md:text-left">
-                {/* Connector line (desktop only) */}
                 {i < steps.length - 1 && (
                   <div className="hidden md:block absolute top-8 left-[calc(50%+40px)] w-[calc(100%-40px)] h-px bg-gradient-to-r from-primary to-transparent" />
                 )}
@@ -367,10 +355,11 @@ export default function HomePage() {
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-gray-50 tracking-tight">
-              Simple, transparent pricing
+              Simple, creator-friendly pricing
             </h2>
             <p className="mt-4 text-lg text-gray-500 dark:text-gray-400 max-w-xl mx-auto">
-              Start free, upgrade when you need premium features.
+              Start free with image + caption analysis. Upgrade when you want to
+              decode your reels.
             </p>
           </div>
 
@@ -474,10 +463,10 @@ export default function HomePage() {
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-gray-50 tracking-tight">
-              Loved by developers
+              Trusted by creators who care about the data
             </h2>
             <p className="mt-4 text-lg text-gray-500 dark:text-gray-400">
-              Hear from the builders shipping with MaddieHQ.
+              What creators say after their first MaddieHQ report.
             </p>
           </div>
 
@@ -545,13 +534,13 @@ export default function HomePage() {
       {/* ───── CTA Footer ───── */}
       <section className="py-20 sm:py-28 bg-gradient-to-br from-primary to-primary ">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
-          <Sprout className="w-10 h-10 text-accent-foreground mx-auto mb-6" />
+          <Sparkles className="w-10 h-10 text-accent-foreground mx-auto mb-6" />
           <h2 className="text-3xl sm:text-4xl font-bold text-white tracking-tight mb-4">
-            Ready to build something great?
+            Ready to know your audience?
           </h2>
           <p className="text-lg text-accent-foreground mb-8 max-w-lg mx-auto">
-            Join thousands of developers shipping faster with MaddieHQ. Your next
-            idea is just a clone away.
+            Connect Instagram, run your first analysis, and read the patterns in
+            under five minutes.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
             {WAITLIST_MODE ? (
@@ -581,13 +570,14 @@ export default function HomePage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             <div className="col-span-2 md:col-span-1">
               <div className="flex items-center gap-2 mb-4">
-                <Sprout className="w-5 h-5 text-primary" />
+                <Sparkles className="w-5 h-5 text-primary" />
                 <span className="font-bold text-gray-900 dark:text-gray-100">
                   MaddieHQ
                 </span>
               </div>
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                The production-ready Next.js starter for modern web apps.
+                AI-powered Instagram analytics — visual analysis, audience
+                demographics, and creator-grade content recommendations.
               </p>
             </div>
 
@@ -644,12 +634,13 @@ export default function HomePage() {
               <ul className="space-y-2 text-sm text-gray-500 dark:text-gray-400">
                 <li>
                   <a
-                    href="https://github.com"
+                    href="https://instagram.com"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="hover:text-gray-900 dark:hover:text-gray-200 transition-colors"
+                    className="inline-flex items-center gap-1.5 hover:text-gray-900 dark:hover:text-gray-200 transition-colors"
                   >
-                    GitHub
+                    <Instagram className="w-3.5 h-3.5" />
+                    Instagram
                   </a>
                 </li>
                 <li>
@@ -662,6 +653,14 @@ export default function HomePage() {
                     Twitter
                   </a>
                 </li>
+                <li>
+                  <a
+                    href="mailto:hello@maddiehq.com"
+                    className="hover:text-gray-900 dark:hover:text-gray-200 transition-colors"
+                  >
+                    Email
+                  </a>
+                </li>
               </ul>
             </div>
           </div>
@@ -671,11 +670,23 @@ export default function HomePage() {
               &copy; {new Date().getFullYear()} MaddieHQ. All rights reserved.
             </p>
             <p className="text-xs text-gray-400 dark:text-gray-500">
-              Built with Next.js, Tailwind CSS, and a lot of coffee.
+              <Smartphone className="inline w-3 h-3 mr-1" />
+              Built mobile-first for the way creators actually work.
             </p>
           </div>
         </div>
       </footer>
     </div>
   );
+}
+
+function JsonLd({ data }: { data: object }) {
+  const json = JSON.stringify(data);
+  const props: React.ScriptHTMLAttributes<HTMLScriptElement> & {
+    [key: string]: unknown;
+  } = { type: "application/ld+json" };
+  // JSON-LD requires server-rendered raw JSON in the script body.
+  // The data is a static literal serialized via JSON.stringify (no untrusted input).
+  props["dangerouslySetInnerHTML"] = { __html: json };
+  return <script {...props} />;
 }
