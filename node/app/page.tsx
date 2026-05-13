@@ -257,7 +257,7 @@ export default function HomePage() {
               href="#features"
               className="inline-flex items-center gap-2 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 px-7 py-3.5 rounded-xl font-semibold hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors text-base"
             >
-              See what's analyzed
+              See what&apos;s analyzed
             </a>
           </div>
 
@@ -282,7 +282,7 @@ export default function HomePage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-gray-50 tracking-tight">
-              Every signal Instagram won't show you
+              Every signal Instagram won&apos;t show you
             </h2>
             <p className="mt-4 text-lg text-gray-500 dark:text-gray-400 max-w-2xl mx-auto">
               MaddieHQ joins your post performance to AI analysis of every image,
